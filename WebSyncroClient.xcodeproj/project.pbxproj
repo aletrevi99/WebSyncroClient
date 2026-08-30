@@ -10,7 +10,9 @@
 		033C593580843F5040D4AF32 /* EditInventorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2E28CC16B4154B5BDB9C2 /* EditInventorySheet.swift */; };
 		054573BC4B707EB6CAA5E8E2 /* QRCodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */; };
 		07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80206B2CE06C1298F40122E3 /* MetricStatCard.swift */; };
+		095C472ED39D5EBB0A9F63E6 /* WebSyncroWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8372D83EE975000C3481159A /* WebSyncroWidgetViews.swift */; };
 		09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */; };
+		0ECEDB96789410C6A95D9AF1 /* WebSyncroWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A707CDEC46492370830BDED6 /* WebSyncroWidgets.swift */; };
 		135CB0767DE6714C71AEF49E /* NewsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEDF78623E6628EB6A857F2 /* NewsListView.swift */; };
 		1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */; };
 		170428F6149BE8150FD9AA05 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E92294B9CB3C28E1F2A329C /* MainTabView.swift */; };
@@ -20,16 +22,19 @@
 		230CCFEDA3787E82C184FEC0 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BB19835A8BA7BC984B023D /* InventoryListView.swift */; };
 		25C1308F730217772501FFAE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070E6E59DAB1D9001F1BF4C0 /* AppState.swift */; };
 		26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */; };
+		26EA438A7F51B997F0FF7920 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B81E7EABD71710B023C7F16 /* WidgetDataProvider.swift */; };
 		29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */; };
 		2C44DE11F2D2E80F752424DD /* LiquidGlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71725CBB90E6EACC1E2D1ECC /* LiquidGlassCard.swift */; };
 		35B478839838EFC58C2F2F67 /* AccountManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */; };
 		361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */; };
 		43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */; };
+		43EC3E395FF4DCCF34C8750E /* WidgetsGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BC2238BCD64EAB8F9A4F4B /* WidgetsGalleryView.swift */; };
 		45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */; };
 		49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */; };
 		53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */; };
 		547C946B0FB350C6B9A2EB02 /* InventoryDeduplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9C7C708574F6C6E6C20E9 /* InventoryDeduplicationTests.swift */; };
 		5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126A4E2980960209C9F3142 /* Color+Brand.swift */; };
+		5E7529E099CF9F02F0F08206 /* WidgetDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B81E7EABD71710B023C7F16 /* WidgetDataProvider.swift */; };
 		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
 		67077CE86AFF1E590AA889B0 /* AppFilesBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A36D91CB207626BB3854C8 /* AppFilesBrowserView.swift */; };
 		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
@@ -42,6 +47,7 @@
 		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
 		840DE55BA1179C0FAB3F3114 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */; };
 		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
+		86A8F4441B77DA3A194B76ED /* WebSyncroWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8372D83EE975000C3481159A /* WebSyncroWidgetViews.swift */; };
 		897609A93F89F70E7CA78605 /* BatchesManagerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */; };
 		8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */; };
 		8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */; };
@@ -49,9 +55,11 @@
 		967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */; };
 		97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */; };
 		9813311B39F78ED3675275E1 /* UserCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0070C7253DA49F575220BB /* UserCardView.swift */; };
+		A3E7B55B4427744E951076F9 /* Color+Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126A4E2980960209C9F3142 /* Color+Brand.swift */; };
 		A44ACD7FF7D1B0131F6B1C07 /* AppSettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */; };
 		AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFB02ED7971605E2178171 /* DateExtensions.swift */; };
 		B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D528026838E617059B33E3AC /* QRCodeParserTests.swift */; };
+		BD691C919C865E8D93ADA1CD /* WebSyncroWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AD618F326076EA2BF921288C /* WebSyncroWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC221438A985A902E8B43FBD /* UserAccount.swift */; };
 		C47366A7A503B94F7B9D36FA /* InventoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */; };
 		C659E65E0F1A3D911E98B592 /* ScanInventoryReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */; };
@@ -71,11 +79,19 @@
 		F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */; };
 		F433990FA167F40786399D77 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */; };
 		F7FBEFD871AD09DEC32F5F83 /* VisionLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 336568C7A6FCFF8F2A7DCE87 /* VisionLLMService.swift */; };
+		F8D7F11C08AABD29F26949FB /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
 		FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */; };
 		FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		AADC1F854A81D066ABC6DADD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41679E23ACBC636D7F3E06BA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4497EC9240A3CB5C6C8B1954;
+			remoteInfo = WebSyncroWidgets;
+		};
 		CE776A3A6114037AA1B553ED /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 41679E23ACBC636D7F3E06BA /* Project object */;
@@ -84,6 +100,20 @@
 			remoteInfo = WebSyncroClient;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DCA5F70D2EB45EC579325F16 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BD691C919C865E8D93ADA1CD /* WebSyncroWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStoreTests.swift; sourceTree = "<group>"; };
@@ -109,6 +139,7 @@
 		498D0A2DFB469089585D591F /* InventoryOCRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryOCRParser.swift; sourceTree = "<group>"; };
 		49A36D91CB207626BB3854C8 /* AppFilesBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFilesBrowserView.swift; sourceTree = "<group>"; };
 		4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParserTests.swift; sourceTree = "<group>"; };
+		51BC2238BCD64EAB8F9A4F4B /* WidgetsGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetsGalleryView.swift; sourceTree = "<group>"; };
 		5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroService.swift; sourceTree = "<group>"; };
 		62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceProtocol.swift; sourceTree = "<group>"; };
@@ -120,7 +151,9 @@
 		7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
 		80206B2CE06C1298F40122E3 /* MetricStatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricStatCard.swift; sourceTree = "<group>"; };
+		8372D83EE975000C3481159A /* WebSyncroWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroWidgetViews.swift; sourceTree = "<group>"; };
 		865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8B81E7EABD71710B023C7F16 /* WidgetDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataProvider.swift; sourceTree = "<group>"; };
 		8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSwitcherMenu.swift; sourceTree = "<group>"; };
 		8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WebSyncroClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
@@ -128,9 +161,11 @@
 		9F4135147449377E5A6FE7A8 /* AppSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStore.swift; sourceTree = "<group>"; };
 		A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScanner.swift; sourceTree = "<group>"; };
 		A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
+		A707CDEC46492370830BDED6 /* WebSyncroWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroWidgets.swift; sourceTree = "<group>"; };
 		A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WebSyncroClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC221438A985A902E8B43FBD /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
+		AD618F326076EA2BF921288C /* WebSyncroWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = WebSyncroWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfo.swift; sourceTree = "<group>"; };
 		B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		BA0070C7253DA49F575220BB /* UserCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardView.swift; sourceTree = "<group>"; };
@@ -255,6 +290,7 @@
 			children = (
 				31D0B22A4F9753BED819BDB3 /* WebSyncroClient */,
 				16714B15187A264BC7EE721D /* WebSyncroClientTests */,
+				E3773BEB326FBB4CA33AC358 /* WebSyncroWidgets */,
 				B1E977F0095C46ABE8E4AAE2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -279,6 +315,7 @@
 				D64A5EB9D8B3567315C28050 /* ModernAVCameraView.swift */,
 				A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */,
 				3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */,
+				8B81E7EABD71710B023C7F16 /* WidgetDataProvider.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -296,6 +333,7 @@
 				AB35765E3B75C78AF4BBD5D4 /* News */,
 				B53CB8540AE2929CFC75C009 /* Settings */,
 				974C7B5B4001437B1AB69C8D /* ShopInfo */,
+				FA9F6897B9FF1BCD30EBF29D /* Widgets */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -340,6 +378,7 @@
 			children = (
 				8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */,
 				AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */,
+				AD618F326076EA2BF921288C /* WebSyncroWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -359,6 +398,15 @@
 				865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		E3773BEB326FBB4CA33AC358 /* WebSyncroWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				A707CDEC46492370830BDED6 /* WebSyncroWidgets.swift */,
+			);
+			name = WebSyncroWidgets;
+			path = Sources/WebSyncroWidgets;
 			sourceTree = "<group>";
 		};
 		E4351689D742CCBF37156826 /* Services */ = {
@@ -384,6 +432,15 @@
 			path = Accounts;
 			sourceTree = "<group>";
 		};
+		FA9F6897B9FF1BCD30EBF29D /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				8372D83EE975000C3481159A /* WebSyncroWidgetViews.swift */,
+				51BC2238BCD64EAB8F9A4F4B /* WidgetsGalleryView.swift */,
+			);
+			path = Widgets;
+			sourceTree = "<group>";
+		};
 		FB175AD118BE87AC8AE6533C /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -396,6 +453,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4497EC9240A3CB5C6C8B1954 /* WebSyncroWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 786C661590E806214A8AB1B0 /* Build configuration list for PBXNativeTarget "WebSyncroWidgets" */;
+			buildPhases = (
+				22E94550BED8FC93C30FD858 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WebSyncroWidgets;
+			packageProductDependencies = (
+			);
+			productName = WebSyncroWidgets;
+			productReference = AD618F326076EA2BF921288C /* WebSyncroWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		8989C3E774F4FD6E62162941 /* WebSyncroClientTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E17F623C5C11901188B6A4BE /* Build configuration list for PBXNativeTarget "WebSyncroClientTests" */;
@@ -420,10 +494,12 @@
 			buildPhases = (
 				407AF01084349DA424854972 /* Sources */,
 				DB14129F3B2956FC90176B89 /* Resources */,
+				DCA5F70D2EB45EC579325F16 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9F2842B824DD4099BA95312B /* PBXTargetDependency */,
 			);
 			name = WebSyncroClient;
 			packageProductDependencies = (
@@ -441,6 +517,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
+					4497EC9240A3CB5C6C8B1954 = {
+						DevelopmentTeam = "";
+					};
 					8989C3E774F4FD6E62162941 = {
 						DevelopmentTeam = "";
 					};
@@ -464,6 +543,7 @@
 			projectRoot = "";
 			targets = (
 				F9EE656A0EA39BAB0F49B003 /* WebSyncroClient */,
+				4497EC9240A3CB5C6C8B1954 /* WebSyncroWidgets */,
 				8989C3E774F4FD6E62162941 /* WebSyncroClientTests */,
 			);
 		};
@@ -481,6 +561,18 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		22E94550BED8FC93C30FD858 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3E7B55B4427744E951076F9 /* Color+Brand.swift in Sources */,
+				F8D7F11C08AABD29F26949FB /* CurrencyFormatter.swift in Sources */,
+				095C472ED39D5EBB0A9F63E6 /* WebSyncroWidgetViews.swift in Sources */,
+				0ECEDB96789410C6A95D9AF1 /* WebSyncroWidgets.swift in Sources */,
+				5E7529E099CF9F02F0F08206 /* WidgetDataProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		407AF01084349DA424854972 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -540,6 +632,9 @@
 				83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */,
 				29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */,
 				1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */,
+				86A8F4441B77DA3A194B76ED /* WebSyncroWidgetViews.swift in Sources */,
+				26EA438A7F51B997F0FF7920 /* WidgetDataProvider.swift in Sources */,
+				43EC3E395FF4DCCF34C8750E /* WidgetsGalleryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,9 +663,34 @@
 			target = F9EE656A0EA39BAB0F49B003 /* WebSyncroClient */;
 			targetProxy = CE776A3A6114037AA1B553ED /* PBXContainerItemProxy */;
 		};
+		9F2842B824DD4099BA95312B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4497EC9240A3CB5C6C8B1954 /* WebSyncroWidgets */;
+			targetProxy = AADC1F854A81D066ABC6DADD /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		456422B9C5AD690CF9216D16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "WebSyncro Widgets";
+				INFOPLIST_KEY_NSExtension = "[\"NSExtensionPointIdentifier\": \"com.apple.widgetkit-extension\"]";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.client.widgets;
+				PRODUCT_NAME = WebSyncroWidgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		6CAEB858B937C5DBD33C53A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -786,6 +906,26 @@
 			};
 			name = Release;
 		};
+		FE47A379AABC238EFCEA2D0B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "WebSyncro Widgets";
+				INFOPLIST_KEY_NSExtension = "[\"NSExtensionPointIdentifier\": \"com.apple.widgetkit-extension\"]";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.client.widgets;
+				PRODUCT_NAME = WebSyncroWidgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -803,6 +943,15 @@
 			buildConfigurations = (
 				8FEE53F6EE2C970849AFD8EC /* Debug */,
 				CE7491C6297C50B7551E4669 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		786C661590E806214A8AB1B0 /* Build configuration list for PBXNativeTarget "WebSyncroWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				456422B9C5AD690CF9216D16 /* Debug */,
+				FE47A379AABC238EFCEA2D0B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

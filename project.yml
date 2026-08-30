@@ -32,6 +32,9 @@ targets:
     platform: iOS
     sources:
       - path: Sources/WebSyncroClient
+    dependencies:
+      - target: WebSyncroWidgets
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: it.websyncro.client
@@ -39,6 +42,26 @@ targets:
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
+
+  WebSyncroWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/WebSyncroWidgets
+      - path: Sources/WebSyncroClient/Utilities/WidgetDataProvider.swift
+      - path: Sources/WebSyncroClient/Utilities/CurrencyFormatter.swift
+      - path: Sources/WebSyncroClient/Views/Components/Color+Brand.swift
+      - path: Sources/WebSyncroClient/Views/Widgets/WebSyncroWidgetViews.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: it.websyncro.client.widgets
+        PRODUCT_NAME: WebSyncroWidgets
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_CFBundleDisplayName: "WebSyncro Widgets"
+        INFOPLIST_KEY_NSExtension:
+          NSExtensionPointIdentifier: "com.apple.widgetkit-extension"
 
   WebSyncroClientTests:
     type: bundle.unit-test

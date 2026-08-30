@@ -361,3 +361,4 @@ public struct EditInventorySheet: View {
         inventoryStore.addManualItem(item, shopId: activeShopId, userCardCode: activeUserCardCode)
     }
 }
+

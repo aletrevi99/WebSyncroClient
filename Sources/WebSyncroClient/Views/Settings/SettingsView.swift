@@ -19,6 +19,7 @@ public struct SettingsView: View {
     @State private var showingResetAlert = false
     @State private var showingFileBrowser = false
     @State private var showingBatchesManager = false
+    @State private var showingWidgetsGallery = false
 
     @State private var isCustomModelSelected: Bool = false
     @State private var customModelText: String = ""
@@ -312,6 +313,24 @@ public struct SettingsView: View {
                                             .foregroundColor(.secondary)
                                     }
                                 }
+                                Divider()
+
+                                Button(action: {
+                                    showingWidgetsGallery = true
+                                }) {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "widget.small")
+                                            .foregroundColor(.purple)
+                                        Text("Galleria & Anteprima Widget iOS")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
@@ -506,6 +525,9 @@ public struct SettingsView: View {
             }
             .sheet(isPresented: $showingBatchesManager) {
                 BatchesManagerSheet()
+            }
+            .sheet(isPresented: $showingWidgetsGallery) {
+                WidgetsGalleryView()
             }
             .onAppear {
                 let allPresets = (recommendedModels + overkillModels).map { $0.0 }
