@@ -48,3 +48,4 @@ public struct MainTabView: View {
         .tint(Color.accentColor)
     }
 }
+

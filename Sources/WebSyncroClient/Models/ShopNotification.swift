@@ -30,3 +30,4 @@ public struct ShopNotification: Identifiable, Hashable, Sendable, Codable {
         return dateString.isEmpty ? "Data non disponibile" : dateString
     }
 }
+
