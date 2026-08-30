@@ -235,3 +235,4 @@ public struct AppFilesBrowserView: View {
         return formatter.string(from: date)
     }
 }
+

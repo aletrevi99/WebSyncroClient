@@ -248,3 +248,4 @@ public struct BatchDetailSheet: View {
         }
     }
 }
+
