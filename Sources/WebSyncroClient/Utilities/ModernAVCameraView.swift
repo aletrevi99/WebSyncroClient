@@ -188,13 +188,6 @@ final class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDe
 
             if self.session.canAddOutput(self.photoOutput) {
                 self.session.addOutput(self.photoOutput)
-                if #available(iOS 16.0, *) {
-                    if let maxDim = self.photoOutput.supportedMaxPhotoDimensions.last {
-                        self.photoOutput.maxPhotoDimensions = maxDim
-                    }
-                } else {
-                    self.photoOutput.isHighResolutionCaptureEnabled = true
-                }
             }
 
             self.session.commitConfiguration()
@@ -216,13 +209,6 @@ final class CameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDe
             let settings = AVCapturePhotoSettings()
             if self.photoOutput.supportedFlashModes.contains(flashMode) {
                 settings.flashMode = flashMode
-            }
-            if #available(iOS 16.0, *) {
-                if let maxDim = self.photoOutput.supportedMaxPhotoDimensions.last {
-                    settings.maxPhotoDimensions = maxDim
-                }
-            } else {
-                settings.isHighResolutionPhotoEnabled = true
             }
 
             self.photoOutput.capturePhoto(with: settings, delegate: self)
