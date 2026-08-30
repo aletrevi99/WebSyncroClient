@@ -118,3 +118,4 @@ struct WebSyncroWidgetBundle: WidgetBundle {
     }
 }
 #endif
+

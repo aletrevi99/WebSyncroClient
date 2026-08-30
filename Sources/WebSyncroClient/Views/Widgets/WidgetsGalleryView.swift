@@ -219,3 +219,4 @@ public struct WidgetsGalleryView: View {
         self.snapshot = WidgetDataProvider.loadSnapshot()
     }
 }
+

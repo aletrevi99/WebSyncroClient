@@ -355,3 +355,4 @@ private var widgetBackgroundGradient: some View {
             .offset(x: -50, y: 50)
     }
 }
+

@@ -139,3 +139,4 @@ public enum WidgetDataProvider {
         return WebSyncroWidgetSnapshot()
     }
 }
+
