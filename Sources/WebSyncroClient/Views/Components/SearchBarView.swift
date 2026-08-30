@@ -1,18 +1,13 @@
 import SwiftUI
 
-/// Barra di ricerca in Liquid Glass nativo stock con .ultraThinMaterial
+/// Barra di ricerca con materiale di sistema Apple (.ultraThinMaterial)
 public struct SearchBarView: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Binding var text: String
     var placeholder: String = "Cerca per descrizione o ID..."
 
     public init(text: Binding<String>, placeholder: String = "Cerca per descrizione o ID...") {
         self._text = text
         self.placeholder = placeholder
-    }
-
-    private var isDark: Bool {
-        colorScheme == .dark
     }
 
     public var body: some View {
@@ -38,13 +33,6 @@ public struct SearchBarView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(
-                    isDark ? Color.white.opacity(0.18) : Color.white.opacity(0.40),
-                    lineWidth: 0.8
-                )
-        )
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }

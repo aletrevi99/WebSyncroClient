@@ -3,109 +3,22 @@ import SwiftUI
 import WidgetKit
 #endif
 
-// MARK: - Sfondo Comune Widget con Liquid Glass Adattivo (Light / Dark)
+// MARK: - Sfondo Comune Widget Nativo
 public struct WidgetGlassBackgroundView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     public init() {}
 
-    private var isDark: Bool {
-        colorScheme == .dark
-    }
-
-    private var baseColor: Color {
-        if isDark {
-            return Color(red: 0.08, green: 0.09, blue: 0.12)
-        } else {
-            return Color(red: 0.95, green: 0.96, blue: 0.98)
-        }
-    }
-
-    private var orangeGradientColors: [Color] {
-        if isDark {
-            return [Color.brandOrange.opacity(0.32), Color.brandOrange.opacity(0.10), Color.clear]
-        } else {
-            return [Color.brandOrange.opacity(0.20), Color.brandOrange.opacity(0.05), Color.clear]
-        }
-    }
-
-    private var blueGradientColors: [Color] {
-        if isDark {
-            return [Color.blue.opacity(0.24), Color.indigo.opacity(0.08), Color.clear]
-        } else {
-            return [Color.blue.opacity(0.14), Color.indigo.opacity(0.04), Color.clear]
-        }
-    }
-
-    private var borderGradientColors: [Color] {
-        if isDark {
-            return [
-                Color.white.opacity(0.25),
-                Color.white.opacity(0.05),
-                Color.brandOrange.opacity(0.18),
-                Color.white.opacity(0.10)
-            ]
-        } else {
-            return [
-                Color.white.opacity(0.90),
-                Color.white.opacity(0.35),
-                Color.brandOrange.opacity(0.20),
-                Color.white.opacity(0.60)
-            ]
-        }
-    }
-
     public var body: some View {
-        ZStack {
-            baseColor
-
-            // Sfera luminosa superiore Arancio Brand
-            Circle()
-                .fill(RadialGradient(colors: orangeGradientColors, center: .center, startRadius: 10, endRadius: 130))
-                .frame(width: 240, height: 240)
-                .offset(x: -50, y: -70)
-                .blur(radius: 28)
-
-            // Sfera luminosa inferiore Zaffiro / Indaco
-            Circle()
-                .fill(RadialGradient(colors: blueGradientColors, center: .center, startRadius: 15, endRadius: 140))
-                .frame(width: 260, height: 260)
-                .offset(x: 70, y: 70)
-                .blur(radius: 32)
-
-            // Finitura satinata Ultra-Thin Material
-            Rectangle()
-                .fill(.ultraThinMaterial.opacity(isDark ? 0.45 : 0.30))
-
-            // Bordo speculare cristallo
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: borderGradientColors,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        }
+        Rectangle()
+            .fill(.ultraThinMaterial)
     }
 }
 
 // MARK: - Widget 1: Saldo Small
 public struct BalanceOverviewSmallWidgetView: View {
-    @Environment(\.colorScheme) private var colorScheme
     public let snapshot: WebSyncroWidgetSnapshot
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
-    }
-
-    private var pillBackground: Color {
-        colorScheme == .dark ? Color.primary.opacity(0.06) : Color.primary.opacity(0.04)
-    }
-
-    private var pillStroke: Color {
-        colorScheme == .dark ? Color.white.opacity(0.15) : Color.white.opacity(0.60)
     }
 
     public var body: some View {
@@ -152,19 +65,9 @@ public struct BalanceOverviewSmallWidgetView: View {
                     .foregroundColor(.primary)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 7)
+            .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(
-                ZStack {
-                    Capsule().fill(.ultraThinMaterial)
-                    Capsule().fill(pillBackground)
-                }
-            )
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .strokeBorder(pillStroke, lineWidth: 0.8)
-            )
+            .background(.ultraThinMaterial, in: Capsule())
         }
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -173,19 +76,10 @@ public struct BalanceOverviewSmallWidgetView: View {
 
 // MARK: - Widget 2: Saldo Medium
 public struct BalanceOverviewMediumWidgetView: View {
-    @Environment(\.colorScheme) private var colorScheme
     public let snapshot: WebSyncroWidgetSnapshot
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
-    }
-
-    private var pillBackground: Color {
-        colorScheme == .dark ? Color.primary.opacity(0.06) : Color.primary.opacity(0.04)
-    }
-
-    private var pillStroke: Color {
-        colorScheme == .dark ? Color.white.opacity(0.15) : Color.white.opacity(0.60)
     }
 
     public var body: some View {
@@ -229,13 +123,12 @@ public struct BalanceOverviewMediumWidgetView: View {
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.12))
-                    .clipShape(Capsule())
+                    .background(.ultraThinMaterial, in: Capsule())
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Divisore in vetro
+            // Divisore
             Rectangle()
                 .fill(Color.primary.opacity(0.08))
                 .frame(width: 1)
@@ -273,17 +166,7 @@ public struct BalanceOverviewMediumWidgetView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(
-                    ZStack {
-                        Capsule().fill(.ultraThinMaterial)
-                        Capsule().fill(pillBackground)
-                    }
-                )
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .strokeBorder(pillStroke, lineWidth: 0.8)
-                )
+                .background(.ultraThinMaterial, in: Capsule())
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -294,15 +177,10 @@ public struct BalanceOverviewMediumWidgetView: View {
 
 // MARK: - Widget 3: Ultime Vendite Medium
 public struct RecentSalesMediumWidgetView: View {
-    @Environment(\.colorScheme) private var colorScheme
     public let snapshot: WebSyncroWidgetSnapshot
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
-    }
-
-    private var rowBackground: Color {
-        colorScheme == .dark ? Color.primary.opacity(0.05) : Color.primary.opacity(0.03)
     }
 
     public var body: some View {
@@ -325,15 +203,14 @@ public struct RecentSalesMediumWidgetView: View {
                     .foregroundColor(.green)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color.green.opacity(0.12))
-                    .clipShape(Capsule())
+                    .background(.ultraThinMaterial, in: Capsule())
             }
 
             Rectangle()
                 .fill(Color.primary.opacity(0.06))
                 .frame(height: 1)
 
-            // Lista Vendite con capsule Liquid Glass
+            // Lista Vendite
             if snapshot.recentSales.isEmpty {
                 Spacer()
                 HStack {
@@ -369,10 +246,7 @@ public struct RecentSalesMediumWidgetView: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(rowBackground)
-                        )
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                 }
             }
@@ -384,15 +258,10 @@ public struct RecentSalesMediumWidgetView: View {
 
 // MARK: - Widget 4: Saldi & Scadenze Medium
 public struct ExpiringDiscountsMediumWidgetView: View {
-    @Environment(\.colorScheme) private var colorScheme
     public let snapshot: WebSyncroWidgetSnapshot
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
-    }
-
-    private var rowBackground: Color {
-        colorScheme == .dark ? Color.primary.opacity(0.05) : Color.primary.opacity(0.03)
     }
 
     public var body: some View {
@@ -447,16 +316,12 @@ public struct ExpiringDiscountsMediumWidgetView: View {
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.orange.opacity(0.15))
+                                .background(.ultraThinMaterial, in: Capsule())
                                 .foregroundColor(.orange)
-                                .clipShape(Capsule())
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(rowBackground)
-                        )
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                 }
             }
@@ -468,7 +333,6 @@ public struct ExpiringDiscountsMediumWidgetView: View {
 
 // MARK: - Widget 5: Tessera Rapida Medium
 public struct QuickCardMediumWidgetView: View {
-    @Environment(\.colorScheme) private var colorScheme
     public let snapshot: WebSyncroWidgetSnapshot
 
     public init(snapshot: WebSyncroWidgetSnapshot) {

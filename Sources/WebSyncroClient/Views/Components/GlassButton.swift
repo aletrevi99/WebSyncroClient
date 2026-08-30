@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// Pulsante Liquid Glass nativo stock basato su .ultraThinMaterial e forme continue
+/// Pulsante nativo con materiale di sistema Apple (.ultraThinMaterial)
 public struct GlassButton: View {
-    @Environment(\.colorScheme) private var colorScheme
     let title: String
     let iconName: String?
     let tint: Color
@@ -18,10 +17,6 @@ public struct GlassButton: View {
         self.iconName = iconName
         self.tint = tint
         self.action = action
-    }
-
-    private var isDark: Bool {
-        colorScheme == .dark
     }
 
     public var body: some View {
@@ -42,14 +37,6 @@ public struct GlassButton: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(.ultraThinMaterial, in: Capsule())
-            .overlay(
-                Capsule()
-                    .strokeBorder(
-                        isDark ? Color.white.opacity(0.18) : Color.white.opacity(0.40),
-                        lineWidth: 0.8
-                    )
-            )
-            .shadow(color: Color.black.opacity(isDark ? 0.18 : 0.04), radius: 6, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }

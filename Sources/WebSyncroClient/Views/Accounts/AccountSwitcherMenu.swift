@@ -53,13 +53,8 @@ public struct AccountSwitcherMenu: View {
                     .foregroundColor(.secondary)
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
-            )
+            .padding(.vertical, 7)
+            .background(.ultraThinMaterial, in: Capsule())
         }
         .buttonStyle(PlainButtonStyle())
     }

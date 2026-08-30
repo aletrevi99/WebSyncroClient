@@ -215,7 +215,17 @@ public struct SummaryHeaderView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.white.opacity(0.12) : Color.clear)
+            .background(
+                Group {
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
+                    } else {
+                        Color.clear
+                    }
+                }
+            )
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(PlainButtonStyle())

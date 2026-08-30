@@ -11,13 +11,6 @@ public struct MainTabView: View {
 
     public init(accountStore: AccountStore? = nil) {
         self.accountStore = accountStore ?? AccountStore.shared
-        #if canImport(UIKit)
-        let appearance = UITabBarAppearance()
-        appearance.configureWithDefaultBackground()
-        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-        #endif
     }
 
     private var activeShopId: String {
