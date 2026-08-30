@@ -15,18 +15,26 @@ concurrency:
 jobs:
   build-unsigned:
     name: Build & Package Unsigned IPA
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. Select Latest Stable Xcode (Xcode 16 / 15)
+      - name: 2. Select Latest Stable Xcode (Xcode 26 / 16)
         run: |
           echo "Available Xcode installations:"
           ls -d /Applications/Xcode*.app || true
           
-          if [ -d "/Applications/Xcode_16.2.app" ]; then
+          if [ -d "/Applications/Xcode_26.2.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_26.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.1.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_26.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_26.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.2.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
           elif [ -d "/Applications/Xcode_16.1.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
@@ -34,13 +42,18 @@ jobs:
             sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
           elif [ -d "/Applications/Xcode_16.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-          elif [ -d "/Applications/Xcode_15.4.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
           fi
           
           xcodebuild -version
 
-      - name: 3. Build Release .app (Unsigned)
+      - name: 3. Generate Xcode Project with XcodeGen
+        run: |
+          if ! command -v xcodegen &> /dev/null; then
+            brew install xcodegen
+          fi
+          xcodegen generate
+
+      - name: 4. Build Release .app (Unsigned)
         run: |
           mkdir -p build/DerivedData
           xcodebuild build \
@@ -55,7 +68,7 @@ jobs:
             CODE_SIGN_ENTITLEMENTS="" \
             COMPILER_INDEX_STORE_ENABLE=NO
 
-      - name: 4. Package into Sideloadable IPAs
+      - name: 5. Package into Sideloadable IPAs
         run: |
           mkdir -p build/Payload build/Exported
           
@@ -86,7 +99,7 @@ jobs:
           echo "IPAs successfully created in build/Exported:"
           ls -lh build/Exported/
 
-      - name: 5. Upload IPA Artifacts
+      - name: 6. Upload IPA Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: WebSyncroClient-IPAs
@@ -94,7 +107,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: 6. Publish GitHub Release (On Tag)
+      - name: 7. Publish GitHub Release (On Tag)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
