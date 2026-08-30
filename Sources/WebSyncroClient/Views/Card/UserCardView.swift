@@ -66,7 +66,8 @@ public struct UserCardView: View {
                             }
                         }
 
-                        Spacer()
+                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                        Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
                 }

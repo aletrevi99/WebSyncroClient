@@ -64,7 +64,7 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
         let base64Image = imageData.base64EncodedString()
         let prompt = """
         Sei un esperto contabile OCR. Analizza attentamente questa foto del documento 'Lista oggetti in carico' rilasciato da un mercatino dell'usato (WebSyncro / EX NOVO).
-        
+
         Estrai tutti i dati con la massima precisione:
         1. Intestazione:
            - list_number: numero della lista (es. "2026/009938")
@@ -72,15 +72,15 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
            - total_pieces: totale pezzi (numero intero)
            - total_agreed_value: valore totale merce concordato (numero decimale con punto)
            - total_exposed_value: valore della merce esposto al pubblico (numero decimale con punto)
-        2. Tabella Articoli (per OGNI riga della tabella):
-           - code: codice articolo (es. "1.260.214")
-           - title: descrizione esatta dell'articolo (es. "Libro 2", "Happy Feet", "La ragazza con l'orecchino...")
-           - category: sigla categoria (es. "LI")
-           - quantity: quantità (numero intero, es. 6, 14, 1)
-           - agreed_price: prezzo concordato (numero decimale, es. 2.70)
-           - client_payout: rimborso cliente unitario (numero decimale, es. 1.35)
-           - exposed_price: prezzo esposto al pubblico unitario (numero decimale, es. 3.00)
-        
+        2. Tabella Articoli (per OGNI singola riga della tabella):
+           - code: codice articolo completo (es. "1.260.214")
+           - title: descrizione COMPLETA dell'articolo. IMPORTANTE: includi SEMPRE numeri, volumi, edizioni e autori (es. "Libro 2", "Libro 3-4", "Happy Feet la storia del film", "La ragazza con l'orecchino di perla. Ediz. speciale Chevalier Tracy"). Non troncare MAI il titolo a solo "Libro" se nella riga sono presenti numeri o altre parole!
+           - category: sigla categoria merceologica (es. "LI")
+           - quantity: quantità pezzi indicata nella colonna Qtà (numero intero, es. 6, 14, 1)
+           - agreed_price: prezzo concordato (numero decimale con punto, es. 2.70)
+           - client_payout: rimborso cliente unitario (numero decimale con punto, es. 1.35)
+           - exposed_price: prezzo esposto al pubblico unitario (numero decimale con punto, es. 3.00)
+
         IMPORTANTE: Rispondi ESCLUSIVAMENTE con un JSON valido strutturato come segue, senza commenti o testo extra:
         {
           "list_number": "2026/009938",
@@ -97,6 +97,15 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
               "agreed_price": 2.70,
               "client_payout": 1.35,
               "exposed_price": 3.00
+            },
+            {
+              "code": "1.260.215",
+              "title": "Libro 3-4",
+              "category": "LI",
+              "quantity": 14,
+              "agreed_price": 2.25,
+              "client_payout": 1.13,
+              "exposed_price": 2.50
             }
           ]
         }

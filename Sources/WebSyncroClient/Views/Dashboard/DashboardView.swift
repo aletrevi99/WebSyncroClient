@@ -34,6 +34,9 @@ public struct DashboardView: View {
 
                         // Contenuto principale: Lista, Stato di caricamento o Errore
                         mainContent
+
+                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                        Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)

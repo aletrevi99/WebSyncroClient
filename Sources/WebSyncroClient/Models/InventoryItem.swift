@@ -115,10 +115,11 @@ public struct InventoryItem: Identifiable, Codable, Sendable, Equatable {
         switch stage {
         case .fullPrice:
             return exposedPriceInitial
-        case .discounted50:
-            return (exposedPriceInitial * Decimal(0.5))
-        case .maxRealization:
-            return (exposedPriceInitial * Decimal(0.5))
+        case .discounted50, .maxRealization:
+            var result = Decimal()
+            var raw = exposedPriceInitial * Decimal(0.5)
+            NSDecimalRound(&result, &raw, 2, .plain)
+            return result
         }
     }
 
@@ -127,10 +128,11 @@ public struct InventoryItem: Identifiable, Codable, Sendable, Equatable {
         switch stage {
         case .fullPrice:
             return clientPayoutInitial
-        case .discounted50:
-            return (clientPayoutInitial * Decimal(0.5))
-        case .maxRealization:
-            return (clientPayoutInitial * Decimal(0.5))
+        case .discounted50, .maxRealization:
+            var result = Decimal()
+            var raw = clientPayoutInitial * Decimal(0.5)
+            NSDecimalRound(&result, &raw, 2, .plain)
+            return result
         }
     }
 

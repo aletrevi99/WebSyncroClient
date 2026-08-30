@@ -53,6 +53,9 @@ public struct NewsListView: View {
                                 notificationCard(notif)
                             }
                         }
+
+                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                        Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)

@@ -186,6 +186,9 @@ public struct InventoryListView: View {
                                 inventoryItemRow(entry.item, status: entry.status)
                             }
                         }
+
+                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                        Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -198,41 +201,11 @@ public struct InventoryListView: View {
             .adaptiveLargeTitle()
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button(action: {
-                            showingCamera = true
-                        }) {
-                            Label("Scatta Foto (Fotocamera)", systemImage: "camera.fill")
-                        }
-
-                        #if canImport(PhotosUI)
-                        // Galleria Foto
-                        #endif
-
-                        Button(action: {
-                            showingFilePicker = true
-                        }) {
-                            Label("Carica da File (PDF o Immagine)", systemImage: "folder.fill")
-                        }
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 13, weight: .bold))
-                            Text("Carica Foglio")
-                                .font(.system(.subheadline, design: .rounded))
-                                .fontWeight(.bold)
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.brandOrange)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                        .shadow(color: Color.brandOrange.opacity(0.3), radius: 6, x: 0, y: 3)
-                    }
+                    uploadMenuToolbarButton
                 }
             }
             .sheet(isPresented: $showingCamera) {
-                SimpleCameraView { capturedImage in
+                ModernAVCameraView { capturedImage in
                     processCapturedUIImage(capturedImage)
                 }
             }
@@ -241,6 +214,18 @@ public struct InventoryListView: View {
                     processImportedDocumentData(docData, fileName: fileName)
                 }
             }
+            #if os(iOS)
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                guard let item = newItem else { return }
+                Task {
+                    if let data = try? await item.loadTransferable(type: Data.self),
+                       let img = UIImage(data: data) {
+                        processCapturedUIImage(img)
+                    }
+                    selectedPhotoItem = nil
+                }
+            }
+            #endif
             .sheet(isPresented: $showingReviewSheet) {
                 if let batch = scannedBatchForReview, let report = currentDeduplicationReport {
                     ScanInventoryReviewSheet(
@@ -270,6 +255,44 @@ public struct InventoryListView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Toolbar Upload Button
+    @ViewBuilder
+    private var uploadMenuToolbarButton: some View {
+        Menu {
+            Button(action: {
+                showingCamera = true
+            }) {
+                Label("Scatta Foto al Foglio", systemImage: "camera.fill")
+            }
+
+            #if canImport(PhotosUI)
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                Label("Scegli da Galleria Foto", systemImage: "photo.on.rectangle.angled")
+            }
+            #endif
+
+            Button(action: {
+                showingFilePicker = true
+            }) {
+                Label("Importa File PDF / Immagine", systemImage: "doc.badge.plus")
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 13, weight: .bold))
+                Text("Carica Foglio")
+                    .font(.system(.subheadline, design: .rounded))
+                    .fontWeight(.bold)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Color.brandOrange)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 
     // MARK: - Summary Hero Card
@@ -657,7 +680,7 @@ public struct InventoryListView: View {
 
     private func processImportedDocumentData(_ data: Data, fileName: String) {
         if fileName.lowercased().hasSuffix(".pdf") {
-            if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data),
+            if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data) as? UIImage,
                let jpegData = renderedImage.jpegData(compressionQuality: 0.85) {
                 executeVisionAnalysis(imageData: jpegData)
             } else {

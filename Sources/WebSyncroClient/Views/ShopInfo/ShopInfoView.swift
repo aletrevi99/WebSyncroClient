@@ -46,7 +46,8 @@ public struct ShopInfoView: View {
                         // Card Espandibile: Come Funziona il Conto Vendita & Regolamento Recesso
                         howItWorksCard
 
-                        Spacer(minLength: 20)
+                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                        Spacer(minLength: 90)
                     }
                     .padding(16)
                 }
