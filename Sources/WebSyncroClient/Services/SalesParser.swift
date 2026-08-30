@@ -7,6 +7,10 @@ public enum SalesParser {
         pattern: #"^\s*([0-9A-Za-z_-]+)\s+(\d{1,2}/\d{1,2}/\d{4})\s+([0-9.,]+.*)$"#
     )
 
+    private static let notificationRegex = try! NSRegularExpression(
+        pattern: #"Notifica_\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.txt"#
+    )
+
     /// Esegue il parsing del file maturato.txt o nonmaturato.txt
     public static func parse(
         content: String,
@@ -92,6 +96,43 @@ public enum SalesParser {
             optionalNotice: optionalNotice,
             isNonMatured: isNonMatured
         )
+    }
+
+    /// Esegue il parsing di una singola notifica mercatino
+    public static func parseNotification(content: String, filename: String) -> ShopNotification {
+        let normalized = content
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+
+        let date = extractTagValue(tag: "<#DATA>", in: normalized) ?? ""
+        let sender = extractTagValue(tag: "<#MITTENTE>", in: normalized) ?? "Mercatino"
+        let title = extractTagValue(tag: "<#TITOLO>", in: normalized) ?? "Comunicazione"
+        let message = extractTagValue(tag: "<#MESSAGGIO>", in: normalized) ?? ""
+
+        return ShopNotification(
+            id: filename,
+            dateString: date,
+            sender: sender,
+            title: title,
+            message: message,
+            rawFilename: filename
+        )
+    }
+
+    /// Estrae i nomi dei file di notifica dall'HTML del directory listing
+    public static func extractNotificationFilenames(from html: String) -> [String] {
+        let range = NSRange(location: 0, length: (html as NSString).length)
+        let matches = notificationRegex.matches(in: html, options: [], range: range)
+
+        var uniqueFiles = Set<String>()
+        let nsString = html as NSString
+
+        for match in matches {
+            let matchedText = nsString.substring(with: match.range)
+            uniqueFiles.insert(matchedText)
+        }
+
+        return uniqueFiles.sorted(by: >)
     }
 
     /// Esegue il parsing del file ElencoNegozi.txt
@@ -181,6 +222,19 @@ public enum SalesParser {
         }
 
         return scheduleList
+    }
+
+    /// Helper per estrarre il testo tra un tag e il successivo tag <# o fine file
+    private static func extractTagValue(tag: String, in text: String) -> String? {
+        guard let tagRange = text.range(of: tag) else { return nil }
+        let afterTag = text[tagRange.upperBound...]
+        if let nextTagRange = afterTag.range(of: "<#") {
+            let val = String(afterTag[..<nextTagRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+            return val
+        } else {
+            let val = String(afterTag).trimmingCharacters(in: .whitespacesAndNewlines)
+            return val
+        }
     }
 
     /// Estrae l'avviso opzionale da <#FRASEOPZIONALE>

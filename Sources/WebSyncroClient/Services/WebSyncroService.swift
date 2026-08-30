@@ -174,13 +174,11 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
     public func fetchShopDetails(shopId: String) async throws -> ShopDetails {
         let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Scarica l'elenco negozi per le info anagrafiche e contemporaneamente Orario.txt
         async let directoryTask = fetchShopDirectory()
         async let scheduleTask = fetchSchedule(shopId: cleanShopId)
 
         let (directory, schedule) = await (try? directoryTask, try? scheduleTask)
 
-        // Trova il negozio corrispondente nello slug
         let foundShop = directory?.first(where: { $0.slug.caseInsensitiveCompare(cleanShopId) == .orderedSame })
 
         var details = foundShop ?? ShopDetails(
@@ -197,6 +195,69 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         }
 
         return details
+    }
+
+    /// Recupera l'elenco delle notizie dal mercatino
+    public func fetchNotifications(shopId: String) async throws -> [ShopNotification] {
+        let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dirURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/Notifiche/"
+
+        guard let dirURL = URL(string: dirURLString) else {
+            return []
+        }
+
+        var request = URLRequest(
+            url: dirURL,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+            timeoutInterval: 20.0
+        )
+        request.httpMethod = "GET"
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue("text/html, */*", forHTTPHeaderField: "Accept")
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            return []
+        }
+
+        let html = decodeDataToString(data)
+        let filenames = SalesParser.extractNotificationFilenames(from: html)
+
+        if filenames.isEmpty {
+            return []
+        }
+
+        // Scarica le singole notifiche in parallelo
+        return await withTaskGroup(of: ShopNotification?.self, returning: [ShopNotification].self) { group in
+            for filename in filenames {
+                group.addTask {
+                    let fileURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/Notifiche/\(filename)"
+                    guard let fileURL = URL(string: fileURLString) else { return nil }
+
+                    var req = URLRequest(url: fileURL, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
+                    req.httpMethod = "GET"
+                    req.setValue(self.userAgent, forHTTPHeaderField: "User-Agent")
+
+                    guard let (fileData, fileResp) = try? await self.session.data(for: req),
+                          let http = fileResp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                        return nil
+                    }
+
+                    let content = self.decodeDataToString(fileData)
+                    return SalesParser.parseNotification(content: content, filename: filename)
+                }
+            }
+
+            var notifications: [ShopNotification] = []
+            for await notif in group {
+                if let n = notif {
+                    notifications.append(n)
+                }
+            }
+
+            return notifications.sorted(by: { $0.rawFilename > $1.rawFilename })
+        }
     }
 
     private func fetchSchedule(shopId: String) async throws -> [DaySchedule] {

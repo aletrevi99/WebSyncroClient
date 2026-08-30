@@ -54,6 +54,9 @@ public protocol WebSyncroServiceProtocol: Sendable {
     /// Recupera l'elenco di tutti i negozi WebSyncro da ElencoNegozi.txt
     func fetchShopDirectory() async throws -> [ShopDetails]
 
+    /// Recupera l'elenco delle notizie e comunicazioni del negozio
+    func fetchNotifications(shopId: String) async throws -> [ShopNotification]
+
     /// Recupera l'elenco di tutte le cartelle snapshot disponibili per il negozio
     func fetchAvailableSnapshots(shopId: String) async throws -> [String]
 }

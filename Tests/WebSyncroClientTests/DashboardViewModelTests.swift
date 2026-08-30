@@ -26,7 +26,6 @@ final class DashboardViewModelTests: XCTestCase {
         mockService.delayNanoseconds = 0
         let viewModel = DashboardViewModel(
             service: mockService,
-            mockService: mockService,
             accountStore: accountStore
         )
 
@@ -46,7 +45,6 @@ final class DashboardViewModelTests: XCTestCase {
         mockService.delayNanoseconds = 0
         let viewModel = DashboardViewModel(
             service: mockService,
-            mockService: mockService,
             accountStore: accountStore
         )
 
@@ -64,7 +62,6 @@ final class DashboardViewModelTests: XCTestCase {
         mockService.delayNanoseconds = 0
         let viewModel = DashboardViewModel(
             service: mockService,
-            mockService: mockService,
             accountStore: accountStore
         )
 

@@ -11,7 +11,7 @@ public struct WebSyncroApp: App {
 
     public var body: some Scene {
         WindowGroup {
-            DashboardView(accountStore: appState.accountStore)
+            MainTabView(accountStore: appState.accountStore)
                 .environmentObject(appState)
         }
     }

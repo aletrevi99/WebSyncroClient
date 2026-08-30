@@ -53,17 +53,6 @@ public struct SummaryHeaderView: View {
                         }
 
                         Spacer()
-
-                        // Badge Demo
-                        if viewModel.isDemoMode {
-                            Text("DEMO")
-                                .font(.system(size: 11, weight: .bold))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.purple.opacity(0.15))
-                                .foregroundColor(.purple)
-                                .clipShape(Capsule())
-                        }
                     }
 
                     // Importo principale in evidenza

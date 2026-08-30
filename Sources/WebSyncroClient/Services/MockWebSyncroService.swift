@@ -55,7 +55,7 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
     }
 
     public func fetchShopDirectory() async throws -> [ShopDetails] {
-        try await Task.sleep(nanoseconds: 100_000_000)
+        try await Task.sleep(nanoseconds: 50_000_000)
         return [
             ShopDetails(
                 name: "Armadio dell'Usato",
@@ -103,8 +103,41 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
         )
     }
 
+    public func fetchNotifications(shopId: String) async throws -> [ShopNotification] {
+        try await Task.sleep(nanoseconds: delayNanoseconds / 2)
+        if shouldFail {
+            throw mockError ?? WebSyncroError.shopNotFound(shopId: shopId)
+        }
+        return [
+            ShopNotification(
+                id: "Notifica_2026-08-17T08:58:16.txt",
+                dateString: "17/08/2026 08:58",
+                sender: "EX Novo",
+                title: "OGGI SI RIPARTE!",
+                message: "Dopo la pausa di Ferragosto, oggi EX NOVO riapre! Siamo operativi con i soliti orari",
+                rawFilename: "Notifica_2026-08-17T08:58:16.txt"
+            ),
+            ShopNotification(
+                id: "Notifica_2026-08-13T08:57:26.txt",
+                dateString: "13/08/2026 08:57",
+                sender: "EX Novo",
+                title: "Per quest'anno non cambiare...",
+                message: "EX NOVO CHIUDE IL 15 E 16 AGOSTO\nRiapre regolarmente il 17 agosto!\nBUON FERRAGOSTO A TUTTI!",
+                rawFilename: "Notifica_2026-08-13T08:57:26.txt"
+            ),
+            ShopNotification(
+                id: "Notifica_2026-07-31T18:05:49.txt",
+                dateString: "31/07/2026 18:05",
+                sender: "EX Novo",
+                title: "PARTE LA STAGIONE AUTUNNALE!",
+                message: "Da lunedi 3 agosto parte il ritiro della stagione autunnale! Porta abbigliamento, oggettistica e tutto ciò che non usi più.",
+                rawFilename: "Notifica_2026-07-31T18:05:49.txt"
+            )
+        ]
+    }
+
     public func fetchAvailableSnapshots(shopId: String) async throws -> [String] {
-        try await Task.sleep(nanoseconds: 200_000_000)
+        try await Task.sleep(nanoseconds: 100_000_000)
         if shouldFail {
             throw mockError ?? WebSyncroError.shopNotFound(shopId: shopId)
         }

@@ -37,20 +37,16 @@ public final class DashboardViewModel: ObservableObject {
     @Published public var sortOption: SortOption = .dateDescending
     @Published public var filterRange: FilterRange = .all
     @Published public var selectedItemForDetail: SaleItem?
-    @Published public var isDemoMode: Bool = false
 
     private let service: WebSyncroServiceProtocol
-    private let mockService: WebSyncroServiceProtocol
     private let accountStore: AccountStore
     private var cancellables = Set<AnyCancellable>()
 
     public init(
         service: WebSyncroServiceProtocol = WebSyncroService.shared,
-        mockService: WebSyncroServiceProtocol = MockWebSyncroService(),
         accountStore: AccountStore? = nil
     ) {
         self.service = service
-        self.mockService = mockService
         let resolvedStore = accountStore ?? AccountStore.shared
         self.accountStore = resolvedStore
 
@@ -158,10 +154,9 @@ public final class DashboardViewModel: ObservableObject {
         }
 
         errorMessage = nil
-        let activeService: WebSyncroServiceProtocol = isDemoMode ? mockService : service
 
         do {
-            let (matured, nonMatured) = try await activeService.fetchBothReports(
+            let (matured, nonMatured) = try await service.fetchBothReports(
                 shopId: account.shopId,
                 userId: account.userId,
                 onProgress: { [weak self] status in

@@ -144,4 +144,24 @@ final class SalesParserTests: XCTestCase {
         XCTAssertEqual(report.items[1].amount, Decimal(string: "19.90"))
         XCTAssertEqual(report.totalEarned, Decimal(string: "20.35"))
     }
+
+    func testParseNotification() {
+        let sampleNotifica = """
+        <#DATA>
+        17/08/2026 08:58
+        <#MITTENTE>
+        EX Novo
+        <#TITOLO>
+        OGGI SI RIPARTE!
+        <#MESSAGGIO>
+        Dopo la pausa di Ferragosto, oggi EX NOVO riapre! Siamo operativi con i soliti orari
+        """
+
+        let notif = SalesParser.parseNotification(content: sampleNotifica, filename: "Notifica_2026-08-17T08:58:16.txt")
+
+        XCTAssertEqual(notif.sender, "EX Novo")
+        XCTAssertEqual(notif.title, "OGGI SI RIPARTE!")
+        XCTAssertEqual(notif.dateString, "17/08/2026 08:58")
+        XCTAssertTrue(notif.message.contains("riapre"))
+    }
 }

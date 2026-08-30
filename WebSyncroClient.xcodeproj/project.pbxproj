@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80206B2CE06C1298F40122E3 /* MetricStatCard.swift */; };
 		09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */; };
+		135CB0767DE6714C71AEF49E /* NewsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEDF78623E6628EB6A857F2 /* NewsListView.swift */; };
 		1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */; };
+		170428F6149BE8150FD9AA05 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E92294B9CB3C28E1F2A329C /* MainTabView.swift */; };
 		2254D4CC16AD1CEB2206354C /* SaleItemDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */; };
 		25C1308F730217772501FFAE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070E6E59DAB1D9001F1BF4C0 /* AppState.swift */; };
 		26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */; };
@@ -23,15 +25,19 @@
 		53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */; };
 		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
 		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
+		739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */; };
 		751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */; };
 		769CF7449FB520FDFD1BE997 /* SalesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16118E43A3972ACC75A25C28 /* SalesParser.swift */; };
 		7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */; };
 		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
+		840DE55BA1179C0FAB3F3114 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */; };
 		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
 		8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */; };
 		8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */; };
+		8ED30EA53B0335F1BBF4434A /* ShopNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */; };
 		967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */; };
 		97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */; };
+		9813311B39F78ED3675275E1 /* UserCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0070C7253DA49F575220BB /* UserCardView.swift */; };
 		AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFB02ED7971605E2178171 /* DateExtensions.swift */; };
 		BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC221438A985A902E8B43FBD /* UserAccount.swift */; };
 		C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */; };
@@ -81,20 +87,26 @@
 		7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
 		80206B2CE06C1298F40122E3 /* MetricStatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricStatCard.swift; sourceTree = "<group>"; };
+		865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSwitcherMenu.swift; sourceTree = "<group>"; };
 		8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WebSyncroClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
+		9E92294B9CB3C28E1F2A329C /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
 		A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WebSyncroClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC221438A985A902E8B43FBD /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
 		AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfo.swift; sourceTree = "<group>"; };
 		B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		BA0070C7253DA49F575220BB /* UserCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardView.swift; sourceTree = "<group>"; };
+		BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopNotification.swift; sourceTree = "<group>"; };
 		BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		BBEDF78623E6628EB6A857F2 /* NewsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListView.swift; sourceTree = "<group>"; };
 		CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesListView.swift; sourceTree = "<group>"; };
 		CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
 		D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSyncroService.swift; sourceTree = "<group>"; };
 		DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyOrErrorView.swift; sourceTree = "<group>"; };
+		E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeGenerator.swift; sourceTree = "<group>"; };
 		EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfoView.swift; sourceTree = "<group>"; };
 		F3DFB02ED7971605E2178171 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
 		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
@@ -145,6 +157,7 @@
 			children = (
 				FB175AD118BE87AC8AE6533C /* App */,
 				3C0169A80E03EF86B96CFB49 /* Models */,
+				B679AAD2471E889BF7D6D927 /* Resources */,
 				E4351689D742CCBF37156826 /* Services */,
 				39A020682F4A452E640E3846 /* Storage */,
 				5F433025E5A1DEC06D482F31 /* Utilities */,
@@ -168,6 +181,7 @@
 			children = (
 				674D4E9071C9DB89C845F209 /* Models.swift */,
 				AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */,
+				BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */,
 				3324D9007E4EC87452DF1B2A /* SyncStatus.swift */,
 				AC221438A985A902E8B43FBD /* UserAccount.swift */,
 			);
@@ -183,9 +197,18 @@
 			);
 			sourceTree = "<group>";
 		};
+		59C549E4C1FAA77FF971701D /* Card */ = {
+			isa = PBXGroup;
+			children = (
+				BA0070C7253DA49F575220BB /* UserCardView.swift */,
+			);
+			path = Card;
+			sourceTree = "<group>";
+		};
 		5F433025E5A1DEC06D482F31 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */,
 				B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */,
 				F3DFB02ED7971605E2178171 /* DateExtensions.swift */,
 				8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */,
@@ -197,10 +220,13 @@
 		78A70FEFC9816F816AFA823C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9E92294B9CB3C28E1F2A329C /* MainTabView.swift */,
 				ED4CD470E215A29A4996F8DB /* Accounts */,
+				59C549E4C1FAA77FF971701D /* Card */,
 				0C367EFFD318DE4FDE39A066 /* Components */,
 				802988DA2F72D9C198DC96F4 /* Dashboard */,
 				83B3986FFA37729D6E0F78C2 /* Detail */,
+				AB35765E3B75C78AF4BBD5D4 /* News */,
 				B53CB8540AE2929CFC75C009 /* Settings */,
 				974C7B5B4001437B1AB69C8D /* ShopInfo */,
 			);
@@ -233,6 +259,14 @@
 			path = ShopInfo;
 			sourceTree = "<group>";
 		};
+		AB35765E3B75C78AF4BBD5D4 /* News */ = {
+			isa = PBXGroup;
+			children = (
+				BBEDF78623E6628EB6A857F2 /* NewsListView.swift */,
+			);
+			path = News;
+			sourceTree = "<group>";
+		};
 		B1E977F0095C46ABE8E4AAE2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -248,6 +282,14 @@
 				2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		B679AAD2471E889BF7D6D927 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		E4351689D742CCBF37156826 /* Services */ = {
@@ -306,6 +348,7 @@
 			buildConfigurationList = 2EBAA9C4AC06153CC66666DC /* Build configuration list for PBXNativeTarget "WebSyncroClient" */;
 			buildPhases = (
 				407AF01084349DA424854972 /* Sources */,
+				DB14129F3B2956FC90176B89 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -355,6 +398,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		DB14129F3B2956FC90176B89 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				840DE55BA1179C0FAB3F3114 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		407AF01084349DA424854972 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -366,6 +420,7 @@
 				45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */,
 				F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */,
 				25C1308F730217772501FFAE /* AppState.swift in Sources */,
+				739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */,
 				DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */,
 				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
 				361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */,
@@ -375,9 +430,11 @@
 				FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */,
 				DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */,
 				2C44DE11F2D2E80F752424DD /* LiquidGlassCard.swift in Sources */,
+				170428F6149BE8150FD9AA05 /* MainTabView.swift in Sources */,
 				07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */,
 				8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */,
 				84E757A334247E2BEF628C80 /* Models.swift in Sources */,
+				135CB0767DE6714C71AEF49E /* NewsListView.swift in Sources */,
 				2254D4CC16AD1CEB2206354C /* SaleItemDetailSheet.swift in Sources */,
 				6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */,
 				49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */,
@@ -387,9 +444,11 @@
 				E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */,
 				E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */,
 				8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */,
+				8ED30EA53B0335F1BBF4434A /* ShopNotification.swift in Sources */,
 				7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */,
 				D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */,
 				BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */,
+				9813311B39F78ED3675275E1 /* UserCardView.swift in Sources */,
 				26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */,
 				83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */,
 				29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */,

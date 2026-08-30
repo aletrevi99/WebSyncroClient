@@ -6,7 +6,6 @@ public struct DashboardView: View {
     @StateObject private var accountStore: AccountStore
     
     @State private var showingAccountManager = false
-    @State private var showingSettings = false
     @State private var showingShopInfo = false
 
     public init(
@@ -21,7 +20,6 @@ public struct DashboardView: View {
     public var body: some View {
         NavigationStack {
             ZStack {
-                // Sfondo con rifrazione Liquid Glass
                 LiquidGlassBackground()
 
                 ScrollView {
@@ -56,26 +54,13 @@ public struct DashboardView: View {
                 }
 
                 ToolbarItem(placement: .automatic) {
-                    HStack(spacing: 10) {
-                        // Pulsante Info Negozio & Orari
-                        Button(action: {
-                            HapticFeedback.selection()
-                            showingShopInfo = true
-                        }) {
-                            Image(systemName: "info.circle")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.primary)
-                        }
-
-                        // Pulsante Impostazioni
-                        Button(action: {
-                            HapticFeedback.selection()
-                            showingSettings = true
-                        }) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(.primary)
-                        }
+                    Button(action: {
+                        HapticFeedback.selection()
+                        showingShopInfo = true
+                    }) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.primary)
                     }
                 }
             }
@@ -86,9 +71,6 @@ public struct DashboardView: View {
             }
             .sheet(isPresented: $showingAccountManager) {
                 AccountManagerView()
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(isDemoMode: $viewModel.isDemoMode)
             }
             .sheet(item: $viewModel.selectedItemForDetail) { item in
                 SaleItemDetailSheet(item: item)
@@ -180,10 +162,6 @@ public struct DashboardView: View {
                     },
                     onEditAccount: {
                         showingAccountManager = true
-                    },
-                    onEnableDemo: {
-                        viewModel.isDemoMode = true
-                        Task { await viewModel.loadData() }
                     }
                 )
             )
