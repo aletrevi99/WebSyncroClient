@@ -9,7 +9,7 @@ public enum InventoryFilter: String, CaseIterable, Identifiable {
     case unsold = "In Negozio"
     case sold = "Venduti"
     case discounted = "In Saldo (-50%)"
-    case expiring = "Scaduti (>90gg)"
+    case expiring = "Maggior Realizzo"
 
     public var id: String { rawValue }
 }
@@ -20,6 +20,7 @@ public struct InventoryListView: View {
     @StateObject private var dashboardViewModel: DashboardViewModel
     @ObservedObject var accountStore: AccountStore
     @ObservedObject var settingsStore: AppSettingsStore
+    @ObservedObject private var notificationManager = NotificationManager.shared
 
     @State private var selectedFilter: InventoryFilter = .all
     @State private var selectedSortOption: InventorySortOption = .dateDescending
@@ -31,6 +32,9 @@ public struct InventoryListView: View {
     @State private var showingReviewSheet = false
     @State private var showingBatchesManager = false
     @State private var showingEditSheet = false
+
+    @State private var selectedItemForBreakdown: (item: InventoryItem, status: InventorySaleStatus)?
+    @State private var showingBreakdownSheet = false
 
     @State private var scannedBatchForReview: InventoryBatch?
     @State private var currentDeduplicationReport: DeduplicationReport?
@@ -133,6 +137,14 @@ public struct InventoryListView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
+                        // Header Nativo Apple HIG con Titolo e Tasti Allineati
+                        customHeaderBar
+
+                        // Avviso In-App Reso Articolo (se attivo)
+                        if let alert = notificationManager.activeReturnAlert {
+                            returnAlertBanner(alert)
+                        }
+
                         // Banner Feedback Salvataggio Differenziale
                         if let feedback = saveFeedbackBanner {
                             LiquidGlassCard(cornerRadius: 18, padding: 12) {
@@ -159,7 +171,7 @@ public struct InventoryListView: View {
                         // Hero Card Statistiche Inventario
                         summaryHeroCard
 
-                        // Barra Filtri con Tasto Ordina Fisso a Destra
+                        // Barra Filtri con Tasto Ordina Fisso a Destra della stessa grandezza
                         filterAndSortBar
 
                         // Barra di Ricerca
@@ -197,34 +209,25 @@ public struct InventoryListView: View {
                         Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.top, 4)
                 }
                 .refreshable {
                     await dashboardViewModel.refresh()
                 }
             }
-            .navigationTitle("Inventario")
-            .adaptiveLargeTitle()
-            .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
-                    // Tasto Matitina (Modifica Inventario) - Stile pulito non arancione
-                    Button(action: {
-                        showingEditSheet = true
-                    }) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-                    }
-
-                    // Tasto + Arancione Pulito (Menu Caricamento)
-                    uploadMenuToolbarButton
-                }
-            }
+            #if canImport(UIKit)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
             .sheet(isPresented: $showingEditSheet) {
                 EditInventorySheet(
                     inventoryStore: inventoryStore,
                     accountStore: accountStore
                 )
+            }
+            .sheet(isPresented: $showingBreakdownSheet) {
+                if let (item, status) = selectedItemForBreakdown {
+                    ItemSalesBreakdownSheet(item: item, status: status)
+                }
             }
             .sheet(isPresented: $showingCamera) {
                 ModernAVCameraView { capturedImage in
@@ -283,7 +286,40 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Toolbar Upload Button (+ Arancione Pulito)
+    // MARK: - Header Nativo Allineato Apple HIG
+    @ViewBuilder
+    private var customHeaderBar: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Text("Inventario")
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            // Tasto Matita (Slegato, Liquid Glass Neutro)
+            Button(action: {
+                HapticFeedback.selection()
+                showingEditSheet = true
+            }) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .frame(width: 38, height: 38)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle().stroke(Color.white.opacity(0.18), lineWidth: 1)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+
+            // Tasto + (Slegato, Liquid Glass Arancione Trasparente)
+            uploadMenuToolbarButton
+        }
+        .padding(.top, 4)
+    }
+
+    // MARK: - Tasto + con Sfondo Trasparente Liquid Glass Arancione
     @ViewBuilder
     private var uploadMenuToolbarButton: some View {
         Menu {
@@ -304,22 +340,60 @@ public struct InventoryListView: View {
             }) {
                 Label("Importa File PDF / Immagine", systemImage: "doc.badge.plus")
             }
-
-            Divider()
-
-            Button(action: {
-                showingBatchesManager = true
-            }) {
-                Label("Archivio Liste di Carico (\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count))", systemImage: "doc.stack.fill")
-            }
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 15, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(Color.brandOrange)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.brandOrange)
+                .frame(width: 38, height: 38)
+                .background(Color.brandOrange.opacity(0.18))
+                .background(.ultraThinMaterial)
                 .clipShape(Circle())
+                .overlay(
+                    Circle().stroke(Color.brandOrange.opacity(0.6), lineWidth: 1.2)
+                )
         }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    // MARK: - Banner Avviso Reso In-App
+    @ViewBuilder
+    private func returnAlertBanner(_ alert: ReturnEvent) -> some View {
+        LiquidGlassCard(cornerRadius: 18, padding: 14) {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.title3)
+                    .foregroundColor(.orange)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack {
+                        Text("Articolo Restituito (Reso)")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Text("- € \(CurrencyFormatter.format(decimal: alert.amount))")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.red)
+                    }
+                    Text("'\(alert.title)' è stato reso dall'acquirente durante il recesso ed è tornato in vendita in negozio.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+
+                Button(action: {
+                    withAnimation {
+                        notificationManager.dismissActiveReturnAlert()
+                    }
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 
     // MARK: - Summary Hero Card
@@ -396,7 +470,7 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Barra Filtri con Tasto Ordina Fisso a Destra
+    // MARK: - Barra Filtri con Tasto Ordina Integrato della Stessa Grandezza
     @ViewBuilder
     private var filterAndSortBar: some View {
         HStack(spacing: 8) {
@@ -439,7 +513,7 @@ public struct InventoryListView: View {
                 .padding(.horizontal, 2)
             }
 
-            // Tasto Ordina Fisso (Tre Linee Orizzontali / Decrease)
+            // Tasto Ordina Fisso (Stessa identica altezza e stile dei filtri)
             Menu {
                 Picker("Ordinamento", selection: $selectedSortOption) {
                     ForEach(InventorySortOption.allCases) { option in
@@ -448,21 +522,26 @@ public struct InventoryListView: View {
                     }
                 }
             } label: {
-                Image(systemName: "line.3.horizontal.decrease")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(selectedSortOption == .dateDescending ? .primary : .brandOrange)
-                    .frame(width: 34, height: 34)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .stroke(selectedSortOption == .dateDescending ? Color.white.opacity(0.18) : Color.brandOrange, lineWidth: 1)
-                    )
+                HStack(spacing: 4) {
+                    Image(systemName: "line.3.horizontal.decrease")
+                        .font(.system(.caption, design: .rounded))
+                        .fontWeight(.bold)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .foregroundColor(selectedSortOption == .dateDescending ? .primary : .brandOrange)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(selectedSortOption == .dateDescending ? Color.white.opacity(0.18) : Color.brandOrange, lineWidth: 1)
+                )
             }
+            .buttonStyle(PlainButtonStyle())
         }
     }
 
-    // MARK: - Riga Articolo Inventario con Dimensioni Perfette e Nessuno Sbordamento
+    // MARK: - Riga Articolo Inventario
     @ViewBuilder
     private func inventoryItemRow(_ item: InventoryItem, status: InventorySaleStatus) -> some View {
         LiquidGlassCard(cornerRadius: 20, padding: 16) {
@@ -487,7 +566,7 @@ public struct InventoryListView: View {
                                 .font(.caption2)
                                 .foregroundColor(.secondary.opacity(0.5))
 
-                            Text("Carico: \(item.formattedLoadDate)")
+                            Text(item.formattedLoadDate)
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
 
@@ -524,11 +603,11 @@ public struct InventoryListView: View {
                             Spacer()
 
                             if let nextStage = next.nextStage {
-                                Text("Tra \(next.days) gg: \(nextStage.rawValue)")
+                                Text("Tra \(next.days) gg: \(nextStage == .discounted50 ? "In Saldo (-50%)" : "Maggior Realizzo")")
                                     .font(.system(size: 10, weight: .semibold))
                                     .foregroundColor(.brandOrange)
                             } else {
-                                Text("Oltre 90 gg (Maggior Realizzo)")
+                                Text("Oltre 90 gg: Maggior Realizzo")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(.red)
                             }
@@ -629,22 +708,31 @@ public struct InventoryListView: View {
         }
     }
 
+    // MARK: - Badge di Stato con Click per Dettaglio & Breakdown
     @ViewBuilder
     private func saleStatusBadge(_ status: InventorySaleStatus, item: InventoryItem) -> some View {
         let info = status.badgeInfo(totalItemQuantity: item.quantity)
         let color: Color = info.isSuccess ? .green : (info.isWarning ? .orange : (info.isInfo ? .blue : .primary))
 
-        HStack(spacing: 4) {
-            Image(systemName: info.icon)
-                .font(.system(size: 9))
-            Text(info.text)
-                .font(.system(size: 11, weight: .bold))
+        Button(action: {
+            HapticFeedback.selection()
+            self.selectedItemForBreakdown = (item, status)
+            self.showingBreakdownSheet = true
+        }) {
+            HStack(alignment: .center, spacing: 4) {
+                Image(systemName: info.icon)
+                    .font(.system(size: 9))
+                Text(info.text)
+                    .font(.system(size: 10, weight: .bold))
+                    .multilineTextAlignment(.trailing)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(color.opacity(0.14))
+            .foregroundColor(color)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.14))
-        .foregroundColor(color)
-        .clipShape(Capsule())
+        .buttonStyle(PlainButtonStyle())
     }
 
     // MARK: - Empty State View con Tutte le Opzioni di Caricamento
@@ -748,53 +836,54 @@ public struct InventoryListView: View {
     private func processImportedDocumentData(_ data: Data, fileName: String) {
         if fileName.lowercased().hasSuffix(".pdf") {
             if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data) as? UIImage,
-               let jpegData = renderedImage.jpegData(compressionQuality: 0.85) {
+               let jpegData = renderedImage.jpegData(compressionQuality: 0.8) {
                 executeVisionAnalysis(imageData: jpegData)
             } else {
-                processingStatusMessage = "Impossibile convertire il PDF in immagine"
-                HapticFeedback.notification(.error)
+                saveFeedbackBanner = "Impossibile convertire il PDF in immagine per l'analisi visiva."
             }
-        } else if let img = UIImage(data: data), let jpegData = img.jpegData(compressionQuality: 0.8) {
-            executeVisionAnalysis(imageData: jpegData)
-        }
-    }
-
-    private func executeVisionAnalysis(imageData: Data) {
-        isProcessingAI = true
-        processingStatusMessage = "Analisi visiva del documento con AI..."
-
-        Task {
-            do {
-                let visionService = settingsStore.makeVisionService()
-                let parsedBatch = try await visionService.analyzeInventoryDocument(
-                    imageData: imageData,
-                    shopId: activeShopId,
-                    userCardCode: activeUserCardCode
-                )
-
-                let deduplication = inventoryStore.analyzeBatchForDuplicates(
-                    batch: parsedBatch,
-                    shopId: activeShopId,
-                    userCardCode: activeUserCardCode
-                )
-
-                await MainActor.run {
-                    self.scannedBatchForReview = parsedBatch
-                    self.currentDeduplicationReport = deduplication
-                    self.isProcessingAI = false
-                    self.showingReviewSheet = true
-                }
-            } catch {
-                await MainActor.run {
-                    self.processingStatusMessage = error.localizedDescription
-                    self.isProcessingAI = false
-                    HapticFeedback.notification(.error)
-                }
+        } else {
+            if let img = UIImage(data: data), let jpegData = img.jpegData(compressionQuality: 0.8) {
+                executeVisionAnalysis(imageData: jpegData)
+            } else {
+                executeVisionAnalysis(imageData: data)
             }
         }
     }
     #else
-    private func processCapturedUIImage(_ image: Any) {}
+    private func processCapturedUIImage(_ uiImage: Any) {}
     private func processImportedDocumentData(_ data: Data, fileName: String) {}
     #endif
+
+    private func executeVisionAnalysis(imageData: Data) {
+        isProcessingAI = true
+        processingStatusMessage = "Analisi visiva del foglio in corso..."
+        HapticFeedback.impact(.medium)
+
+        let visionService = settingsStore.makeVisionService()
+        let store = inventoryStore
+        let shop = activeShopId
+        let user = activeUserCardCode
+
+        Task { @MainActor in
+            do {
+                let batch = try await visionService.analyzeInventoryDocument(
+                    imageData: imageData,
+                    shopId: shop,
+                    userCardCode: user
+                )
+
+                let report = store.analyzeBatchForDuplicates(batch: batch, shopId: shop, userCardCode: user)
+
+                self.scannedBatchForReview = batch
+                self.currentDeduplicationReport = report
+                self.isProcessingAI = false
+                self.showingReviewSheet = true
+                HapticFeedback.notification(.success)
+            } catch {
+                self.isProcessingAI = false
+                self.saveFeedbackBanner = "Errore durante l'analisi Vision: \(error.localizedDescription)"
+                HapticFeedback.notification(.error)
+            }
+        }
+    }
 }

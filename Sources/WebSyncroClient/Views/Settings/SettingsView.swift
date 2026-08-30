@@ -335,7 +335,115 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 4: Esportazione Dati & File Browser
+                        // Sezione 4: Centro Notifiche & Background Refresh
+                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                Label("Notifiche & Background Refresh", systemImage: "bell.badge.fill")
+                                    .font(.headline)
+                                    .foregroundColor(.brandOrange)
+
+                                Text("Ricevi avvisi per le vendite, maturazione dei crediti, passaggio in saldo e resi merce.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                Divider()
+
+                                Toggle("Nuove Vendite in Negozio", isOn: $settingsStore.notifyNewSales)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Toggle("Maturazione Crediti (Pronti al Ritiro)", isOn: $settingsStore.notifyMaturedCredits)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Toggle("Avviso Saldo -50% (Traguardo 60 gg)", isOn: $settingsStore.notifyDiscount50)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Toggle("Scadenza Mandato & Maggior Realizzo (>90 gg)", isOn: $settingsStore.notifyExpiringItems)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Toggle("Avviso Articolo Restituito (Reso)", isOn: $settingsStore.notifyReturns)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Divider()
+
+                                // Frequenza Sincronizzazione in Background
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Frequenza Controllo Background")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Text("Intervallo di aggiornamento automatico dei dati")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Picker("", selection: $settingsStore.backgroundRefreshIntervalMinutes) {
+                                        Text("15 min").tag(15)
+                                        Text("30 min").tag(30)
+                                        Text("1 ora").tag(60)
+                                        Text("3 ore").tag(180)
+                                        Text("6 ore").tag(360)
+                                    }
+                                    .pickerStyle(.menu)
+                                }
+
+                                Divider()
+
+                                // Tasti Test Demo
+                                VStack(spacing: 8) {
+                                    Button(action: {
+                                        NotificationManager.shared.sendDemoNotification()
+                                        HapticFeedback.notification(.success)
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "bell.and.waveform.fill")
+                                                .foregroundColor(.brandOrange)
+                                            Text("Test Notifica Vendita Demo")
+                                                .font(.caption)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                            Image(systemName: "paperplane.fill")
+                                                .font(.caption2)
+                                                .foregroundColor(.brandOrange)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+
+                                    Divider()
+
+                                    Button(action: {
+                                        NotificationManager.shared.simulateDemoReturn()
+                                        HapticFeedback.notification(.warning)
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90")
+                                                .foregroundColor(.red)
+                                            Text("Simula Reso Articolo Demo (In-App & Notifica)")
+                                                .font(.caption)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.red)
+                                            Spacer()
+                                            Image(systemName: "play.circle.fill")
+                                                .font(.caption2)
+                                                .foregroundColor(.red)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                        }
+
+                        // Sezione 5: Esportazione Dati & File Browser
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
                                 Label("Esportazione Dati & File Browser", systemImage: "square.and.arrow.up")

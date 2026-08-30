@@ -18,10 +18,18 @@ public struct UserCardView: View {
                 LiquidGlassBackground()
 
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
+                        // Header Nativo allineato Apple HIG
+                        HStack(alignment: .center) {
+                            Text("Card")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            Spacer()
+                        }
+                        .padding(.top, 4)
+
                         // Card Fornitore in stile Liquid Glass
                         cardWidget
-                            .padding(.top, 16)
 
                         // Informazioni di utilizzo
                         LiquidGlassCard(cornerRadius: 20, padding: 16) {
@@ -70,10 +78,12 @@ public struct UserCardView: View {
                         Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
+                    .padding(.top, 4)
                 }
             }
-            .navigationTitle("Card")
-            .adaptiveLargeTitle()
+            #if canImport(UIKit)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
         }
     }
 

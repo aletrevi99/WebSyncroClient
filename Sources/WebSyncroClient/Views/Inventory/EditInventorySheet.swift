@@ -93,7 +93,11 @@ public struct EditInventorySheet: View {
                         prepareNewItem()
                         showingAddModal = true
                     }) {
-                        Label("Aggiungi Articolo", systemImage: "plus")
+                        HStack(spacing: 4) {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Nuovo Articolo")
+                        }
+                        .font(.system(.subheadline, design: .rounded).bold())
                     }
                     .foregroundColor(.brandOrange)
                 }
@@ -137,7 +141,7 @@ public struct EditInventorySheet: View {
 
                                         HStack(spacing: 12) {
                                             VStack(alignment: .leading, spacing: 4) {
-                                                Text("Quantità")
+                                                Text("Quantità Pezzi")
                                                     .font(.caption2)
                                                     .foregroundColor(.secondary)
                                                 Stepper("\(newQuantity) pz", value: $newQuantity, in: 1...999)
@@ -146,10 +150,11 @@ public struct EditInventorySheet: View {
                                             Spacer()
 
                                             VStack(alignment: .trailing, spacing: 4) {
-                                                Text("Rimborso Unitario")
+                                                Text("Quota / Rimborso Unitario")
                                                     .font(.caption2)
                                                     .foregroundColor(.secondary)
                                                 TextField("0.00", value: $newPayout, format: .number.precision(.fractionLength(2)))
+                                                    .keyboardType(.decimalPad)
                                                     .multilineTextAlignment(.trailing)
                                                     .frame(maxWidth: 80)
                                                     .padding(10)
@@ -163,6 +168,7 @@ public struct EditInventorySheet: View {
                                                 .font(.caption2)
                                                 .foregroundColor(.secondary)
                                             TextField("0.00", value: $newExposed, format: .number.precision(.fractionLength(2)))
+                                                .keyboardType(.decimalPad)
                                                 .multilineTextAlignment(.trailing)
                                                 .frame(maxWidth: 80)
                                                 .padding(10)
@@ -184,7 +190,7 @@ public struct EditInventorySheet: View {
                             Button("Annulla") { showingAddModal = false }
                         }
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("Salva") {
+                            Button("Aggiorna") {
                                 saveNewManualItem()
                                 showingAddModal = false
                             }
@@ -271,7 +277,7 @@ public struct EditInventorySheet: View {
                             }
                         ), in: 1...999)
                         .labelsHidden()
-                        Text("\(item.quantity)")
+                        Text("\(item.quantity) pz")
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
@@ -279,9 +285,9 @@ public struct EditInventorySheet: View {
 
                     Spacer()
 
-                    // Rimborso Netto
+                    // Quota / Rimborso Unitario
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Rimborso")
+                        Text("Quota Singola")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                         HStack(spacing: 2) {
@@ -296,6 +302,7 @@ public struct EditInventorySheet: View {
                                     inventoryStore.updateItem(updated)
                                 }
                             ), format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
                             .font(.caption)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.trailing)
@@ -322,6 +329,7 @@ public struct EditInventorySheet: View {
                                     inventoryStore.updateItem(updated)
                                 }
                             ), format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.green)
@@ -361,4 +369,3 @@ public struct EditInventorySheet: View {
         inventoryStore.addManualItem(item, shopId: activeShopId, userCardCode: activeUserCardCode)
     }
 }
-

@@ -92,7 +92,7 @@ public enum InventorySaleStatus: Equatable, Sendable {
 
         case .partiallySold(let matured, let nonMatured, let remaining, _, _):
             let totalSold = matured + nonMatured
-            return ("\(totalSold)/\(totalItemQuantity) venduti • \(remaining) in negozio", "circle.lefthalf.filled", false, false, true)
+            return ("\(totalSold)/\(totalItemQuantity) venduti\n\(remaining) in negozio", "circle.lefthalf.filled", false, false, true)
 
         case .unsoldInShop(let qty):
             if totalItemQuantity <= 1 {

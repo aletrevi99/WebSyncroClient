@@ -38,6 +38,10 @@ public final class DashboardViewModel: ObservableObject {
     @Published public var filterRange: FilterRange = .all
     @Published public var selectedItemForDetail: SaleItem?
 
+    public var isLoading: Bool {
+        syncStatus.isSyncing
+    }
+
     private let service: WebSyncroServiceProtocol
     private let accountStore: AccountStore
     private var cancellables = Set<AnyCancellable>()

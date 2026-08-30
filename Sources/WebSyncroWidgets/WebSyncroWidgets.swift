@@ -1,19 +1,35 @@
 #if canImport(WidgetKit)
 import WidgetKit
 import SwiftUI
+#if canImport(WebSyncroClient)
+import WebSyncroClient
+#endif
+
+// MARK: - Timeline Entry
+public struct WebSyncroWidgetEntry: TimelineEntry {
+    public let date: Date
+    public let snapshot: WebSyncroWidgetSnapshot
+
+    public init(date: Date, snapshot: WebSyncroWidgetSnapshot) {
+        self.date = date
+        self.snapshot = snapshot
+    }
+}
 
 // MARK: - Timeline Provider per i Widget WebSyncro
-struct WebSyncroTimelineProvider: TimelineProvider {
-    func placeholder(in context: Context) -> WebSyncroWidgetEntry {
+public struct WebSyncroTimelineProvider: TimelineProvider {
+    public init() {}
+
+    public func placeholder(in context: Context) -> WebSyncroWidgetEntry {
         WebSyncroWidgetEntry(date: Date(), snapshot: WebSyncroWidgetSnapshot())
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (WebSyncroWidgetEntry) -> Void) {
+    public func getSnapshot(in context: Context, completion: @escaping (WebSyncroWidgetEntry) -> Void) {
         let snapshot = WidgetDataProvider.loadSnapshot()
         completion(WebSyncroWidgetEntry(date: Date(), snapshot: snapshot))
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<WebSyncroWidgetEntry>) -> Void) {
+    public func getTimeline(in context: Context, completion: @escaping (Timeline<WebSyncroWidgetEntry>) -> Void) {
         let snapshot = WidgetDataProvider.loadSnapshot()
         let entry = WebSyncroWidgetEntry(date: Date(), snapshot: snapshot)
 
@@ -22,11 +38,6 @@ struct WebSyncroTimelineProvider: TimelineProvider {
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }
-}
-
-struct WebSyncroWidgetEntry: TimelineEntry {
-    let date: Date
-    let snapshot: WebSyncroWidgetSnapshot
 }
 
 // MARK: - Widget 1: Saldo Maturato & In Negozio
@@ -45,11 +56,15 @@ public struct BalanceOverviewWidget: Widget {
     }
 }
 
-struct BalanceOverviewWidgetEntryView: View {
+public struct BalanceOverviewWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
-    let entry: WebSyncroWidgetEntry
+    public let entry: WebSyncroWidgetEntry
 
-    var body: some View {
+    public init(entry: WebSyncroWidgetEntry) {
+        self.entry = entry
+    }
+
+    public var body: some View {
         switch family {
         case .systemSmall:
             BalanceOverviewSmallWidgetView(snapshot: entry.snapshot)
@@ -109,8 +124,10 @@ public struct QuickCardWidget: Widget {
 
 // MARK: - Widget Bundle Principale
 @main
-struct WebSyncroWidgetBundle: WidgetBundle {
-    var body: some Widget {
+public struct WebSyncroWidgetBundle: WidgetBundle {
+    public init() {}
+
+    public var body: some Widget {
         BalanceOverviewWidget()
         RecentSalesWidget()
         ExpiringDiscountsWidget()
@@ -118,4 +135,3 @@ struct WebSyncroWidgetBundle: WidgetBundle {
     }
 }
 #endif
-

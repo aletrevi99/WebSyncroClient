@@ -20,6 +20,11 @@ let package = Package(
             dependencies: [],
             path: "Sources/WebSyncroClient"
         ),
+        .target(
+            name: "WebSyncroWidgets",
+            dependencies: ["WebSyncroClient"],
+            path: "Sources/WebSyncroWidgets"
+        ),
         .testTarget(
             name: "WebSyncroClientTests",
             dependencies: ["WebSyncroClient"],

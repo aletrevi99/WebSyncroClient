@@ -29,6 +29,15 @@ public struct NewsListView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
+                        // Header Nativo allineato Apple HIG
+                        HStack(alignment: .center) {
+                            Text("Notizie")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            Spacer()
+                        }
+                        .padding(.top, 4)
+
                         if isLoading && notifications.isEmpty {
                             EmptyOrErrorView(type: .loading(message: "Caricamento notizie dal mercatino..."))
                                 .padding(.top, 40)
@@ -58,14 +67,15 @@ public struct NewsListView: View {
                         Spacer(minLength: 90)
                     }
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.top, 4)
                 }
                 .refreshable {
                     await loadNotifications()
                 }
             }
-            .navigationTitle("Notizie")
-            .adaptiveLargeTitle()
+            #if canImport(UIKit)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
             .sheet(item: $selectedNotification) { notif in
                 notificationDetailSheet(notif)
             }

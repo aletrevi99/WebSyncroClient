@@ -6,9 +6,10 @@ public struct ShopInfoView: View {
     @State private var shopDetails: ShopDetails?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var isPolicyExpanded: Bool = false
     @State private var showingMandateSheet: Bool = false
     @State private var showingSettingsSheet: Bool = false
+    @State private var showingMapsDialog: Bool = false
+    @Environment(\.openURL) private var openURL
 
     private let service: WebSyncroServiceProtocol
 
@@ -31,8 +32,11 @@ public struct ShopInfoView: View {
                 LiquidGlassBackground()
 
                 ScrollView {
-                    VStack(spacing: 20) {
-                        // Card Principale: Identità Visiva, Bio, Sede e Contatti
+                    VStack(spacing: 18) {
+                        // Header Nativo allineato Apple HIG
+                        customHeaderBar
+
+                        // Card Principale: Identità Visiva, Bio e Tasti Azione Rapida
                         shopHeroCard
 
                         // Card Stato Apertura Oggi in Tempo Reale
@@ -43,28 +47,47 @@ public struct ShopInfoView: View {
                         // Card Orari della Settimana
                         weeklyScheduleCard
 
+                        // Card Dati Negozio & Sede Completa (in basso sotto gli orari)
+                        if let shop = shopDetails {
+                            shopDetailsBottomCard(shop: shop)
+                        }
+
                         // Card Espandibile: Come Funziona il Conto Vendita & Regolamento Recesso
                         howItWorksCard
 
                         // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
                         Spacer(minLength: 90)
                     }
-                    .padding(16)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
                 }
             }
-            .navigationTitle("Negozio")
-            .adaptiveLargeTitle()
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        HapticFeedback.selection()
-                        showingSettingsSheet = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.brandOrange)
+            #if canImport(UIKit)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
+            .confirmationDialog("Scegli applicazione Mappe", isPresented: $showingMapsDialog, titleVisibility: .visible) {
+                if let address = shopDetails?.fullAddress,
+                   let encodedAddr = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+
+                    Button("Apple Maps") {
+                        if let appleURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
+                            openURL(appleURL)
+                        }
+                    }
+
+                    Button("Google Maps") {
+                        if let googleAppURL = URL(string: "comgooglemaps://?q=\(encodedAddr)") {
+                            openURL(googleAppURL) { accepted in
+                                if !accepted, let webGoogleURL = URL(string: "https://www.google.com/maps/search/?api=1&query=\(encodedAddr)") {
+                                    openURL(webGoogleURL)
+                                }
+                            }
+                        } else if let webGoogleURL = URL(string: "https://www.google.com/maps/search/?api=1&query=\(encodedAddr)") {
+                            openURL(webGoogleURL)
+                        }
                     }
                 }
+                Button("Annulla", role: .cancel) {}
             }
             .sheet(isPresented: $showingMandateSheet) {
                 MandateClausesView()
@@ -78,10 +101,36 @@ public struct ShopInfoView: View {
         }
     }
 
+    // MARK: - Header Nativo Allineato
+    @ViewBuilder
+    private var customHeaderBar: some View {
+        HStack(alignment: .center) {
+            Text("Negozio")
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            Button(action: {
+                HapticFeedback.selection()
+                showingSettingsSheet = true
+            }) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.brandOrange)
+                    .frame(width: 38, height: 38)
+                    .background(Color.secondary.opacity(0.12))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .padding(.top, 4)
+    }
+
     // MARK: - Hero Card Principale
     @ViewBuilder
     private var shopHeroCard: some View {
-        LiquidGlassCard(cornerRadius: 24, padding: 22) {
+        LiquidGlassCard(cornerRadius: 24, padding: 20) {
             VStack(spacing: 16) {
                 // Logo o Icona Negozio
                 if isExNovoShop {
@@ -120,37 +169,6 @@ public struct ShopInfoView: View {
                 Divider()
                     .background(Color.white.opacity(0.1))
 
-                // Indirizzo e Sede (con tap rapido per aprire Apple Maps)
-                if let shop = shopDetails, !shop.fullAddress.isEmpty {
-                    if let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                       let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
-                        Link(destination: mapURL) {
-                            HStack(alignment: .center, spacing: 8) {
-                                Image(systemName: "mappin.and.ellipse")
-                                    .font(.subheadline)
-                                    .foregroundColor(.brandOrange)
-
-                                Text(shop.fullAddress)
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.primary)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary.opacity(0.6))
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.secondary.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                    }
-                }
-
                 // Pulsanti Azioni Rapide (Chiama, Email, Sito Web, Mappa)
                 if let shop = shopDetails {
                     HStack(spacing: 8) {
@@ -172,12 +190,13 @@ public struct ShopInfoView: View {
                             }
                         }
 
-                        if !shop.fullAddress.isEmpty,
-                           let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                           let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
-                            Link(destination: mapURL) {
+                        if !shop.fullAddress.isEmpty {
+                            Button(action: {
+                                showingMapsDialog = true
+                            }) {
                                 contactButton(icon: "map.fill", text: "Mappa", color: .purple)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
@@ -332,6 +351,56 @@ public struct ShopInfoView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+            }
+        }
+    }
+
+    // MARK: - Box Info & Sede Negozio (Sotto gli orari)
+    @ViewBuilder
+    private func shopDetailsBottomCard(shop: ShopDetails) -> some View {
+        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                Label("Sede & Informazioni Negozio", systemImage: "info.circle.fill")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+
+                Divider()
+
+                if !shop.fullAddress.isEmpty {
+                    infoRow(icon: "mappin.and.ellipse", title: "Indirizzo", value: shop.fullAddress)
+                }
+
+                if !shop.phone.isEmpty {
+                    infoRow(icon: "phone.fill", title: "Telefono", value: shop.phone)
+                }
+
+                if !shop.email.isEmpty {
+                    infoRow(icon: "envelope.fill", title: "Email", value: shop.email)
+                }
+
+                if !shop.website.isEmpty {
+                    infoRow(icon: "globe", title: "Sito Web", value: shop.website)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func infoRow(icon: String, title: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.subheadline)
+                .foregroundColor(.brandOrange)
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Text(value)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
             }
         }
     }

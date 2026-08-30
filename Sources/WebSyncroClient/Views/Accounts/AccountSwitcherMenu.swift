@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Menu rapido di selezione account posizionato nella navigation bar
+/// Menu rapido di selezione account posizionato nella testata dell'app
 public struct AccountSwitcherMenu: View {
     @ObservedObject var accountStore: AccountStore
     let onManageAccounts: () -> Void
@@ -52,15 +52,15 @@ public struct AccountSwitcherMenu: View {
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.secondary)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(.ultraThinMaterial)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                    .strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
             )
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
-
