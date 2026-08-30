@@ -182,6 +182,37 @@ public final class InventoryStore: ObservableObject {
         saveBatches()
     }
 
+    public func updateItem(_ item: InventoryItem) {
+        for bIdx in 0..<batches.count {
+            if let iIdx = batches[bIdx].items.firstIndex(where: { $0.id == item.id }) {
+                batches[bIdx].items[iIdx] = item
+                saveBatches()
+                HapticFeedback.notification(.success)
+                return
+            }
+        }
+    }
+
+    public func addManualItem(_ item: InventoryItem, shopId: String, userCardCode: String) {
+        if let firstIdx = batches.firstIndex(where: {
+            $0.shopId.caseInsensitiveCompare(shopId) == .orderedSame &&
+            $0.userCardCode.caseInsensitiveCompare(userCardCode) == .orderedSame
+        }) {
+            batches[firstIdx].items.insert(item, at: 0)
+        } else {
+            let newBatch = InventoryBatch(
+                listNumber: "MANUALE",
+                loadDate: Date(),
+                shopId: shopId,
+                userCardCode: userCardCode,
+                items: [item]
+            )
+            batches.insert(newBatch, at: 0)
+        }
+        saveBatches()
+        HapticFeedback.notification(.success)
+    }
+
     // MARK: - Motore di Riconciliazione (Tracciamento Quantità e Vendite Parziali)
 
     public func saleStatus(
@@ -252,12 +283,52 @@ public final class InventoryStore: ObservableObject {
         }
     }
 
-    // MARK: - Esportazione Diagnostica & Dati (JSON e Report)
+    // MARK: - Ordinamento Inventario
+
+    public func sort(
+        entries: [(item: InventoryItem, status: InventorySaleStatus)],
+        by option: InventorySortOption
+    ) -> [(item: InventoryItem, status: InventorySaleStatus)] {
+        switch option {
+        case .dateDescending:
+            return entries.sorted { $0.item.loadDate > $1.item.loadDate }
+        case .dateAscending:
+            return entries.sorted { $0.item.loadDate < $1.item.loadDate }
+        case .payoutDescending:
+            return entries.sorted { $0.item.currentClientPayout() > $1.item.currentClientPayout() }
+        case .payoutAscending:
+            return entries.sorted { $0.item.currentClientPayout() < $1.item.currentClientPayout() }
+        case .quantityDescending:
+            return entries.sorted { $0.item.quantity > $1.item.quantity }
+        case .titleAscending:
+            return entries.sorted { $0.item.title.localizedCaseInsensitiveCompare($1.item.title) == .orderedAscending }
+        case .statusInShopFirst:
+            return entries.sorted {
+                let leftRank = $0.status.hasRemainingInShop ? 0 : 1
+                let rightRank = $1.status.hasRemainingInShop ? 0 : 1
+                return leftRank < rightRank
+            }
+        }
+    }
+
+    // MARK: - Esportazione Diagnostica & Dati (JSON, CSV e Report)
 
     public func exportJSONData() -> Data? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         return try? encoder.encode(batches)
+    }
+
+    public func exportCSVData(shopId: String, userCardCode: String) -> String {
+        let scopedBatches = batches(for: shopId, userCardCode: userCardCode)
+        var csv = "Codice,Titolo,Quantita,PrezzoConcordato,RimborsoNetto,PrezzoEsposto,ListaNumero,DataCarico,Negozio\n"
+        for batch in scopedBatches {
+            for item in batch.items {
+                let cleanTitle = item.title.replacingOccurrences(of: "\"", with: "\"\"")
+                csv += "\"\(item.rawCode)\",\"\(cleanTitle)\",\(item.quantity),\(item.agreedPrice),\(item.clientPayoutInitial),\(item.exposedPriceInitial),\"\(batch.listNumber)\",\"\(item.formattedLoadDate)\",\"\(batch.shopId)\"\n"
+            }
+        }
+        return csv
     }
 
     public func exportDiagnosticReport(shopId: String, userCardCode: String) -> String {

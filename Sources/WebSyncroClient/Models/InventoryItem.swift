@@ -1,5 +1,30 @@
 import Foundation
 
+/// Opzioni di ordinamento per la lista inventario
+public enum InventorySortOption: String, CaseIterable, Identifiable, Sendable {
+    case dateDescending = "Carico più recente"
+    case dateAscending = "Carico meno recente"
+    case payoutDescending = "Rimborso più alto"
+    case payoutAscending = "Rimborso più basso"
+    case quantityDescending = "Quantità maggiore"
+    case titleAscending = "Titolo (A - Z)"
+    case statusInShopFirst = "Prima in Negozio"
+
+    public var id: String { rawValue }
+
+    public var iconName: String {
+        switch self {
+        case .dateDescending: return "calendar.badge.clock"
+        case .dateAscending: return "calendar"
+        case .payoutDescending: return "arrow.down.circle"
+        case .payoutAscending: return "arrow.up.circle"
+        case .quantityDescending: return "number.circle"
+        case .titleAscending: return "textformat.abc"
+        case .statusInShopFirst: return "storefront"
+        }
+    }
+}
+
 /// Stato del ciclo di vita contrattuale dell'oggetto in carico (in base ai giorni trascorsi)
 public enum ExposureStage: String, Codable, Sendable {
     case fullPrice = "Prezzo Pieno (100%)"
@@ -42,6 +67,39 @@ public enum InventorySaleStatus: Equatable, Sendable {
             return remaining
         case .fullySold:
             return 0
+        }
+    }
+
+    /// Etichetta concisa e pulita per la UI (se 1 pezzo, mostra solo lo stato essenziale)
+    public func badgeInfo(totalItemQuantity: Int) -> (text: String, icon: String, isSuccess: Bool, isWarning: Bool, isInfo: Bool) {
+        switch self {
+        case .fullySold(let matured, let nonMatured, _):
+            if totalItemQuantity <= 1 {
+                if nonMatured > 0 {
+                    return ("In Recesso", "hourglass", false, true, false)
+                } else {
+                    return ("Maturato", "checkmark.seal.fill", true, false, false)
+                }
+            } else {
+                if nonMatured > 0 && matured > 0 {
+                    return ("Venduto (\(matured) Mat, \(nonMatured) Rec)", "checkmark.seal.fill", true, false, false)
+                } else if nonMatured > 0 {
+                    return ("In Recesso (\(nonMatured) pz)", "hourglass", false, true, false)
+                } else {
+                    return ("Maturato (\(totalItemQuantity) pz)", "checkmark.seal.fill", true, false, false)
+                }
+            }
+
+        case .partiallySold(let matured, let nonMatured, let remaining, _, _):
+            let totalSold = matured + nonMatured
+            return ("\(totalSold)/\(totalItemQuantity) venduti • \(remaining) in negozio", "circle.lefthalf.filled", false, false, true)
+
+        case .unsoldInShop(let qty):
+            if totalItemQuantity <= 1 {
+                return ("In Negozio", "storefront.fill", false, false, true)
+            } else {
+                return ("In Negozio (\(qty) pz)", "storefront.fill", false, false, true)
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		033C593580843F5040D4AF32 /* EditInventorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2E28CC16B4154B5BDB9C2 /* EditInventorySheet.swift */; };
 		054573BC4B707EB6CAA5E8E2 /* QRCodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */; };
 		07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80206B2CE06C1298F40122E3 /* MetricStatCard.swift */; };
 		09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */; };
@@ -139,6 +140,7 @@
 		C0BB19835A8BA7BC984B023D /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
 		CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesListView.swift; sourceTree = "<group>"; };
 		CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
+		D0A2E28CC16B4154B5BDB9C2 /* EditInventorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditInventorySheet.swift; sourceTree = "<group>"; };
 		D528026838E617059B33E3AC /* QRCodeParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
 		D64A5EB9D8B3567315C28050 /* ModernAVCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernAVCameraView.swift; sourceTree = "<group>"; };
 		D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSyncroService.swift; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */,
+				D0A2E28CC16B4154B5BDB9C2 /* EditInventorySheet.swift */,
 				C0BB19835A8BA7BC984B023D /* InventoryListView.swift */,
 				EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */,
 			);
@@ -499,6 +502,7 @@
 				AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */,
 				D461DB8CDA2C39D4E0128ADD /* DocumentCaptureViews.swift in Sources */,
 				7B9B7E74115CAC263A33266E /* DocumentScannerView.swift in Sources */,
+				033C593580843F5040D4AF32 /* EditInventorySheet.swift in Sources */,
 				967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */,
 				FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */,
 				FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */,

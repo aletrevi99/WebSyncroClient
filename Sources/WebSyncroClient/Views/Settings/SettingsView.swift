@@ -367,6 +367,25 @@ public struct SettingsView: View {
 
                                 Divider()
 
+                                let csvString = inventoryStore.exportCSVData(shopId: activeShopId, userCardCode: activeUserCardCode)
+                                ShareLink(item: csvString, preview: SharePreview("WebSyncro_Inventario.csv", image: Image(systemName: "tablecells"))) {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "tablecells.fill")
+                                            .foregroundColor(.green)
+                                        Text("Esporta Tabella Excel / Numbers (.csv)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+
+                                Divider()
+
                                 let diagnosticText = inventoryStore.exportDiagnosticReport(shopId: activeShopId, userCardCode: activeUserCardCode)
                                 ShareLink(item: diagnosticText, preview: SharePreview("WebSyncro_Report_Diagnostico.txt", image: Image(systemName: "doc.text"))) {
                                     HStack(spacing: 10) {
