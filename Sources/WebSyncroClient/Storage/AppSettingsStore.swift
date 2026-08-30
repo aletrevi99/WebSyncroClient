@@ -1,18 +1,15 @@
 import Foundation
 import Combine
 
-/// Gestore delle preferenze globali dell'applicazione, modalità EX NOVO, LLM Vision, Notifiche e diagnostica
+/// Gestore delle preferenze globali dell'applicazione: modalità EX NOVO, Motore AI Vision e Notifiche
 @MainActor
 public final class AppSettingsStore: ObservableObject {
     public static let shared = AppSettingsStore()
 
     private let userDefaults: UserDefaults
     private let exNovoOnlyKey = "it.websyncro.client.exnovo_only_mode"
-    private let visionProviderKey = "it.websyncro.client.vision_provider"
     private let openRouterApiKeyKey = "it.websyncro.client.openrouter_api_key"
     private let openRouterModelKey = "it.websyncro.client.openrouter_model"
-    private let localModelEndpointKey = "it.websyncro.client.local_model_endpoint"
-    private let localModelNameKey = "it.websyncro.client.local_model_name"
 
     // Notifiche
     private let notifyNewSalesKey = "it.websyncro.client.notify_new_sales"
@@ -27,11 +24,6 @@ public final class AppSettingsStore: ObservableObject {
         didSet { userDefaults.setValue(isExNovoOnlyMode, forKey: exNovoOnlyKey) }
     }
 
-    /// Provider Vision attivo: "openrouter" | "local_llm"
-    @Published public var visionProvider: String {
-        didSet { userDefaults.setValue(visionProvider, forKey: visionProviderKey) }
-    }
-
     /// Chiave API OpenRouter
     @Published public var openRouterApiKey: String {
         didSet { userDefaults.setValue(openRouterApiKey, forKey: openRouterApiKeyKey) }
@@ -40,16 +32,6 @@ public final class AppSettingsStore: ObservableObject {
     /// Modello OpenRouter
     @Published public var openRouterModel: String {
         didSet { userDefaults.setValue(openRouterModel, forKey: openRouterModelKey) }
-    }
-
-    /// Endpoint server locale per LLM Vision
-    @Published public var localModelEndpoint: String {
-        didSet { userDefaults.setValue(localModelEndpoint, forKey: localModelEndpointKey) }
-    }
-
-    /// Nome modello locale per Ollama
-    @Published public var localModelName: String {
-        didSet { userDefaults.setValue(localModelName, forKey: localModelNameKey) }
     }
 
     // Preferenze Notifiche
@@ -85,11 +67,8 @@ public final class AppSettingsStore: ObservableObject {
             self.isExNovoOnlyMode = true
         }
 
-        self.visionProvider = userDefaults.string(forKey: visionProviderKey) ?? "openrouter"
         self.openRouterApiKey = userDefaults.string(forKey: openRouterApiKeyKey) ?? ""
         self.openRouterModel = userDefaults.string(forKey: openRouterModelKey) ?? "google/gemini-2.5-flash"
-        self.localModelEndpoint = userDefaults.string(forKey: localModelEndpointKey) ?? "http://localhost:11434"
-        self.localModelName = userDefaults.string(forKey: localModelNameKey) ?? "llava:latest"
 
         // Defaults Notifiche (tutti attivi per la migliore UX)
         self.notifyNewSales = userDefaults.object(forKey: notifyNewSalesKey) != nil ? userDefaults.bool(forKey: notifyNewSalesKey) : true
@@ -101,6 +80,6 @@ public final class AppSettingsStore: ObservableObject {
     }
 
     public func makeVisionService() -> VisionLLMServiceProtocol {
-        return OpenRouterVisionService(apiKey: openRouterApiKey, model: openRouterModel)
+        OpenRouterVisionService(apiKey: openRouterApiKey, model: openRouterModel)
     }
 }

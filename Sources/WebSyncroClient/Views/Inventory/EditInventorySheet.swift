@@ -382,12 +382,19 @@ public struct EditInventorySheet: View {
     }
 
     private func saveNewManualItem() {
+        let trimmedTitle = newTitle.trimmingCharacters(in: .whitespaces)
+        guard !trimmedTitle.isEmpty else { return }
+
+        let raw = newCode.trimmingCharacters(in: .whitespaces)
+        let cleanId = raw.replacingOccurrences(of: ".", with: "")
+        let finalId = cleanId.isEmpty ? UUID().uuidString : cleanId
+
         let item = InventoryItem(
-            id: newCode,
-            rawCode: newCode,
+            id: finalId,
+            rawCode: raw.isEmpty ? finalId : raw,
             listNumber: "MANUALE",
             loadDate: Date(),
-            title: newTitle.trimmingCharacters(in: .whitespaces),
+            title: trimmedTitle,
             category: "VARIE",
             quantity: newQuantity,
             agreedPrice: newAgreedPrice,

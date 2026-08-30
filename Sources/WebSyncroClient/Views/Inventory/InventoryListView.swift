@@ -219,15 +219,8 @@ public struct InventoryListView: View {
             .padding(.top, 8)
         }
         .background(LiquidGlassBackground())
+        .navigationTitle("Inventario")
         .toolbar {
-            #if os(iOS)
-            ToolbarItem(placement: .topBarLeading) {
-                Text("Inventario")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.primary)
-            }
-            #endif
-
             ToolbarItem(placement: .primaryAction) {
                 Button(action: {
                     HapticFeedback.selection()

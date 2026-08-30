@@ -148,10 +148,44 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
         let httpBody = try JSONSerialization.data(withJSONObject: payload)
         request.httpBody = httpBody
 
-        let (data, response) = try await session.data(for: request)
+        let startTime = CFAbsoluteTimeGetCurrent()
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            let durationMs = Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000)
+            await MainActor.run {
+                NetworkLogStore.shared.addLog(
+                    NetworkCallLog(
+                        method: "POST",
+                        urlString: url.absoluteString,
+                        statusCode: nil,
+                        durationMs: durationMs,
+                        errorDescription: error.localizedDescription
+                    )
+                )
+            }
+            throw VisionLLMError.networkError(error.localizedDescription)
+        }
+
+        let durationMs = Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000)
 
         guard let httpResp = response as? HTTPURLResponse else {
             throw VisionLLMError.networkError("Risposta non HTTP")
+        }
+
+        let snippet = String(data: data.prefix(300), encoding: .utf8) ?? "\(data.count) bytes"
+        await MainActor.run {
+            NetworkLogStore.shared.addLog(
+                NetworkCallLog(
+                    method: "POST",
+                    urlString: url.absoluteString,
+                    statusCode: httpResp.statusCode,
+                    durationMs: durationMs,
+                    responseSnippet: snippet
+                )
+            )
         }
 
         guard (200...299).contains(httpResp.statusCode) else {
@@ -176,77 +210,83 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
             throw VisionLLMError.jsonParsingFailed("Struttura risposta OpenRouter non valida")
         }
 
-        // Estrai il blocco JSON dal testo della risposta (rimuovendo eventuali ```json ... ```)
         let cleanJSON = extractJSONBlock(from: rawContent)
         guard let jsonData = cleanJSON.data(using: .utf8) else {
-            throw VisionLLMError.jsonParsingFailed("Impossibile codificare il testo JSON")
+            throw VisionLLMError.jsonParsingFailed("Impossibile convertire il JSON in dati")
         }
 
         return try parseBatchJSON(data: jsonData, shopId: shopId, userCardCode: userCardCode)
     }
 
-    private static func extractJSONBlock(from text: String) -> String {
-        var trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    /// Rimuove eventuali blocchi markdown ```json ... ``` dal testo
+    public static func extractJSONBlock(from text: String) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        if let startRange = trimmed.range(of: "```json") {
-            trimmed = String(trimmed[startRange.upperBound...])
-        } else if let startRange = trimmed.range(of: "```") {
-            trimmed = String(trimmed[startRange.upperBound...])
+        if let startRange = trimmed.range(of: "```json"),
+           let endRange = trimmed.range(of: "```", range: startRange.upperBound..<trimmed.endIndex) {
+            return String(trimmed[startRange.upperBound..<endRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        if let endRange = trimmed.range(of: "```", options: .backwards) {
-            trimmed = String(trimmed[..<endRange.lowerBound])
+        if let startRange = trimmed.range(of: "```"),
+           let endRange = trimmed.range(of: "```", range: startRange.upperBound..<trimmed.endIndex) {
+            return String(trimmed[startRange.upperBound..<endRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        // Se ci sono caratteri prima del primo '{' o dopo l'ultimo '}'
         if let firstBrace = trimmed.firstIndex(of: "{"),
            let lastBrace = trimmed.lastIndex(of: "}") {
-            trimmed = String(trimmed[firstBrace...lastBrace])
+            return String(trimmed[firstBrace...lastBrace])
         }
 
-        return trimmed.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed
     }
 
+    /// Struttura DTO interna per decodificare il JSON restituito dall'LLM
+    private struct BatchJSONDTO: Codable {
+        let list_number: String?
+        let load_date: String?
+        let total_pieces: Int?
+        let total_agreed_value: Decimal?
+        let total_exposed_value: Decimal?
+        let items: [ItemJSONDTO]?
+    }
+
+    private struct ItemJSONDTO: Codable {
+        let code: String?
+        let title: String?
+        let category: String?
+        let quantity: Int?
+        let agreed_price: Decimal?
+        let client_payout: Decimal?
+        let exposed_price: Decimal?
+    }
+
+    /// Converte il DTO decodificato nel modello di dominio `InventoryBatch`
     public static func parseBatchJSON(
         data: Data,
         shopId: String,
         userCardCode: String
     ) throws -> InventoryBatch {
-        struct DTO: Decodable {
-            let list_number: String?
-            let load_date: String?
-            let total_pieces: Int?
-            let total_agreed_value: Decimal?
-            let total_exposed_value: Decimal?
-            let items: [ItemDTO]?
-
-            struct ItemDTO: Decodable {
-                let code: String?
-                let title: String?
-                let category: String?
-                let quantity: Int?
-                let agreed_price: Decimal?
-                let client_payout: Decimal?
-                let exposed_price: Decimal?
-            }
+        let decoder = JSONDecoder()
+        guard let dto = try? decoder.decode(BatchJSONDTO.self, from: data) else {
+            throw VisionLLMError.jsonParsingFailed("Decodifica JSON DTO fallita")
         }
 
-        let decoder = JSONDecoder()
-        let dto = try decoder.decode(DTO.self, from: data)
+        let listNumber = dto.list_number?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "LISTA-\(UUID().uuidString.prefix(6))"
 
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "it_IT")
-        dateFormatter.dateFormat = "dd/MM/yyyy"
-
-        let loadDate = (dto.load_date != nil ? dateFormatter.date(from: dto.load_date!) : nil) ?? Date()
-        let listNumber = dto.list_number ?? ""
+        let loadDate: Date
+        if let dateStr = dto.load_date {
+            loadDate = DateExtensions.parseDate(dateStr) ?? Date()
+        } else {
+            loadDate = Date()
+        }
 
         var parsedItems: [InventoryItem] = []
-        for (index, itemDTO) in (dto.items ?? []).enumerated() {
-            let rawCode = itemDTO.code ?? "\(index + 1)"
-            let cleanId = rawCode.replacingOccurrences(of: ".", with: "").trimmingCharacters(in: .whitespaces)
+        for itemDTO in (dto.items ?? []) {
+            let rawCode = itemDTO.code?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let cleanId = rawCode.replacingOccurrences(of: ".", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cleanId.isEmpty else { continue }
 
-            let agreed = itemDTO.agreed_price ?? 0
+            let agreed = itemDTO.agreed_price ?? Decimal(0)
             let clientPayout = itemDTO.client_payout ?? (agreed * Decimal(0.5))
             let exposed = itemDTO.exposed_price ?? (agreed * Decimal(1.1))
 
@@ -287,91 +327,3 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
         )
     }
 }
-
-// MARK: - Local Open-Source LLM Client (Ollama / Local Server)
-
-public final class LocalVisionLLMService: VisionLLMServiceProtocol {
-    private let endpointURL: String
-    private let modelName: String
-    private let session: URLSession
-
-    public init(
-        endpointURL: String = "http://localhost:11434",
-        modelName: String = "llava:latest",
-        session: URLSession = .shared
-    ) {
-        self.endpointURL = endpointURL.trimmingCharacters(in: CharacterSet(charactersIn: "/ "))
-        self.modelName = modelName
-        self.session = session
-    }
-
-    public func analyzeInventoryDocument(
-        imageData: Data,
-        shopId: String = "exnovomercatino",
-        userCardCode: String = ""
-    ) async throws -> InventoryBatch {
-        guard let url = URL(string: "\(endpointURL)/api/generate") else {
-            throw VisionLLMError.networkError("URL endpoint locale non valido")
-        }
-
-        let base64Image = imageData.base64EncodedString()
-        let prompt = """
-        Sei un esperto contabile OCR. Analizza questa foto del documento 'Lista oggetti in carico'.
-        Estrai tutti i dati in formato JSON:
-        {
-          "list_number": "2026/009938",
-          "load_date": "11/06/2026",
-          "total_pieces": 35,
-          "total_agreed_value": 84.15,
-          "total_exposed_value": 93.50,
-          "items": [
-            {
-              "code": "1.260.214",
-              "title": "Libro 2",
-              "category": "LI",
-              "quantity": 6,
-              "agreed_price": 2.70,
-              "client_payout": 1.35,
-              "exposed_price": 3.00
-            }
-          ]
-        }
-        Rispondi ESCLUSIVAMENTE con il blocco JSON.
-        """
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 90
-
-        let payload: [String: Any] = [
-            "model": modelName,
-            "prompt": prompt,
-            "images": [base64Image],
-            "stream": false,
-            "format": "json"
-        ]
-
-        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
-
-        let (data, response) = try await session.data(for: request)
-
-        guard let httpResp = response as? HTTPURLResponse else {
-            throw VisionLLMError.networkError("Risposta non HTTP dal server locale")
-        }
-
-        guard (200...299).contains(httpResp.statusCode) else {
-            let errText = String(data: data, encoding: .utf8) ?? "Errore server locale"
-            throw VisionLLMError.invalidServerResponse(statusCode: httpResp.statusCode, message: errText)
-        }
-
-        guard let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let rawResponse = jsonObject["response"] as? String,
-              let jsonData = rawResponse.data(using: .utf8) else {
-            throw VisionLLMError.jsonParsingFailed("Risposta JSON Ollama non valida")
-        }
-
-        return try OpenRouterVisionService.parseBatchJSON(data: jsonData, shopId: shopId, userCardCode: userCardCode)
-    }
-}
-

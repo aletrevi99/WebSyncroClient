@@ -45,15 +45,8 @@ public struct DashboardView: View {
                 .padding(.top, 8)
             }
             .background(LiquidGlassBackground())
+            .navigationTitle(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .topBarLeading) {
-                    Text(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
-                }
-                #endif
-
                 ToolbarItem(placement: .primaryAction) {
                     AccountSwitcherMenu(
                         accountStore: accountStore,
