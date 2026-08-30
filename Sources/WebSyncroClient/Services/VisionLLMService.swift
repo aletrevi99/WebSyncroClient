@@ -275,7 +275,7 @@ public final class OpenRouterVisionService: VisionLLMServiceProtocol {
 
         let loadDate: Date
         if let dateStr = dto.load_date {
-            loadDate = DateExtensions.parseDate(dateStr) ?? Date()
+            loadDate = Date.fromSaleDateString(dateStr) ?? Date()
         } else {
             loadDate = Date()
         }
