@@ -1,13 +1,18 @@
 import SwiftUI
 
-/// Modale per inserire o modificare i parametri di un account negozio, anche tramite scansione QR
+/// Modale per inserire o modificare i parametri di un account negozio/utente, anche tramite scansione QR
 public struct AddAccountSheet: View {
     @ObservedObject var viewModel: AccountManagerViewModel
+    @ObservedObject var settingsStore: AppSettingsStore
     @Environment(\.dismiss) private var dismiss
     @State private var showingQRScanner = false
 
-    public init(viewModel: AccountManagerViewModel) {
+    public init(
+        viewModel: AccountManagerViewModel,
+        settingsStore: AppSettingsStore? = nil
+    ) {
         self.viewModel = viewModel
+        self.settingsStore = settingsStore ?? AppSettingsStore.shared
     }
 
     public var body: some View {
@@ -70,8 +75,8 @@ public struct AddAccountSheet: View {
                         }
                         .padding(.vertical, 2)
 
-                        // Selezione rapida negozi noti
-                        if !viewModel.availableShops.isEmpty {
+                        // Selezione rapida negozi noti (Visibile SOLO in modalità generale, nascosta in modalità EX NOVO)
+                        if !settingsStore.isExNovoOnlyMode && !viewModel.availableShops.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Text("Seleziona Negozio")
@@ -121,49 +126,51 @@ public struct AddAccountSheet: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 // Alias Personalizzato
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Nome / Alias Negozio (Opzionale)")
+                                    Text(settingsStore.isExNovoOnlyMode ? "Nome Profilo / Intestatario (Opzionale)" : "Nome / Alias Negozio (Opzionale)")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    TextField("Es. Mercatino Centro", text: $viewModel.formAlias)
+                                    TextField(settingsStore.isExNovoOnlyMode ? "Es. Alessandro" : "Es. Mercatino Centro", text: $viewModel.formAlias)
                                         .font(.body)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                 }
 
-                                // Identificativo Negozio (Hardcoded / Bloccato se selezionato dai preset)
-                                VStack(alignment: .leading, spacing: 6) {
-                                    HStack {
-                                        Text("Identificativo Negozio")
-                                            .font(.caption)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.secondary)
+                                // Identificativo Negozio (Visibile solo in modalità Generale)
+                                if !settingsStore.isExNovoOnlyMode {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        HStack {
+                                            Text("Identificativo Negozio")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.secondary)
 
-                                        if viewModel.isShopLocked {
-                                            Spacer()
-                                            Text("Preimpostato")
-                                                .font(.system(size: 10, weight: .bold))
-                                                .foregroundColor(.brandOrange)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Color.brandOrange.opacity(0.12))
-                                                .clipShape(Capsule())
+                                            if viewModel.isShopLocked {
+                                                Spacer()
+                                                Text("Preimpostato")
+                                                    .font(.system(size: 10, weight: .bold))
+                                                    .foregroundColor(.brandOrange)
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 2)
+                                                    .background(Color.brandOrange.opacity(0.12))
+                                                    .clipShape(Capsule())
+                                            }
                                         }
-                                    }
 
-                                    TextField("Identificativo negozio", text: $viewModel.formShopId)
-                                        .font(.system(.body, design: .monospaced))
-                                        .autocorrectionDisabled(true)
-                                        .disabled(viewModel.isShopLocked)
-                                        .opacity(viewModel.isShopLocked ? 0.75 : 1.0)
-                                        #if os(iOS)
-                                        .textInputAutocapitalization(.never)
-                                        #endif
-                                        .padding(10)
-                                        .background(Color.secondary.opacity(0.1))
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        TextField("Identificativo negozio", text: $viewModel.formShopId)
+                                            .font(.system(.body, design: .monospaced))
+                                            .autocorrectionDisabled(true)
+                                            .disabled(viewModel.isShopLocked)
+                                            .opacity(viewModel.isShopLocked ? 0.75 : 1.0)
+                                            #if os(iOS)
+                                            .textInputAutocapitalization(.never)
+                                            #endif
+                                            .padding(10)
+                                            .background(Color.secondary.opacity(0.1))
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
                                 }
 
                                 // Codice Tessera / Username
@@ -221,7 +228,7 @@ public struct AddAccountSheet: View {
                     .padding(16)
                 }
             }
-            .navigationTitle(viewModel.editingAccount == nil ? "Nuovo Account" : "Modifica Account")
+            .navigationTitle(viewModel.editingAccount == nil ? (settingsStore.isExNovoOnlyMode ? "Nuovo Utente" : "Nuovo Account") : (settingsStore.isExNovoOnlyMode ? "Modifica Utente" : "Modifica Account"))
             .adaptiveInlineTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -232,6 +239,9 @@ public struct AddAccountSheet: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Salva") {
+                        if settingsStore.isExNovoOnlyMode {
+                            viewModel.formShopId = "exnovomercatino"
+                        }
                         if viewModel.saveAccount() {
                             dismiss()
                         }
@@ -247,7 +257,6 @@ public struct AddAccountSheet: View {
                             _ = viewModel.handleScannedQRCode(code)
                         }
 
-                        // Mirino grafico overlay per scansione
                         VStack {
                             Text("Inquadra il codice QR della tua tessera")
                                 .font(.system(.subheadline, design: .rounded))

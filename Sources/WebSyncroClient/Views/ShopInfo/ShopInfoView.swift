@@ -8,6 +8,7 @@ public struct ShopInfoView: View {
     @State private var errorMessage: String?
     @State private var isPolicyExpanded: Bool = false
     @State private var showingMandateSheet: Bool = false
+    @State private var showingSettingsSheet: Bool = false
 
     private let service: WebSyncroServiceProtocol
 
@@ -52,8 +53,23 @@ public struct ShopInfoView: View {
             }
             .navigationTitle("Negozio")
             .adaptiveLargeTitle()
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        HapticFeedback.selection()
+                        showingSettingsSheet = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.brandOrange)
+                    }
+                }
+            }
             .sheet(isPresented: $showingMandateSheet) {
                 MandateClausesView()
+            }
+            .sheet(isPresented: $showingSettingsSheet) {
+                SettingsView()
             }
             .task {
                 await loadShopDetails()

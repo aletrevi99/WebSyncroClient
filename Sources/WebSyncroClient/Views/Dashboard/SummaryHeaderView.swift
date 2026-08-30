@@ -105,6 +105,7 @@ public struct SummaryHeaderView: View {
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             // Banner esplicativo per "In Recesso"

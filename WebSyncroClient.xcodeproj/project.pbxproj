@@ -45,6 +45,7 @@
 		967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */; };
 		97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */; };
 		9813311B39F78ED3675275E1 /* UserCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0070C7253DA49F575220BB /* UserCardView.swift */; };
+		A44ACD7FF7D1B0131F6B1C07 /* AppSettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */; };
 		AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFB02ED7971605E2178171 /* DateExtensions.swift */; };
 		B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D528026838E617059B33E3AC /* QRCodeParserTests.swift */; };
 		BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC221438A985A902E8B43FBD /* UserAccount.swift */; };
@@ -59,6 +60,7 @@
 		E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */; };
 		E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */; };
 		EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */; };
+		F26721CD520975F15DAA7214 /* AppSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4135147449377E5A6FE7A8 /* AppSettingsStore.swift */; };
 		F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */; };
 		F433990FA167F40786399D77 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */; };
 		FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */; };
@@ -76,6 +78,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStoreTests.swift; sourceTree = "<group>"; };
 		06B885D1F86AB9272AC8067E /* MandateClausesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandateClausesView.swift; sourceTree = "<group>"; };
 		070E6E59DAB1D9001F1BF4C0 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		094617839626F02AF8DFF349 /* InventoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryStore.swift; sourceTree = "<group>"; };
@@ -109,6 +112,7 @@
 		8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WebSyncroClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
 		9E92294B9CB3C28E1F2A329C /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		9F4135147449377E5A6FE7A8 /* AppSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsStore.swift; sourceTree = "<group>"; };
 		A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScanner.swift; sourceTree = "<group>"; };
 		A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
 		A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -167,6 +171,7 @@
 			children = (
 				6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */,
 				27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */,
+				01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */,
 				783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */,
 				76E10CD272914B86BBB41EDC /* InventoryOCRParserTests.swift */,
 				D528026838E617059B33E3AC /* QRCodeParserTests.swift */,
@@ -206,6 +211,7 @@
 			isa = PBXGroup;
 			children = (
 				CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */,
+				9F4135147449377E5A6FE7A8 /* AppSettingsStore.swift */,
 				094617839626F02AF8DFF349 /* InventoryStore.swift */,
 			);
 			path = Storage;
@@ -460,6 +466,7 @@
 				C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */,
 				45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */,
 				F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */,
+				F26721CD520975F15DAA7214 /* AppSettingsStore.swift in Sources */,
 				25C1308F730217772501FFAE /* AppState.swift in Sources */,
 				739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */,
 				5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */,
@@ -512,6 +519,7 @@
 			files = (
 				751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */,
 				43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */,
+				A44ACD7FF7D1B0131F6B1C07 /* AppSettingsStoreTests.swift in Sources */,
 				97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */,
 				1D40DAD24E11690D10F67ECE /* InventoryOCRParserTests.swift in Sources */,
 				B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */,

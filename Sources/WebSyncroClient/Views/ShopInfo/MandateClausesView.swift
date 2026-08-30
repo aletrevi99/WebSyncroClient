@@ -163,3 +163,4 @@ public struct MandateClausesView: View {
         }
     }
 }
+

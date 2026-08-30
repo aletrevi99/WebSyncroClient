@@ -192,3 +192,4 @@ public struct InventoryBatch: Identifiable, Codable, Hashable, Sendable {
         self.items = items
     }
 }
+

@@ -76,7 +76,7 @@ public struct InventoryOCRParser {
         }
 
         // 2. Estrazione Righe Tabella Articoli
-        let codePattern = #"^(?:[vV]?\s*)?(1\s*[\.\s]?\s*\d{3}\s*[\.\s]?\s*\d{3})\b"#
+        let codePattern = #"^(?:[vV\-\*•]?\s*)?(1\s*[\.\s]?\s*\d{3}\s*[\.\s]?\s*\d{3})\b"#
 
         for line in lines {
             guard let regex = try? NSRegularExpression(pattern: codePattern, options: .caseInsensitive) else { continue }
@@ -87,7 +87,7 @@ public struct InventoryOCRParser {
                 let rawCode = String(line[codeRange]).replacingOccurrences(of: " ", with: "")
                 let cleanId = rawCode.replacingOccurrences(of: ".", with: "")
 
-                var restOfLine = line.replacingOccurrences(of: String(line[Range(match.range(at: 0), in: line)!]), with: "").trimmingCharacters(in: .whitespaces)
+                let restOfLine = line.replacingOccurrences(of: String(line[Range(match.range(at: 0), in: line)!]), with: "").trimmingCharacters(in: .whitespaces)
 
                 let (title, quantity, agreed, clientPayout, exposed) = parseLineContent(restOfLine)
 
@@ -183,22 +183,34 @@ public struct InventoryOCRParser {
                 agreed = numbers[0]
             }
             if numbers.count >= 4 {
+                // Se abbiamo tutti gli importi: [agreed, provv, rimborso, iva, esposto]
                 clientPayout = numbers.count >= 3 ? numbers[2] : (numbers[0] * Decimal(0.5))
-                exposed = numbers.last ?? numbers[0]
+                exposed = numbers.last ?? (agreed * Decimal(1.1))
             } else if numbers.count >= 2 {
                 clientPayout = numbers.count >= 2 ? numbers[1] : (numbers[0] * Decimal(0.5))
-                exposed = numbers.last ?? numbers[0]
+                exposed = numbers.last ?? (agreed * Decimal(1.1))
             } else if let single = numbers.first {
                 clientPayout = single * Decimal(0.5)
-                exposed = single
+                exposed = single * Decimal(1.1)
             }
         } else if let single = numbers.first {
             agreed = single
             clientPayout = single * Decimal(0.5)
-            exposed = single
+            exposed = single * Decimal(1.1)
         }
 
-        return (titlePart, quantity, agreed, clientPayout, exposed)
+        // Se il rimborso o l'esposto sono rimasti 0 ma il concordato è noto, calcolali secondo le regole del mercatino
+        if clientPayout == 0 && agreed > 0 {
+            clientPayout = agreed * Decimal(0.5)
+        }
+        if exposed == 0 && agreed > 0 {
+            exposed = agreed * Decimal(1.1)
+        }
+
+        let cleanTitle = titlePart.replacingOccurrences(of: "  ", with: " ")
+            .trimmingCharacters(in: .whitespaces)
+
+        return (cleanTitle, quantity, agreed, clientPayout, exposed)
     }
 
     private static func extractDecimal(from text: String) -> Decimal? {

@@ -531,3 +531,4 @@ public struct InventoryListView: View {
     private func processScannedImage(_ image: Any) {}
     #endif
 }
+

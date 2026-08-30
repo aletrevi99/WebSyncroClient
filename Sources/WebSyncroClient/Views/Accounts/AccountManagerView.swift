@@ -82,7 +82,7 @@ public struct AccountManagerView: View {
                             }
                         }
 
-                        // Pulsante Aggiungi Account Negozio
+                        // Pulsante Aggiungi Account / Utente
                         Button(action: {
                             viewModel.prepareAddAccount()
                         }) {
@@ -92,7 +92,7 @@ public struct AccountManagerView: View {
                                         .font(.title3)
                                         .foregroundColor(.brandOrange)
 
-                                    Text("Aggiungi un altro negozio")
+                                    Text(AppSettingsStore.shared.isExNovoOnlyMode ? "Aggiungi un altro utente" : "Aggiungi un altro negozio")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.primary)
@@ -107,7 +107,7 @@ public struct AccountManagerView: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("I Miei Negozi")
+            .navigationTitle(AppSettingsStore.shared.isExNovoOnlyMode ? "I Miei Profili" : "I Miei Negozi")
             .adaptiveInlineTitle()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

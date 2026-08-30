@@ -12,7 +12,7 @@ public struct AccountSwitcherMenu: View {
 
     public var body: some View {
         Menu {
-            Section("I Miei Negozi") {
+            Section(AppSettingsStore.shared.isExNovoOnlyMode ? "Profili Utente" : "I Miei Negozi") {
                 ForEach(accountStore.accounts) { account in
                     Button(action: {
                         accountStore.selectAccount(id: account.id)
@@ -33,7 +33,7 @@ public struct AccountSwitcherMenu: View {
                     HapticFeedback.impact(.light)
                     onManageAccounts()
                 }) {
-                    Label("Gestisci negozi...", systemImage: "person.crop.circle.badge.plus")
+                    Label(AppSettingsStore.shared.isExNovoOnlyMode ? "Gestisci profili..." : "Gestisci negozi...", systemImage: "person.crop.circle.badge.plus")
                 }
             }
         } label: {
