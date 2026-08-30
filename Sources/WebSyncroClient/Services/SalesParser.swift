@@ -2,40 +2,44 @@ import Foundation
 
 public enum SalesParser {
     
+    // Pattern per la testata di un articolo: [ID] [DATA dd/MM/yyyy] [IMPORTO]
     private static let headerRegex = try! NSRegularExpression(
-        pattern: #"^\s*([0-9A-Za-z_-]+)\s+(\d{1,2}/\d{1,2}/\d{4})\s+(.+)$"#
+        pattern: #"^\s*([0-9A-Za-z_-]+)\s+(\d{1,2}/\d{1,2}/\d{4})\s+([0-9.,]+.*)$"#
     )
 
-    /// Esegue il parsing completo del file maturato.txt
+    /// Esegue il parsing del file maturato.txt o nonmaturato.txt
     public static func parse(
         content: String,
         shopId: String,
         userId: String,
-        syncTimestamp: String
+        syncTimestamp: String,
+        isNonMatured: Bool = false
     ) -> SalesReport {
         // Normalizza i ritorni a capo
         let normalized = content
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
 
-        // Separa la sezione principale dei record da eventuali metadati di coda
-        let mainContent: String
-        let postDelimiterContent: String?
+        // Separa la sezione dell'elenco
+        var listSection = normalized
+        var postDelimiterContent: String?
 
-        if let delimiterRange = normalized.range(of: "<#FINEELENCO>") {
-            mainContent = String(normalized[..<delimiterRange.lowerBound])
-            postDelimiterContent = String(normalized[delimiterRange.upperBound...])
-        } else {
-            mainContent = normalized
-            postDelimiterContent = nil
+        if let fineRange = listSection.range(of: "<#FINEELENCO>") {
+            postDelimiterContent = String(listSection[fineRange.upperBound...])
+            listSection = String(listSection[..<fineRange.lowerBound])
+        }
+
+        if let inizioRange = listSection.range(of: "<#INIZIOELENCO>") {
+            listSection = String(listSection[inizioRange.upperBound...])
         }
 
         // Estrai l'eventuale avviso opzionale
         let optionalNotice = extractOptionalNotice(from: normalized, postDelimiter: postDelimiterContent)
 
-        // Splitta in righe
-        let rawLines = mainContent.components(separatedBy: "\n")
+        // Parsing delle righe
+        let rawLines = listSection.components(separatedBy: "\n")
         var items: [SaleItem] = []
+        var pendingTitle: String? = nil
 
         var index = 0
         while index < rawLines.count {
@@ -47,40 +51,45 @@ public enum SalesParser {
                 continue
             }
 
-            // Verifica se è una riga di testata record (ID DATA IMPORTO)
             if let match = matchHeaderLine(line) {
-                let id = match.id
-                let dateString = match.dateString
-                let rawAmount = match.rawAmount
+                // Abbiamo trovato la riga ID DATA IMPORTO
+                let date = Date.fromSaleDateString(match.dateString) ?? Date()
+                let amount = parseAmount(match.rawAmount) ?? Decimal(0)
 
-                let date = Date.fromSaleDateString(dateString) ?? Date()
-                let amount = parseAmount(rawAmount) ?? Decimal(0)
-
-                // Cerca la descrizione nella riga successiva
-                var title = ""
-                if index < rawLines.count {
+                // Verifica se il titolo era nella riga precedente (es. WebSyncro standard)
+                let title: String
+                if let pt = pendingTitle, !pt.isEmpty {
+                    title = pt
+                    pendingTitle = nil
+                } else if index < rawLines.count {
+                    // Altrimenti controlla se è nella riga successiva
                     let nextCandidate = rawLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
-                    // Se la riga successiva è un'altra testata o un tag terminatore, non è la descrizione
-                    if isHeaderLine(nextCandidate) || nextCandidate.hasPrefix("<#") {
-                        // Descrizione vuota, la riga successiva verrà elaborata alla prossima iterazione
-                    } else {
+                    if !isHeaderLine(nextCandidate) && !nextCandidate.hasPrefix("<#") && !nextCandidate.isEmpty {
                         title = nextCandidate
                         index += 1
+                    } else {
+                        title = ""
                     }
+                } else {
+                    title = ""
                 }
 
                 let saleItem = SaleItem(
-                    id: id,
+                    id: match.id,
                     date: date,
-                    dateString: dateString,
+                    dateString: match.dateString,
                     amount: amount,
-                    title: title
+                    title: title,
+                    isNonMatured: isNonMatured
                 )
                 items.append(saleItem)
+            } else {
+                // Non è una testata: è una riga di descrizione/titolo
+                pendingTitle = line
             }
         }
 
-        // Calcola il totale complessivo
+        // Calcola il totale
         let totalEarned = items.reduce(Decimal(0)) { $0 + $1.amount }
 
         return SalesReport(
@@ -90,8 +99,63 @@ public enum SalesParser {
             totalEarned: totalEarned,
             itemsCount: items.count,
             items: items,
-            optionalNotice: optionalNotice
+            optionalNotice: optionalNotice,
+            isNonMatured: isNonMatured
         )
+    }
+
+    /// Esegue il parsing della stringa Orario.txt
+    public static func parseSchedule(content: String, shopId: String) -> ShopInfo {
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dayTokens = trimmed.components(separatedBy: "|")
+        let dayNames = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
+
+        var scheduleList: [DaySchedule] = []
+
+        for (index, dayName) in dayNames.enumerated() {
+            guard index < dayTokens.count else {
+                scheduleList.append(DaySchedule(id: index, dayName: dayName, isClosed: true, morningHours: nil, afternoonHours: nil))
+                continue
+            }
+
+            let token = dayTokens[index]
+            let parts = token.components(separatedBy: "-")
+
+            // Formato standard: isClosed-openMattina-closeMattina-openPomeriggio-closePomeriggio
+            // Es: 0-09:30-12:30-15:00-19:30
+            let isClosedFlag = parts.first == "1"
+
+            var morning: String? = nil
+            if parts.count >= 3 {
+                let start = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                let end = parts[2].trimmingCharacters(in: .whitespacesAndNewlines)
+                if !start.isEmpty && !end.isEmpty && start != "00:00" {
+                    morning = "\(start) - \(end)"
+                }
+            }
+
+            var afternoon: String? = nil
+            if parts.count >= 5 {
+                let start = parts[3].trimmingCharacters(in: .whitespacesAndNewlines)
+                let end = parts[4].trimmingCharacters(in: .whitespacesAndNewlines)
+                if !start.isEmpty && !end.isEmpty && start != "00:00" {
+                    afternoon = "\(start) - \(end)"
+                }
+            }
+
+            let isActuallyClosed = isClosedFlag || (morning == nil && afternoon == nil)
+
+            let daySchedule = DaySchedule(
+                id: index,
+                dayName: dayName,
+                isClosed: isActuallyClosed,
+                morningHours: morning,
+                afternoonHours: afternoon
+            )
+            scheduleList.append(daySchedule)
+        }
+
+        return ShopInfo(shopId: shopId, schedule: scheduleList, rawSchedule: trimmed)
     }
 
     /// Estrae l'avviso opzionale da <#FRASEOPZIONALE>
@@ -112,17 +176,17 @@ public enum SalesParser {
     }
 
     /// Verifica se una riga corrisponde al pattern testata record
-    private static func isHeaderLine(_ line: String) -> Bool {
+    public static func isHeaderLine(_ line: String) -> Bool {
         return matchHeaderLine(line) != nil
     }
 
-    private struct HeaderMatch {
-        let id: String
-        let dateString: String
-        let rawAmount: String
+    public struct HeaderMatch {
+        public let id: String
+        public let dateString: String
+        public let rawAmount: String
     }
 
-    private static func matchHeaderLine(_ line: String) -> HeaderMatch? {
+    public static func matchHeaderLine(_ line: String) -> HeaderMatch? {
         let range = NSRange(location: 0, length: (line as NSString).length)
         guard let match = headerRegex.firstMatch(in: line, options: [], range: range),
               match.numberOfRanges == 4 else {
@@ -160,18 +224,14 @@ public enum SalesParser {
             if let dotIndex = cleaned.firstIndex(of: "."),
                let commaIndex = cleaned.firstIndex(of: ","),
                dotIndex < commaIndex {
-                // Formato europeo: 1.234,56 -> 1234.56
                 cleaned = cleaned.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: ",", with: ".")
             } else {
-                // Formato US: 1,234.56 -> 1234.56
                 cleaned = cleaned.replacingOccurrences(of: ",", with: "")
             }
         } else if cleaned.contains(",") {
-            // Formato standard italiano: 0,45 -> 0.45
             cleaned = cleaned.replacingOccurrences(of: ",", with: ".")
         }
 
         return Decimal(string: cleaned, locale: Locale(identifier: "en_US"))
     }
 }
-

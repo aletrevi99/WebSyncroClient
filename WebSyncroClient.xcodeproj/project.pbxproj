@@ -28,6 +28,7 @@
 		7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */; };
 		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
 		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
+		8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */; };
 		8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */; };
 		967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */; };
 		97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */; };
@@ -39,6 +40,7 @@
 		DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */; };
 		DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
 		E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */; };
+		E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */; };
 		EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */; };
 		F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */; };
 		F433990FA167F40786399D77 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */; };
@@ -86,12 +88,14 @@
 		A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WebSyncroClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC221438A985A902E8B43FBD /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
+		AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfo.swift; sourceTree = "<group>"; };
 		B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
 		BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesListView.swift; sourceTree = "<group>"; };
 		CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
 		D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSyncroService.swift; sourceTree = "<group>"; };
 		DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyOrErrorView.swift; sourceTree = "<group>"; };
+		EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfoView.swift; sourceTree = "<group>"; };
 		F3DFB02ED7971605E2178171 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
 		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
@@ -163,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				674D4E9071C9DB89C845F209 /* Models.swift */,
+				AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */,
 				3324D9007E4EC87452DF1B2A /* SyncStatus.swift */,
 				AC221438A985A902E8B43FBD /* UserAccount.swift */,
 			);
@@ -197,6 +202,7 @@
 				802988DA2F72D9C198DC96F4 /* Dashboard */,
 				83B3986FFA37729D6E0F78C2 /* Detail */,
 				B53CB8540AE2929CFC75C009 /* Settings */,
+				974C7B5B4001437B1AB69C8D /* ShopInfo */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -217,6 +223,14 @@
 				3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */,
 			);
 			path = Detail;
+			sourceTree = "<group>";
+		};
+		974C7B5B4001437B1AB69C8D /* ShopInfo */ = {
+			isa = PBXGroup;
+			children = (
+				EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */,
+			);
+			path = ShopInfo;
 			sourceTree = "<group>";
 		};
 		B1E977F0095C46ABE8E4AAE2 /* Products */ = {
@@ -371,6 +385,8 @@
 				F433990FA167F40786399D77 /* SearchBarView.swift in Sources */,
 				53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */,
 				E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */,
+				E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */,
+				8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */,
 				7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */,
 				D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */,
 				BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */,

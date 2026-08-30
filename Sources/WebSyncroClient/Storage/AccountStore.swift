@@ -26,14 +26,16 @@ public final class AccountStore: ObservableObject {
     /// Carica gli account memorizzati
     public func loadAccounts() {
         if let data = userDefaults.data(forKey: accountsKey),
-           let decoded = try? JSONDecoder().decode([UserAccount].self, from: data) {
+           let decoded = try? JSONDecoder().decode([UserAccount].self, from: data),
+           !decoded.isEmpty {
             self.accounts = decoded
         } else {
-            // Account demo predefinito al primo avvio
+            // Account predefinito al primo avvio
             let defaultAccount = UserAccount(
-                shopId: "1042",
-                userId: "852",
-                accountAlias: "Mercatino Centro"
+                shopId: "exnovomercatino",
+                cardCode: "TRE091",
+                pin: "1762",
+                accountAlias: "Exnovo Mercatino"
             )
             self.accounts = [defaultAccount]
             saveAccounts()
@@ -59,10 +61,11 @@ public final class AccountStore: ObservableObject {
     }
 
     /// Aggiunge un nuovo account e lo rende attivo
-    public func addAccount(shopId: String, userId: String, alias: String) -> UserAccount {
+    public func addAccount(shopId: String, cardCode: String, pin: String, alias: String) -> UserAccount {
         let newAccount = UserAccount(
             shopId: shopId,
-            userId: userId,
+            cardCode: cardCode,
+            pin: pin,
             accountAlias: alias
         )
         accounts.append(newAccount)
@@ -101,15 +104,18 @@ public final class AccountStore: ObservableObject {
     public func recordSuccessfulSync(
         accountId: UUID,
         totalEarned: Decimal,
+        nonMaturedEarned: Decimal? = nil,
         snapshotFolder: String
     ) {
         guard let index = accounts.firstIndex(where: { $0.id == accountId }) else { return }
         var account = accounts[index]
         account.lastSyncDate = Date()
         account.lastTotalEarned = totalEarned
+        if let nm = nonMaturedEarned {
+            account.lastNonMaturedEarned = nm
+        }
         account.lastSnapshotFolder = snapshotFolder
         accounts[index] = account
         saveAccounts()
     }
 }
-

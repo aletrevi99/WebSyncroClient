@@ -1,25 +1,28 @@
 import Foundation
 
-/// Modello che rappresenta una singola vendita o articolo maturato
+/// Modello che rappresenta una singola vendita o articolo
 public struct SaleItem: Identifiable, Hashable, Sendable, Codable {
     public let id: String           // Es. "1260224"
     public let date: Date           // Da stringa "dd/MM/yyyy"
     public let dateString: String   // "28/08/2026"
     public let amount: Decimal      // Es. 0.45
     public let title: String        // Es. Titolo libro / descrizione articolo
+    public let isNonMatured: Bool   // True se in periodo di recesso (non maturato)
 
     public init(
         id: String,
         date: Date,
         dateString: String,
         amount: Decimal,
-        title: String
+        title: String,
+        isNonMatured: Bool = false
     ) {
         self.id = id
         self.date = date
         self.dateString = dateString
         self.amount = amount
         self.title = title
+        self.isNonMatured = isNonMatured
     }
 
     /// Ritorna un titolo leggibile o un fallback
@@ -29,7 +32,7 @@ public struct SaleItem: Identifiable, Hashable, Sendable, Codable {
     }
 }
 
-/// Modello complessivo contenente il report maturato calcolato e i metadati
+/// Modello complessivo contenente il report maturato/non maturato calcolato e i metadati
 public struct SalesReport: Hashable, Sendable, Codable {
     public let shopId: String
     public let userId: String
@@ -38,6 +41,7 @@ public struct SalesReport: Hashable, Sendable, Codable {
     public let itemsCount: Int
     public let items: [SaleItem]
     public let optionalNotice: String?
+    public let isNonMatured: Bool
 
     public init(
         shopId: String,
@@ -46,7 +50,8 @@ public struct SalesReport: Hashable, Sendable, Codable {
         totalEarned: Decimal,
         itemsCount: Int,
         items: [SaleItem],
-        optionalNotice: String? = nil
+        optionalNotice: String? = nil,
+        isNonMatured: Bool = false
     ) {
         self.shopId = shopId
         self.userId = userId
@@ -55,11 +60,11 @@ public struct SalesReport: Hashable, Sendable, Codable {
         self.itemsCount = itemsCount
         self.items = items
         self.optionalNotice = optionalNotice
+        self.isNonMatured = isNonMatured
     }
 
     /// Data formattata dello snapshot se convertibile
     public var formattedSyncDate: String {
-        // Il timestamp è del tipo "SM_2026-08-29T19:54:28" oppure "2026-08-29T19:54:28"
         let raw = syncTimestamp.replacingOccurrences(of: "SM_", with: "")
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate, .withTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
@@ -73,4 +78,3 @@ public struct SalesReport: Hashable, Sendable, Codable {
         return syncTimestamp
     }
 }
-

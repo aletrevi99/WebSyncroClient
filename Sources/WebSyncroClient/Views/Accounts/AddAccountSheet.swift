@@ -18,14 +18,20 @@ public struct AddAccountSheet: View {
                     VStack(spacing: 20) {
                         // Card informativa
                         LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "info.circle")
+                            HStack(alignment: .top, spacing: 12) {
+                                Image(systemName: "person.badge.key.fill")
                                     .font(.title3)
                                     .foregroundColor(.accentColor)
+                                    .padding(.top, 2)
 
-                                Text("Inserisci il codice identificativo del negozio WebSyncro e il tuo ID utente personale per accedere al maturato.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Credenziali WebSyncro")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                    Text("Inserisci il nome del negozio (es. exnovomercatino), il codice alfanumerico della tua tessera cliente (es. TRE091) e il tuo PIN (es. 1762).")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
 
@@ -34,57 +40,70 @@ public struct AddAccountSheet: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 // Alias Facoltativo
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Nome / Alias Negozio (Opzionale)")
+                                    Text("Nome / Alias Personalizzato (Opzionale)")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    TextField("Es. Mercatino Centro", text: $viewModel.formAlias)
+                                    TextField("Es. Ex Novo Mercatino", text: $viewModel.formAlias)
                                         .font(.body)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                 }
 
-                                // Shop ID
+                                // Shop ID / Slug
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("ID Negozio (Shop ID)")
+                                    Text("Identificativo Negozio (Shop ID)")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    #if os(iOS)
-                                    TextField("Es. 1042", text: $viewModel.formShopId)
+                                    TextField("Es. exnovomercatino", text: $viewModel.formShopId)
                                         .font(.system(.body, design: .monospaced))
-                                        .keyboardType(.numberPad)
+                                        .autocorrectionDisabled(true)
+                                        #if os(iOS)
+                                        .textInputAutocapitalization(.never)
+                                        #endif
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    #else
-                                    TextField("Es. 1042", text: $viewModel.formShopId)
-                                        .font(.system(.body, design: .monospaced))
-                                        .padding(10)
-                                        .background(Color.secondary.opacity(0.1))
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    #endif
                                 }
 
-                                // User ID
+                                // Codice Tessera / Username
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("ID Utente (User ID)")
+                                    Text("Codice Tessera Cliente (Username)")
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.secondary)
+
+                                    TextField("Es. TRE091", text: $viewModel.formCardCode)
+                                        .font(.system(.body, design: .monospaced))
+                                        .autocorrectionDisabled(true)
+                                        #if os(iOS)
+                                        .textInputAutocapitalization(.characters)
+                                        #endif
+                                        .padding(10)
+                                        .background(Color.secondary.opacity(0.1))
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+
+                                // PIN
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("PIN Tessera (Numerico)")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
                                     #if os(iOS)
-                                    TextField("Es. 852", text: $viewModel.formUserId)
+                                    TextField("Es. 1762", text: $viewModel.formPin)
                                         .font(.system(.body, design: .monospaced))
                                         .keyboardType(.numberPad)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                     #else
-                                    TextField("Es. 852", text: $viewModel.formUserId)
+                                    TextField("Es. 1762", text: $viewModel.formPin)
                                         .font(.system(.body, design: .monospaced))
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
@@ -127,4 +146,3 @@ public struct AddAccountSheet: View {
         }
     }
 }
-

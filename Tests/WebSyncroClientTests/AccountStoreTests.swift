@@ -23,14 +23,15 @@ final class AccountStoreTests: XCTestCase {
         let store = AccountStore(userDefaults: tempDefaults)
 
         let account = store.addAccount(
-            shopId: "2050",
-            userId: "999",
-            alias: "Negozio Test Nord"
+            shopId: "exnovomercatino",
+            cardCode: "TRE091",
+            pin: "1762",
+            alias: "Exnovo Mercatino"
         )
 
         XCTAssertEqual(store.accounts.count, 2) // default + newly added
         XCTAssertEqual(store.activeAccountId, account.id)
-        XCTAssertEqual(store.activeAccount?.accountAlias, "Negozio Test Nord")
+        XCTAssertEqual(store.activeAccount?.userId, "TRE091_1762")
     }
 
     func testUpdateAccount() {
@@ -48,7 +49,7 @@ final class AccountStoreTests: XCTestCase {
 
     func testDeleteAccount() {
         let store = AccountStore(userDefaults: tempDefaults)
-        let added = store.addAccount(shopId: "3000", userId: "100", alias: "Da Cancellare")
+        let added = store.addAccount(shopId: "shop3000", cardCode: "CLI100", pin: "9999", alias: "Da Cancellare")
 
         XCTAssertEqual(store.activeAccountId, added.id)
 
@@ -67,14 +68,14 @@ final class AccountStoreTests: XCTestCase {
 
         store.recordSuccessfulSync(
             accountId: account.id,
-            totalEarned: Decimal(string: "154.20")!,
+            totalEarned: Decimal(string: "14.87")!,
+            nonMaturedEarned: Decimal(string: "2.25")!,
             snapshotFolder: "SM_2026-08-29T19:54:28"
         )
 
         let updated = store.activeAccount
         XCTAssertNotNil(updated?.lastSyncDate)
-        XCTAssertEqual(updated?.lastTotalEarned, Decimal(string: "154.20"))
-        XCTAssertEqual(updated?.lastSnapshotFolder, "SM_2026-08-29T19:54:28")
+        XCTAssertEqual(updated?.lastTotalEarned, Decimal(string: "14.87"))
+        XCTAssertEqual(updated?.lastNonMaturedEarned, Decimal(string: "2.25"))
     }
 }
-

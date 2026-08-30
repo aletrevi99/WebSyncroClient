@@ -9,8 +9,9 @@ public final class AccountManagerViewModel: ObservableObject {
     @Published public var editingAccount: UserAccount?
 
     // Campi form
-    @Published public var formShopId: String = ""
-    @Published public var formUserId: String = ""
+    @Published public var formShopId: String = "exnovomercatino"
+    @Published public var formCardCode: String = ""
+    @Published public var formPin: String = ""
     @Published public var formAlias: String = ""
     @Published public var formValidationError: String?
 
@@ -41,8 +42,9 @@ public final class AccountManagerViewModel: ObservableObject {
     }
 
     public func prepareAddAccount() {
-        formShopId = ""
-        formUserId = ""
+        formShopId = "exnovomercatino"
+        formCardCode = ""
+        formPin = ""
         formAlias = ""
         formValidationError = nil
         editingAccount = nil
@@ -52,7 +54,8 @@ public final class AccountManagerViewModel: ObservableObject {
     public func prepareEditAccount(_ account: UserAccount) {
         editingAccount = account
         formShopId = account.shopId
-        formUserId = account.userId
+        formCardCode = account.cardCode
+        formPin = account.pin
         formAlias = account.accountAlias
         formValidationError = nil
         isAddingAccount = true
@@ -60,17 +63,24 @@ public final class AccountManagerViewModel: ObservableObject {
 
     public func saveAccount() -> Bool {
         let cleanShop = formShopId.trimmingCharacters(in: .whitespacesAndNewlines)
-        let cleanUser = formUserId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanCard = formCardCode.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanPin = formPin.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanAlias = formAlias.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if cleanShop.isEmpty {
-            formValidationError = "Inserisci l'ID del negozio (es. 1042)"
+            formValidationError = "Inserisci l'ID o nome del negozio (es. exnovomercatino)"
             HapticFeedback.notification(.warning)
             return false
         }
 
-        if cleanUser.isEmpty {
-            formValidationError = "Inserisci l'ID utente (es. 852)"
+        if cleanCard.isEmpty {
+            formValidationError = "Inserisci il Codice Tessera / Username cliente (es. TRE091)"
+            HapticFeedback.notification(.warning)
+            return false
+        }
+
+        if cleanPin.isEmpty {
+            formValidationError = "Inserisci il PIN numerico associato (es. 1762)"
             HapticFeedback.notification(.warning)
             return false
         }
@@ -80,13 +90,15 @@ public final class AccountManagerViewModel: ObservableObject {
         if let existing = editingAccount {
             var updated = existing
             updated.shopId = cleanShop
-            updated.userId = cleanUser
+            updated.cardCode = cleanCard
+            updated.pin = cleanPin
             updated.accountAlias = cleanAlias
             accountStore.updateAccount(updated)
         } else {
             _ = accountStore.addAccount(
                 shopId: cleanShop,
-                userId: cleanUser,
+                cardCode: cleanCard,
+                pin: cleanPin,
                 alias: cleanAlias
             )
         }
@@ -96,4 +108,3 @@ public final class AccountManagerViewModel: ObservableObject {
         return true
     }
 }
-

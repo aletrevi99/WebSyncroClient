@@ -23,7 +23,7 @@ public enum WebSyncroError: LocalizedError, Sendable {
         case .noSnapshotsFound(let shopId):
             return "Nessuna sincronizzazione (cartella SM_...) trovata per il negozio #\(shopId)"
         case .userReportNotFound(let shopId, let userId, let snapshot):
-            return "Nessun report maturato per l'utente #\(userId) nel negozio #\(shopId) (snapshot: \(snapshot))"
+            return "Nessun report per l'utente #\(userId) nel negozio #\(shopId) (snapshot: \(snapshot))"
         case .emptyResponse:
             return "Risposta vuota ricevuta dal server"
         case .decodingError(let details):
@@ -33,12 +33,23 @@ public enum WebSyncroError: LocalizedError, Sendable {
 }
 
 public protocol WebSyncroServiceProtocol: Sendable {
-    /// Esegue il flusso a 2 fasi: recupero snapshot cartella e download maturato.txt
+    /// Esegue il recupero del report maturato o non maturato
     func fetchSalesReport(
         shopId: String,
         userId: String,
+        isNonMatured: Bool,
         onProgress: (@Sendable (SyncStatus) -> Void)?
     ) async throws -> SalesReport
+
+    /// Recupera sia il report maturato che quello non maturato (in recesso)
+    func fetchBothReports(
+        shopId: String,
+        userId: String,
+        onProgress: (@Sendable (SyncStatus) -> Void)?
+    ) async throws -> (matured: SalesReport, nonMatured: SalesReport)
+
+    /// Recupera gli orari del negozio da Orario.txt
+    func fetchShopInfo(shopId: String) async throws -> ShopInfo
 
     /// Recupera l'elenco di tutte le cartelle snapshot disponibili per il negozio
     func fetchAvailableSnapshots(shopId: String) async throws -> [String]
@@ -46,7 +57,10 @@ public protocol WebSyncroServiceProtocol: Sendable {
 
 public extension WebSyncroServiceProtocol {
     func fetchSalesReport(shopId: String, userId: String) async throws -> SalesReport {
-        return try await fetchSalesReport(shopId: shopId, userId: userId, onProgress: nil)
+        return try await fetchSalesReport(shopId: shopId, userId: userId, isNonMatured: false, onProgress: nil)
+    }
+
+    func fetchBothReports(shopId: String, userId: String) async throws -> (matured: SalesReport, nonMatured: SalesReport) {
+        return try await fetchBothReports(shopId: shopId, userId: userId, onProgress: nil)
     }
 }
-

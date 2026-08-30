@@ -22,12 +22,11 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         self.userAgent = userAgent
     }
 
-    /// Esegue il flusso a 2 fasi:
-    /// 1. Scraping dell'HTML directory listing del negozio per individuare lo snapshot SM_... più recente
-    /// 2. Download del file maturato.txt dell'utente
+    /// Esegue il flusso a 2 fasi per recuperare maturato.txt o nonmaturato.txt
     public func fetchSalesReport(
         shopId: String,
         userId: String,
+        isNonMatured: Bool = false,
         onProgress: (@Sendable (SyncStatus) -> Void)? = nil
     ) async throws -> SalesReport {
         let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -37,7 +36,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
             throw WebSyncroError.shopNotFound(shopId: shopId)
         }
         guard !cleanUserId.isEmpty else {
-            throw WebSyncroError.invalidURL("ID Utente vuoto")
+            throw WebSyncroError.invalidURL("ID Utente / Tessera non valido")
         }
 
         // FASE 1: Directory Listing Scrape
@@ -48,10 +47,11 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
             throw WebSyncroError.noSnapshotsFound(shopId: cleanShopId)
         }
 
-        // FASE 2: Download maturato.txt
+        // FASE 2: Download file
+        let fileName = isNonMatured ? "nonmaturato.txt" : "maturato.txt"
         onProgress?(.downloadingReport(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId))
         
-        let reportURLString = "\(Self.baseHost)/\(cleanShopId)/\(latestSnapshot)/\(cleanUserId)/maturato.txt"
+        let reportURLString = "\(Self.baseHost)/\(cleanShopId)/\(latestSnapshot)/\(cleanUserId)/\(fileName)"
         guard let reportURL = URL(string: reportURLString) else {
             throw WebSyncroError.invalidURL(reportURLString)
         }
@@ -82,21 +82,143 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
             )
         }
 
-        guard !data.isEmpty else {
-            throw WebSyncroError.emptyResponse
-        }
-
-        // Decodifica del testo con fallback di codifica (UTF-8 -> ISO-8859-1 -> Windows-1252)
         let textContent = decodeDataToString(data)
 
         let report = SalesParser.parse(
             content: textContent,
             shopId: cleanShopId,
             userId: cleanUserId,
-            syncTimestamp: latestSnapshot
+            syncTimestamp: latestSnapshot,
+            isNonMatured: isNonMatured
         )
 
         return report
+    }
+
+    /// Scarica contemporaneamente sia il report maturato che non maturato (in recesso)
+    public func fetchBothReports(
+        shopId: String,
+        userId: String,
+        onProgress: (@Sendable (SyncStatus) -> Void)? = nil
+    ) async throws -> (matured: SalesReport, nonMatured: SalesReport) {
+        let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanUserId = userId.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !cleanShopId.isEmpty else {
+            throw WebSyncroError.shopNotFound(shopId: shopId)
+        }
+        guard !cleanUserId.isEmpty else {
+            throw WebSyncroError.invalidURL("ID Utente / Tessera non valido")
+        }
+
+        // FASE 1: Directory Listing Scrape
+        onProgress?(.scrapingDirectory(shopId: cleanShopId))
+        let snapshots = try await fetchAvailableSnapshots(shopId: cleanShopId)
+
+        guard let latestSnapshot = snapshots.first else {
+            throw WebSyncroError.noSnapshotsFound(shopId: cleanShopId)
+        }
+
+        onProgress?(.downloadingReport(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId))
+
+        // FASE 2: Download parallelo di maturato.txt e nonmaturato.txt
+        async let maturedData = fetchReportFile(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId, fileName: "maturato.txt")
+        async let nonMaturedData = fetchReportFile(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId, fileName: "nonmaturato.txt")
+
+        let (matData, nonMatData) = try await (maturedData, nonMaturedData)
+
+        let maturedReport = SalesParser.parse(
+            content: matData,
+            shopId: cleanShopId,
+            userId: cleanUserId,
+            syncTimestamp: latestSnapshot,
+            isNonMatured: false
+        )
+
+        let nonMaturedReport = SalesParser.parse(
+            content: nonMatData,
+            shopId: cleanShopId,
+            userId: cleanUserId,
+            syncTimestamp: latestSnapshot,
+            isNonMatured: true
+        )
+
+        return (maturedReport, nonMaturedReport)
+    }
+
+    /// Recupera gli orari del negozio da Orario.txt
+    public func fetchShopInfo(shopId: String) async throws -> ShopInfo {
+        let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let urlString = "\(Self.baseHost)/\(cleanShopId)/Orario.txt"
+
+        guard let url = URL(string: urlString) else {
+            throw WebSyncroError.invalidURL(urlString)
+        }
+
+        var request = URLRequest(
+            url: url,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+            timeoutInterval: 20.0
+        )
+        request.httpMethod = "GET"
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw WebSyncroError.networkError("Risposta non HTTP")
+        }
+
+        if httpResponse.statusCode == 404 {
+            throw WebSyncroError.shopNotFound(shopId: cleanShopId)
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw WebSyncroError.httpError(
+                statusCode: httpResponse.statusCode,
+                message: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
+            )
+        }
+
+        let raw = decodeDataToString(data)
+        return SalesParser.parseSchedule(content: raw, shopId: cleanShopId)
+    }
+
+    /// Helper privato per il download di un file report
+    private func fetchReportFile(shopId: String, snapshot: String, userId: String, fileName: String) async throws -> String {
+        let reportURLString = "\(Self.baseHost)/\(shopId)/\(snapshot)/\(userId)/\(fileName)"
+        guard let reportURL = URL(string: reportURLString) else {
+            throw WebSyncroError.invalidURL(reportURLString)
+        }
+
+        var request = URLRequest(
+            url: reportURL,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+            timeoutInterval: 25.0
+        )
+        request.httpMethod = "GET"
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue("text/plain, text/html, */*", forHTTPHeaderField: "Accept")
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw WebSyncroError.networkError("Risposta non HTTP")
+        }
+
+        if httpResponse.statusCode == 404 {
+            // Se nonmaturato.txt o maturato.txt non esiste, fallback su stringa vuota
+            return ""
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw WebSyncroError.httpError(
+                statusCode: httpResponse.statusCode,
+                message: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
+            )
+        }
+
+        return decodeDataToString(data)
     }
 
     /// Esegue lo scrape del directory listing per estrarre tutti gli snapshot SM_... ordinati per data decrescente
@@ -151,7 +273,6 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
             uniqueSnapshots.insert(matchedText)
         }
 
-        // Ordine decrescente lessicografico (corrisponde all'ordine cronologico ISO)
         return uniqueSnapshots.sorted(by: >)
     }
 
@@ -169,4 +290,3 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         return String(decoding: data, as: UTF8.self)
     }
 }
-

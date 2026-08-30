@@ -3,7 +3,7 @@ import Foundation
 public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Sendable {
     public var shouldFail: Bool = false
     public var mockError: WebSyncroError?
-    public var delayNanoseconds: UInt64 = 600_000_000 // 0.6s
+    public var delayNanoseconds: UInt64 = 500_000_000
 
     public init(shouldFail: Bool = false, mockError: WebSyncroError? = nil) {
         self.shouldFail = shouldFail
@@ -13,6 +13,7 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
     public func fetchSalesReport(
         shopId: String,
         userId: String,
+        isNonMatured: Bool = false,
         onProgress: (@Sendable (SyncStatus) -> Void)? = nil
     ) async throws -> SalesReport {
         onProgress?(.scrapingDirectory(shopId: shopId))
@@ -26,7 +27,40 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
         onProgress?(.downloadingReport(shopId: shopId, snapshot: snapshot, userId: userId))
         try await Task.sleep(nanoseconds: delayNanoseconds / 2)
 
-        return Self.sampleReport(shopId: shopId, userId: userId, syncTimestamp: snapshot)
+        return isNonMatured
+            ? Self.sampleNonMaturedReport(shopId: shopId, userId: userId, syncTimestamp: snapshot)
+            : Self.sampleReport(shopId: shopId, userId: userId, syncTimestamp: snapshot)
+    }
+
+    public func fetchBothReports(
+        shopId: String,
+        userId: String,
+        onProgress: (@Sendable (SyncStatus) -> Void)? = nil
+    ) async throws -> (matured: SalesReport, nonMatured: SalesReport) {
+        onProgress?(.scrapingDirectory(shopId: shopId))
+        try await Task.sleep(nanoseconds: delayNanoseconds / 2)
+
+        if shouldFail {
+            throw mockError ?? WebSyncroError.networkError("Connessione simulata fallita")
+        }
+
+        let snapshot = "SM_2026-08-29T19:54:28"
+        onProgress?(.downloadingReport(shopId: shopId, snapshot: snapshot, userId: userId))
+        try await Task.sleep(nanoseconds: delayNanoseconds / 2)
+
+        let matured = Self.sampleReport(shopId: shopId, userId: userId, syncTimestamp: snapshot)
+        let nonMatured = Self.sampleNonMaturedReport(shopId: shopId, userId: userId, syncTimestamp: snapshot)
+
+        return (matured, nonMatured)
+    }
+
+    public func fetchShopInfo(shopId: String) async throws -> ShopInfo {
+        try await Task.sleep(nanoseconds: delayNanoseconds / 2)
+        if shouldFail {
+            throw mockError ?? WebSyncroError.shopNotFound(shopId: shopId)
+        }
+        let sampleRaw = "0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|1-00:00-00:00-00:00-00:00"
+        return SalesParser.parseSchedule(content: sampleRaw, shopId: shopId)
     }
 
     public func fetchAvailableSnapshots(shopId: String) async throws -> [String] {
@@ -37,74 +71,71 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
         return [
             "SM_2026-08-29T19:54:28",
             "SM_2026-08-28T18:30:10",
-            "SM_2026-08-27T19:15:00",
-            "SM_2026-08-26T20:01:45",
-            "SM_2026-08-25T17:42:12"
+            "SM_2026-08-27T19:15:00"
         ]
     }
 
-    /// Report di prova realistico per simulazione e preview SwiftUI
     public static func sampleReport(
-        shopId: String = "1042",
-        userId: String = "852",
+        shopId: String = "exnovomercatino",
+        userId: String = "TRE091_1762",
         syncTimestamp: String = "SM_2026-08-29T19:54:28"
     ) -> SalesReport {
         let items: [SaleItem] = [
             SaleItem(
-                id: "1260224",
-                date: Date.fromSaleDateString("28/08/2026") ?? Date(),
-                dateString: "28/08/2026",
-                amount: Decimal(string: "0.45")!,
-                title: "Sul Grappa dopo la vittoria Malaguti Paolo letteratura italiana"
+                id: "1260228",
+                date: Date.fromSaleDateString("11/06/2026") ?? Date(),
+                dateString: "11/06/2026",
+                amount: Decimal(string: "0.90")!,
+                title: "Luce, suono, elettricità. Ediz. illustrata Leonardi Antonio classici ragazzi"
+            ),
+            SaleItem(
+                id: "1260218",
+                date: Date.fromSaleDateString("13/06/2026") ?? Date(),
+                dateString: "13/06/2026",
+                amount: Decimal(string: "0.90")!,
+                title: "Happy Feet la storia con le immagini del film ragazzi 7-10 anni"
+            ),
+            SaleItem(
+                id: "1260214",
+                date: Date.fromSaleDateString("21/06/2026") ?? Date(),
+                dateString: "21/06/2026",
+                amount: Decimal(string: "1.35")!,
+                title: "Libro narrativa contemporanea"
+            ),
+            SaleItem(
+                id: "1260215",
+                date: Date.fromSaleDateString("21/06/2026") ?? Date(),
+                dateString: "21/06/2026",
+                amount: Decimal(string: "2.25")!,
+                title: "Libro illustrato d'arte"
+            ),
+            SaleItem(
+                id: "1260227",
+                date: Date.fromSaleDateString("22/06/2026") ?? Date(),
+                dateString: "22/06/2026",
+                amount: Decimal(string: "1.35")!,
+                title: "Leggende e racconti popolari del Trentino Alto Adige Dal Lago Veneri Bruna M."
             ),
             SaleItem(
                 id: "1260225",
-                date: Date.fromSaleDateString("28/08/2026") ?? Date(),
-                dateString: "28/08/2026",
-                amount: Decimal(string: "14.50")!,
-                title: "Giacca a vento The North Face taglia M azzurra"
+                date: Date.fromSaleDateString("20/07/2026") ?? Date(),
+                dateString: "20/07/2026",
+                amount: Decimal(string: "1.13")!,
+                title: "Il ragazzo di Varsavia Borowiec Andrew; Smith C. storia"
             ),
             SaleItem(
-                id: "1259981",
-                date: Date.fromSaleDateString("26/08/2026") ?? Date(),
-                dateString: "26/08/2026",
-                amount: Decimal(string: "28.00")!,
-                title: "Lampada da tavolo vintage stile Bauhaus ottone e vetro"
+                id: "1260226",
+                date: Date.fromSaleDateString("01/08/2026") ?? Date(),
+                dateString: "01/08/2026",
+                amount: Decimal(string: "1.57")!,
+                title: "Una meravigliosa vita da cani Sims Graeme animali domestici"
             ),
             SaleItem(
-                id: "1259830",
-                date: Date.fromSaleDateString("25/08/2026") ?? Date(),
-                dateString: "25/08/2026",
-                amount: Decimal(string: "6.00")!,
-                title: "Vinile LP Pink Floyd - The Dark Side of the Moon (Ristampa)"
-            ),
-            SaleItem(
-                id: "1259410",
-                date: Date.fromSaleDateString("22/08/2026") ?? Date(),
-                dateString: "22/08/2026",
-                amount: Decimal(string: "45.00")!,
-                title: "Set 6 tazzine da caffè porcellana Richard Ginori anni '70"
-            ),
-            SaleItem(
-                id: "1258902",
-                date: Date.fromSaleDateString("18/08/2026") ?? Date(),
-                dateString: "18/08/2026",
-                amount: Decimal(string: "3.50")!,
-                title: "Fumetto Dylan Dog prima ristampa n. 12"
-            ),
-            SaleItem(
-                id: "1258319",
-                date: Date.fromSaleDateString("15/08/2026") ?? Date(),
-                dateString: "15/08/2026",
-                amount: Decimal(string: "12.00")!,
-                title: "Macchina fotografica analogica compatta Olympus Trip 35"
-            ),
-            SaleItem(
-                id: "1257800",
-                date: Date.fromSaleDateString("10/08/2026") ?? Date(),
-                dateString: "10/08/2026",
-                amount: Decimal(string: "8.50")!,
-                title: "Cintura in cuoio artigianale marrone"
+                id: "1260220",
+                date: Date.fromSaleDateString("13/08/2026") ?? Date(),
+                dateString: "13/08/2026",
+                amount: Decimal(string: "0.68")!,
+                title: "Il passaggio Grossi Pietro letteratura italiana"
             )
         ]
 
@@ -117,8 +148,54 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
             totalEarned: total,
             itemsCount: items.count,
             items: items,
-            optionalNotice: "I pagamenti maturati sono ritirabili in cassa dal martedì al sabato negli orari di apertura del negozio. Ricordati di portare un documento d'identità."
+            optionalNotice: "I pagamenti maturati sono ritirabili in cassa dal martedì al sabato negli orari di apertura del negozio.",
+            isNonMatured: false
+        )
+    }
+
+    public static func sampleNonMaturedReport(
+        shopId: String = "exnovomercatino",
+        userId: String = "TRE091_1762",
+        syncTimestamp: String = "SM_2026-08-29T19:54:28"
+    ) -> SalesReport {
+        let items: [SaleItem] = [
+            SaleItem(
+                id: "1260216",
+                date: Date.fromSaleDateString("24/08/2026") ?? Date(),
+                dateString: "24/08/2026",
+                amount: Decimal(string: "0.90")!,
+                title: "La ragazza con l'orecchino di perla. Ediz. speciale Chevalier Tracy",
+                isNonMatured: true
+            ),
+            SaleItem(
+                id: "1260224",
+                date: Date.fromSaleDateString("28/08/2026") ?? Date(),
+                dateString: "28/08/2026",
+                amount: Decimal(string: "0.45")!,
+                title: "Doppio gioco Brambati Pietro letteratura italiana",
+                isNonMatured: true
+            ),
+            SaleItem(
+                id: "1260229",
+                date: Date.fromSaleDateString("28/08/2026") ?? Date(),
+                dateString: "28/08/2026",
+                amount: Decimal(string: "0.90")!,
+                title: "Sul Grappa dopo la vittoria Malaguti Paolo letteratura italiana",
+                isNonMatured: true
+            )
+        ]
+
+        let total = items.reduce(Decimal(0)) { $0 + $1.amount }
+
+        return SalesReport(
+            shopId: shopId,
+            userId: userId,
+            syncTimestamp: syncTimestamp,
+            totalEarned: total,
+            itemsCount: items.count,
+            items: items,
+            optionalNotice: "Articoli venduti ma in periodo di recesso (non ancora rimborsabili)",
+            isNonMatured: true
         )
     }
 }
-

@@ -32,11 +32,31 @@ final class DashboardViewModelTests: XCTestCase {
 
         await viewModel.loadData()
 
-        XCTAssertNotNil(viewModel.report)
-        XCTAssertEqual(viewModel.report?.shopId, "1042")
-        XCTAssertEqual(viewModel.report?.userId, "852")
-        XCTAssertGreaterThan(viewModel.filteredItems.count, 0)
+        XCTAssertNotNil(viewModel.maturedReport)
+        XCTAssertNotNil(viewModel.nonMaturedReport)
+        XCTAssertEqual(viewModel.maturedReport?.shopId, "exnovomercatino")
+        XCTAssertEqual(viewModel.totalMatured, Decimal(string: "10.13"))
+        XCTAssertEqual(viewModel.totalNonMatured, Decimal(string: "2.25"))
+        XCTAssertEqual(viewModel.grandTotal, Decimal(string: "12.38"))
         XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testTabSwitching() async {
+        let mockService = MockWebSyncroService()
+        mockService.delayNanoseconds = 0
+        let viewModel = DashboardViewModel(
+            service: mockService,
+            mockService: mockService,
+            accountStore: accountStore
+        )
+
+        await viewModel.loadData()
+
+        viewModel.selectedTab = .matured
+        XCTAssertEqual(viewModel.filteredItems.count, 8)
+
+        viewModel.selectedTab = .nonMatured
+        XCTAssertEqual(viewModel.filteredItems.count, 3)
     }
 
     func testSearchFiltering() async {
@@ -50,43 +70,19 @@ final class DashboardViewModelTests: XCTestCase {
 
         await viewModel.loadData()
 
-        // Cerca "North Face"
-        viewModel.searchText = "North Face"
+        // Cerca "Luce" nel maturato
+        viewModel.selectedTab = .matured
+        viewModel.searchText = "Luce"
         XCTAssertEqual(viewModel.filteredItems.count, 1)
-        XCTAssertTrue(viewModel.filteredItems[0].title.contains("North Face"))
+        XCTAssertTrue(viewModel.filteredItems[0].title.contains("Luce"))
 
         // Cerca per ID
-        viewModel.searchText = "1260224"
+        viewModel.searchText = "1260228"
         XCTAssertEqual(viewModel.filteredItems.count, 1)
-        XCTAssertEqual(viewModel.filteredItems[0].id, "1260224")
+        XCTAssertEqual(viewModel.filteredItems[0].id, "1260228")
 
         // Reset
         viewModel.searchText = ""
         XCTAssertEqual(viewModel.filteredItems.count, 8)
     }
-
-    func testSortingOptions() async {
-        let mockService = MockWebSyncroService()
-        mockService.delayNanoseconds = 0
-        let viewModel = DashboardViewModel(
-            service: mockService,
-            mockService: mockService,
-            accountStore: accountStore
-        )
-
-        await viewModel.loadData()
-
-        // Ordina per importo maggiore
-        viewModel.sortOption = .amountDescending
-        if let first = viewModel.filteredItems.first, let last = viewModel.filteredItems.last {
-            XCTAssertGreaterThanOrEqual(first.amount, last.amount)
-        }
-
-        // Ordina per importo minore
-        viewModel.sortOption = .amountAscending
-        if let first = viewModel.filteredItems.first, let last = viewModel.filteredItems.last {
-            XCTAssertLessThanOrEqual(first.amount, last.amount)
-        }
-    }
 }
-

@@ -1,6 +1,13 @@
 import Foundation
 import Combine
 
+public enum SalesReportTab: String, CaseIterable, Identifiable {
+    case matured = "Maturato"
+    case nonMatured = "In Recesso"
+
+    public var id: String { rawValue }
+}
+
 public enum SortOption: String, CaseIterable, Identifiable {
     case dateDescending = "Recenti prima"
     case dateAscending = "Meno recenti"
@@ -20,7 +27,10 @@ public enum FilterRange: String, CaseIterable, Identifiable {
 
 @MainActor
 public final class DashboardViewModel: ObservableObject {
-    @Published public var report: SalesReport?
+    @Published public var maturedReport: SalesReport?
+    @Published public var nonMaturedReport: SalesReport?
+    @Published public var selectedTab: SalesReportTab = .matured
+
     @Published public var syncStatus: SyncStatus = .idle
     @Published public var errorMessage: String?
     @Published public var searchText: String = ""
@@ -59,9 +69,29 @@ public final class DashboardViewModel: ObservableObject {
         accountStore.activeAccount
     }
 
+    /// Report attualmente selezionato dal tab
+    public var activeReport: SalesReport? {
+        selectedTab == .matured ? maturedReport : nonMaturedReport
+    }
+
+    /// Totale maturato (già disponibile)
+    public var totalMatured: Decimal {
+        maturedReport?.totalEarned ?? Decimal(0)
+    }
+
+    /// Totale non maturato (in periodo di recesso)
+    public var totalNonMatured: Decimal {
+        nonMaturedReport?.totalEarned ?? Decimal(0)
+    }
+
+    /// Totale complessivo di tutte le vendite
+    public var grandTotal: Decimal {
+        totalMatured + totalNonMatured
+    }
+
     /// Filtra e ordina gli articoli in base a ricerca, periodo e criterio di ordinamento
     public var filteredItems: [SaleItem] {
-        guard let report = report else { return [] }
+        guard let report = activeReport else { return [] }
         var result = report.items
 
         // Filtro di ricerca per testo o ID
@@ -113,7 +143,6 @@ public final class DashboardViewModel: ObservableObject {
         let items = filteredItems
         let dict = Dictionary(grouping: items) { $0.date.monthYearSection }
         
-        // Ordina le sezioni cronologicamente in base alla data del primo elemento
         return dict.map { (section: $0.key, items: $0.value) }
             .sorted { (lhs, rhs) -> Bool in
                 guard let firstL = lhs.items.first, let firstR = rhs.items.first else { return false }
@@ -121,7 +150,7 @@ public final class DashboardViewModel: ObservableObject {
             }
     }
 
-    /// Carica i dati per l'account attualmente selezionato
+    /// Carica contemporaneamente sia il maturato che il non maturato
     public func loadData() async {
         guard let account = activeAccount else {
             errorMessage = "Nessun account selezionato. Aggiungi un account per iniziare."
@@ -132,7 +161,7 @@ public final class DashboardViewModel: ObservableObject {
         let activeService: WebSyncroServiceProtocol = isDemoMode ? mockService : service
 
         do {
-            let fetchedReport = try await activeService.fetchSalesReport(
+            let (matured, nonMatured) = try await activeService.fetchBothReports(
                 shopId: account.shopId,
                 userId: account.userId,
                 onProgress: { [weak self] status in
@@ -142,14 +171,16 @@ public final class DashboardViewModel: ObservableObject {
                 }
             )
 
-            self.report = fetchedReport
+            self.maturedReport = matured
+            self.nonMaturedReport = nonMatured
             self.syncStatus = .success(lastSyncDate: Date())
 
             // Salva l'ultima sincronizzazione riuscita nell'AccountStore
             accountStore.recordSuccessfulSync(
                 accountId: account.id,
-                totalEarned: fetchedReport.totalEarned,
-                snapshotFolder: fetchedReport.syncTimestamp
+                totalEarned: matured.totalEarned,
+                nonMaturedEarned: nonMatured.totalEarned,
+                snapshotFolder: matured.syncTimestamp
             )
 
             HapticFeedback.notification(.success)
@@ -171,4 +202,3 @@ public final class DashboardViewModel: ObservableObject {
         await loadData()
     }
 }
-

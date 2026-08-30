@@ -7,6 +7,7 @@ public struct DashboardView: View {
     
     @State private var showingAccountManager = false
     @State private var showingSettings = false
+    @State private var showingShopInfo = false
 
     public init(
         viewModel: DashboardViewModel? = nil,
@@ -25,7 +26,7 @@ public struct DashboardView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        // Header principale con totali
+                        // Header principale con selettore Maturato / In Recesso e totali
                         SummaryHeaderView(viewModel: viewModel)
 
                         // Barra di ricerca Liquid Glass
@@ -55,14 +56,32 @@ public struct DashboardView: View {
                 }
 
                 ToolbarItem(placement: .automatic) {
-                    Button(action: {
-                        HapticFeedback.selection()
-                        showingSettings = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 16))
-                            .foregroundColor(.primary)
+                    HStack(spacing: 10) {
+                        // Pulsante Info Negozio & Orari
+                        Button(action: {
+                            HapticFeedback.selection()
+                            showingShopInfo = true
+                        }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.primary)
+                        }
+
+                        // Pulsante Impostazioni
+                        Button(action: {
+                            HapticFeedback.selection()
+                            showingSettings = true
+                        }) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(.primary)
+                        }
                     }
+                }
+            }
+            .sheet(isPresented: $showingShopInfo) {
+                if let shopId = viewModel.activeAccount?.shopId {
+                    ShopInfoView(shopId: shopId)
                 }
             }
             .sheet(isPresented: $showingAccountManager) {
@@ -75,7 +94,7 @@ public struct DashboardView: View {
                 SaleItemDetailSheet(item: item)
             }
             .task {
-                if viewModel.report == nil {
+                if viewModel.maturedReport == nil {
                     await viewModel.loadData()
                 }
             }
@@ -149,10 +168,10 @@ public struct DashboardView: View {
     // MARK: - Contenuto Principale
     @ViewBuilder
     private var mainContent: some View {
-        if viewModel.syncStatus.isSyncing && viewModel.report == nil {
+        if viewModel.syncStatus.isSyncing && viewModel.activeReport == nil {
             EmptyOrErrorView(type: .loading(message: viewModel.syncStatus.statusDescription))
                 .padding(.top, 20)
-        } else if let error = viewModel.errorMessage, viewModel.report == nil {
+        } else if let error = viewModel.errorMessage, viewModel.activeReport == nil {
             EmptyOrErrorView(
                 type: .error(
                     message: error,
@@ -172,9 +191,13 @@ public struct DashboardView: View {
         } else if viewModel.filteredItems.isEmpty {
             EmptyOrErrorView(
                 type: .empty(
-                    title: viewModel.searchText.isEmpty ? "Nessuna vendita registrata" : "Nessun risultato",
+                    title: viewModel.searchText.isEmpty
+                        ? (viewModel.selectedTab == .matured ? "Nessun articolo maturato" : "Nessun articolo in recesso")
+                        : "Nessun risultato",
                     message: viewModel.searchText.isEmpty
-                        ? "Non ci sono ancora vendite maturate per questo account."
+                        ? (viewModel.selectedTab == .matured
+                            ? "Non ci sono ancora vendite maturate disponibili."
+                            : "Nessun articolo attualmente in periodo di recesso.")
                         : "Nessun articolo corrisponde ai criteri di ricerca impostati."
                 )
             )
