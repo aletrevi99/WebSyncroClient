@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Schermata Impostazioni con selezione modelli Vision (Leggeri vs Overkill), Modello Personalizzato e Diagnostica
+/// Schermata Impostazioni con selezione modelli Vision (Leggeri vs Overkill), Esportazione Dati e Diagnostica
 public struct SettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
@@ -17,7 +17,6 @@ public struct SettingsView: View {
     @State private var isCustomModelSelected: Bool = false
     @State private var customModelText: String = ""
 
-    // Modelli Leggeri & Consigliati (ottimizzati per Vision OCR veloce ed economico)
     private let recommendedModels = [
         ("google/gemini-2.5-flash", "⚡ Gemini 2.5 Flash (Consigliato, ~1s)"),
         ("google/gemini-2.0-flash-001", "⚡ Gemini 2.0 Flash (Super Economico)"),
@@ -26,7 +25,6 @@ public struct SettingsView: View {
         ("mistralai/pixtral-12b", "⚡ Pixtral 12B (Leggero Open)")
     ]
 
-    // Modelli Pesanti / Overkill (più costosi e lenti, non necessari per scansione tabelle)
     private let overkillModels = [
         ("openai/gpt-4o", "⚠️ GPT-4o (Overkill / Più Lento)"),
         ("anthropic/claude-3.5-sonnet", "⚠️ Claude 3.5 Sonnet (Overkill / Costoso)"),
@@ -41,6 +39,14 @@ public struct SettingsView: View {
         self.settingsStore = settingsStore ?? AppSettingsStore.shared
         self.accountStore = accountStore ?? AccountStore.shared
         self.inventoryStore = inventoryStore ?? InventoryStore.shared
+    }
+
+    private var activeShopId: String {
+        accountStore.activeAccount?.shopId ?? "exnovomercatino"
+    }
+
+    private var activeUserCardCode: String {
+        accountStore.activeAccount?.cardCode ?? ""
     }
 
     public var body: some View {
@@ -90,7 +96,6 @@ public struct SettingsView: View {
 
                                 if settingsStore.visionProvider == "openrouter" {
                                     VStack(alignment: .leading, spacing: 14) {
-                                        // Avviso UX Modelli Consigliati vs Overkill
                                         HStack(alignment: .top, spacing: 10) {
                                             Image(systemName: "lightbulb.fill")
                                                 .font(.caption)
@@ -104,7 +109,6 @@ public struct SettingsView: View {
                                         .background(Color.brandOrange.opacity(0.08))
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                                        // Inserimento Chiave API
                                         VStack(alignment: .leading, spacing: 6) {
                                             Text("Chiave API OpenRouter")
                                                 .font(.caption)
@@ -118,7 +122,6 @@ public struct SettingsView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                         }
 
-                                        // Selezione Modello
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text("Modello Vision")
                                                 .font(.caption)
@@ -186,7 +189,6 @@ public struct SettingsView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                             }
 
-                                            // Campo per modello personalizzato
                                             if isCustomModelSelected {
                                                 VStack(alignment: .leading, spacing: 4) {
                                                     Text("Inserisci lo slug del modello OpenRouter:")
@@ -210,7 +212,6 @@ public struct SettingsView: View {
                                             }
                                         }
 
-                                        // Test Connessione OpenRouter
                                         HStack {
                                             Button(action: {
                                                 Task { await testOpenRouterConnection() }
@@ -237,7 +238,6 @@ public struct SettingsView: View {
                                         }
                                     }
                                 } else {
-                                    // Configurazione Modello Locale (Ollama)
                                     VStack(alignment: .leading, spacing: 12) {
                                         VStack(alignment: .leading, spacing: 6) {
                                             Text("Endpoint Server Locale")
@@ -277,7 +277,62 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 3: Diagnostica e Rete
+                        // Sezione 3: Esportazione Dati & Condivisione
+                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                Label("Esportazione Database & Debug", systemImage: "square.and.arrow.up")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+
+                                Text("Esporta il database locale in formato JSON o testo diagnostico per verificare i dati estratti.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                Divider()
+
+                                if let jsonData = inventoryStore.exportJSONData(),
+                                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                                    ShareLink(item: jsonString, preview: SharePreview("WebSyncro_Inventario.json", image: Image(systemName: "doc.plaintext"))) {
+                                        HStack(spacing: 10) {
+                                            Image(systemName: "curlybraces")
+                                                .font(.caption)
+                                                .foregroundColor(.brandOrange)
+                                            Text("Esporta Database JSON (.json)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                            Image(systemName: "chevron.right")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+
+                                Divider()
+
+                                let diagnosticText = inventoryStore.exportDiagnosticReport(shopId: activeShopId, userCardCode: activeUserCardCode)
+                                ShareLink(item: diagnosticText, preview: SharePreview("WebSyncro_Report_Diagnostico.txt", image: Image(systemName: "doc.text"))) {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "doc.text.magnifyingglass")
+                                            .font(.caption)
+                                            .foregroundColor(.brandOrange)
+                                        Text("Esporta Report Diagnostico (.txt)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+
+                        // Sezione 4: Diagnostica e Rete
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
                                 Label("Diagnostica & Rete", systemImage: "network")
@@ -287,7 +342,7 @@ public struct SettingsView: View {
                                 Divider()
 
                                 detailRow(title: "Endpoint WebSyncro", value: "appwebsyncro.it")
-                                detailRow(title: "Negozio Attivo", value: accountStore.activeAccount?.shopId ?? "N/D")
+                                detailRow(title: "Negozio Attivo", value: activeShopId)
                                 detailRow(title: "Account Salvati", value: "\(accountStore.accounts.count)")
                                 detailRow(title: "Liste di Carico nel DB", value: "\(inventoryStore.batches.count)")
                                 detailRow(title: "Articoli Totali in Inventario", value: "\(inventoryStore.allItems.count)")
@@ -321,7 +376,7 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 4: Gestione Dati & Reset
+                        // Sezione 5: Gestione Dati & Reset
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("Gestione Dati Locali", systemImage: "trash")

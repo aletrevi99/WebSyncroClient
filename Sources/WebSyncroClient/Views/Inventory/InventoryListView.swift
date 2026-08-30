@@ -23,8 +23,11 @@ public struct InventoryListView: View {
 
     @State private var selectedFilter: InventoryFilter = .all
     @State private var searchText = ""
-    @State private var showingCameraScanner = false
+
+    @State private var showingCamera = false
+    @State private var showingFilePicker = false
     @State private var showingReviewSheet = false
+
     @State private var scannedBatchForReview: InventoryBatch?
     @State private var currentDeduplicationReport: DeduplicationReport?
     @State private var isProcessingAI = false
@@ -126,7 +129,7 @@ public struct InventoryListView: View {
                     LazyVStack(spacing: 16) {
                         // Banner Feedback Salvataggio Differenziale
                         if let feedback = saveFeedbackBanner {
-                            LiquidGlassCard(cornerRadius: 16, padding: 12) {
+                            LiquidGlassCard(cornerRadius: 18, padding: 12) {
                                 HStack(spacing: 10) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.green)
@@ -150,13 +153,13 @@ public struct InventoryListView: View {
                         // Hero Card Statistiche Inventario
                         summaryHeroCard
 
-                        // Selettore Rapido Filtri
+                        // Selettore Rapido Filtri Liquid Glass
                         filterChipsView
 
                         // Barra di Ricerca
                         SearchBarView(text: $searchText)
 
-                        // Contenuto: Lista Articoli o Stato Vuoto
+                        // Contenuto: Lista Articoli, Loading AI o Stato Vuoto
                         if isProcessingAI {
                             LiquidGlassCard(cornerRadius: 22, padding: 24) {
                                 VStack(spacing: 14) {
@@ -195,27 +198,47 @@ public struct InventoryListView: View {
             .adaptiveLargeTitle()
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        showingCameraScanner = true
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 14))
-                            Text("Carica Foglio")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                    Menu {
+                        Button(action: {
+                            showingCamera = true
+                        }) {
+                            Label("Scatta Foto (Fotocamera)", systemImage: "camera.fill")
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+
+                        #if canImport(PhotosUI)
+                        // Galleria Foto
+                        #endif
+
+                        Button(action: {
+                            showingFilePicker = true
+                        }) {
+                            Label("Carica da File (PDF o Immagine)", systemImage: "folder.fill")
+                        }
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 13, weight: .bold))
+                            Text("Carica Foglio")
+                                .font(.system(.subheadline, design: .rounded))
+                                .fontWeight(.bold)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
                         .background(Color.brandOrange)
                         .foregroundColor(.white)
                         .clipShape(Capsule())
+                        .shadow(color: Color.brandOrange.opacity(0.3), radius: 6, x: 0, y: 3)
                     }
                 }
             }
-            .sheet(isPresented: $showingCameraScanner) {
-                DocumentCameraScannerView { scannedImage in
-                    processScannedImage(scannedImage)
+            .sheet(isPresented: $showingCamera) {
+                SimpleCameraView { capturedImage in
+                    processCapturedUIImage(capturedImage)
+                }
+            }
+            .sheet(isPresented: $showingFilePicker) {
+                FileDocumentPickerView { docData, fileName in
+                    processImportedDocumentData(docData, fileName: fileName)
                 }
             }
             .sheet(isPresented: $showingReviewSheet) {
@@ -315,7 +338,7 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Filtri Rapidi
+    // MARK: - Filtri Rapidi Liquid Glass Nativi
     @ViewBuilder
     private var filterChipsView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -331,12 +354,26 @@ public struct InventoryListView: View {
                         Text(filter.rawValue)
                             .font(.system(.caption, design: .rounded))
                             .fontWeight(isSelected ? .bold : .medium)
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 14)
                             .padding(.vertical, 8)
-                            .background(isSelected ? Color.brandOrange : Color.secondary.opacity(0.12))
+                            .background(
+                                ZStack {
+                                    if isSelected {
+                                        Color.brandOrange
+                                    } else {
+                                        Color.clear
+                                    }
+                                }
+                            )
+                            .background(.ultraThinMaterial)
                             .foregroundColor(isSelected ? .white : .primary)
                             .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(isSelected ? Color.brandOrange : Color.white.opacity(0.18), lineWidth: 1)
+                            )
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding(.horizontal, 2)
@@ -348,20 +385,22 @@ public struct InventoryListView: View {
     private func inventoryItemRow(_ item: InventoryItem, status: InventorySaleStatus) -> some View {
         LiquidGlassCard(cornerRadius: 20, padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
-                // Header Riga
+                // Header Riga: Titolo, Badge e Dati Meta
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(item.title)
-                            .font(.system(.subheadline, design: .default))
-                            .fontWeight(.semibold)
+                            .font(.system(.body, design: .rounded))
+                            .fontWeight(.bold)
                             .foregroundColor(.primary)
                             .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         HStack(spacing: 6) {
                             Text("#\(item.id)")
                                 .font(.system(.caption2, design: .monospaced))
                                 .fontWeight(.bold)
                                 .foregroundColor(.secondary)
+                                .fixedSize(horizontal: true, vertical: false)
 
                             Text("•")
                                 .font(.caption2)
@@ -370,6 +409,7 @@ public struct InventoryListView: View {
                             Text("Carico: \(item.formattedLoadDate)")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
+                                .fixedSize(horizontal: true, vertical: false)
 
                             Text("•")
                                 .font(.caption2)
@@ -379,10 +419,11 @@ public struct InventoryListView: View {
                                 .font(.caption2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary)
+                                .fixedSize(horizontal: true, vertical: false)
                         }
                     }
 
-                    Spacer()
+                    Spacer(minLength: 8)
 
                     saleStatusBadge(status, item: item)
                 }
@@ -405,7 +446,7 @@ public struct InventoryListView: View {
                             Spacer()
 
                             if let nextStage = next.nextStage {
-                                Text("-\(next.days) gg a \(nextStage.rawValue)")
+                                Text("Tra \(next.days) gg: \(nextStage.rawValue)")
                                     .font(.system(size: 10, weight: .semibold))
                                     .foregroundColor(.brandOrange)
                             } else {
@@ -575,7 +616,7 @@ public struct InventoryListView: View {
                         .foregroundColor(.primary)
 
                     Text(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).isEmpty
-                        ? "Scatta una foto al foglio 'Lista oggetti in carico': l'AI Vision estrarrà automaticamente articoli, quantità e prezzi nel tuo database locale."
+                        ? "Scatta una foto o carica un PDF del foglio 'Lista oggetti in carico': l'AI Vision estrarrà automaticamente articoli, quantità e prezzi nel tuo database locale."
                         : "Nessun articolo corrisponde ai filtri selezionati.")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -585,11 +626,11 @@ public struct InventoryListView: View {
 
                 if inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).isEmpty {
                     Button(action: {
-                        showingCameraScanner = true
+                        showingCamera = true
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "camera.fill")
-                            Text("Analizza Foglio con AI Vision")
+                            Text("Scatta Foto al Foglio")
                         }
                         .font(.system(.subheadline, design: .rounded))
                         .fontWeight(.bold)
@@ -598,6 +639,7 @@ public struct InventoryListView: View {
                         .background(Color.brandOrange)
                         .foregroundColor(.white)
                         .clipShape(Capsule())
+                        .shadow(color: Color.brandOrange.opacity(0.3), radius: 6, x: 0, y: 3)
                     }
                     .padding(.top, 6)
                 }
@@ -606,10 +648,28 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Elaborazione AI Vision
+    // MARK: - Elaborazione AI Vision (Immagini e PDF)
     #if canImport(UIKit)
-    private func processScannedImage(_ uiImage: UIImage) {
+    private func processCapturedUIImage(_ uiImage: UIImage) {
         guard let jpegData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+        executeVisionAnalysis(imageData: jpegData)
+    }
+
+    private func processImportedDocumentData(_ data: Data, fileName: String) {
+        if fileName.lowercased().hasSuffix(".pdf") {
+            if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data),
+               let jpegData = renderedImage.jpegData(compressionQuality: 0.85) {
+                executeVisionAnalysis(imageData: jpegData)
+            } else {
+                processingStatusMessage = "Impossibile convertire il PDF in immagine"
+                HapticFeedback.notification(.error)
+            }
+        } else if let img = UIImage(data: data), let jpegData = img.jpegData(compressionQuality: 0.8) {
+            executeVisionAnalysis(imageData: jpegData)
+        }
+    }
+
+    private func executeVisionAnalysis(imageData: Data) {
         isProcessingAI = true
         processingStatusMessage = "Analisi visiva del documento con AI..."
 
@@ -617,7 +677,7 @@ public struct InventoryListView: View {
             do {
                 let visionService = settingsStore.makeVisionService()
                 let parsedBatch = try await visionService.analyzeInventoryDocument(
-                    imageData: jpegData,
+                    imageData: imageData,
                     shopId: activeShopId,
                     userCardCode: activeUserCardCode
                 )
@@ -644,6 +704,7 @@ public struct InventoryListView: View {
         }
     }
     #else
-    private func processScannedImage(_ image: Any) {}
+    private func processCapturedUIImage(_ image: Any) {}
+    private func processImportedDocumentData(_ data: Data, fileName: String) {}
     #endif
 }

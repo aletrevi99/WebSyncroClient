@@ -69,54 +69,73 @@ public struct DashboardView: View {
     // MARK: - Filtri e Ordinamento
     @ViewBuilder
     private var filterAndSortControls: some View {
-        LiquidGlassCard(cornerRadius: 16, padding: 8) {
+        ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                // Menu intervallo temporale
+                // Menu Intervallo Temporale
                 Menu {
-                    Picker("Periodo", selection: $viewModel.filterRange) {
-                        ForEach(FilterRange.allCases) { range in
-                            Text(range.rawValue).tag(range)
+                    ForEach(FilterRange.allCases) { range in
+                        Button(action: {
+                            viewModel.filterRange = range
+                        }) {
+                            HStack {
+                                Text(range.rawValue)
+                                if viewModel.filterRange == range {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
                         }
                     }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
-                            .font(.caption)
+                            .font(.caption2)
                         Text(viewModel.filterRange.rawValue)
-                            .font(.caption)
-                            .fontWeight(.medium)
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 9))
+                            .font(.caption2)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.secondary.opacity(0.12))
+                    .font(.system(.caption, design: .rounded))
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(viewModel.filterRange != .all ? Color.brandOrange.opacity(0.12) : Color.clear)
+                    .background(.ultraThinMaterial)
+                    .foregroundColor(viewModel.filterRange != .all ? .brandOrange : .primary)
                     .clipShape(Capsule())
-                    .foregroundColor(.primary)
+                    .overlay(
+                        Capsule().stroke(viewModel.filterRange != .all ? Color.brandOrange : Color.white.opacity(0.18), lineWidth: 1)
+                    )
                 }
 
                 // Menu Ordinamento
                 Menu {
-                    Picker("Ordina per", selection: $viewModel.sortOption) {
-                        ForEach(SortOption.allCases) { opt in
-                            Text(opt.rawValue).tag(opt)
+                    ForEach(SortOption.allCases) { opt in
+                        Button(action: {
+                            viewModel.sortOption = opt
+                        }) {
+                            HStack {
+                                Text(opt.rawValue)
+                                if viewModel.sortOption == opt {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
                         }
                     }
                 } label: {
                     HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.arrow.down")
-                            .font(.caption)
                         Text(viewModel.sortOption.rawValue)
-                            .font(.caption)
-                            .fontWeight(.medium)
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 9))
+                        Image(systemName: "arrow.up.arrow.down")
+                            .font(.caption2)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.secondary.opacity(0.12))
-                    .clipShape(Capsule())
+                    .font(.system(.caption, design: .rounded))
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(.ultraThinMaterial)
                     .foregroundColor(.primary)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule().stroke(Color.white.opacity(0.18), lineWidth: 1)
+                    )
                 }
 
                 Spacer()
@@ -127,6 +146,7 @@ public struct DashboardView: View {
                     .foregroundColor(.secondary)
                     .padding(.trailing, 4)
             }
+            .padding(.horizontal, 2)
         }
     }
 

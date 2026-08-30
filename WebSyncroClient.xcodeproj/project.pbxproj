@@ -55,6 +55,7 @@
 		C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */; };
 		CCF8193CAA26964E62C16BAA /* AccountManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */; };
 		D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3324D9007E4EC87452DF1B2A /* SyncStatus.swift */; };
+		D461DB8CDA2C39D4E0128ADD /* DocumentCaptureViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7214CE008FBF30380AC13 /* DocumentCaptureViews.swift */; };
 		DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */; };
 		DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
 		DF3981955D66D6596A8D48D9 /* InventoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094617839626F02AF8DFF349 /* InventoryStore.swift */; };
@@ -141,6 +142,7 @@
 		EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfoView.swift; sourceTree = "<group>"; };
 		EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanInventoryReviewSheet.swift; sourceTree = "<group>"; };
 		F3DFB02ED7971605E2178171 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
+		F4E7214CE008FBF30380AC13 /* DocumentCaptureViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCaptureViews.swift; sourceTree = "<group>"; };
 		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
 		FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerView.swift; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */,
 				B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */,
 				F3DFB02ED7971605E2178171 /* DateExtensions.swift */,
+				F4E7214CE008FBF30380AC13 /* DocumentCaptureViews.swift */,
 				E5BCC7A6C8476E83CA0A37E1 /* DocumentScannerView.swift */,
 				8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */,
 				A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */,
@@ -483,6 +486,7 @@
 				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
 				361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */,
 				AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */,
+				D461DB8CDA2C39D4E0128ADD /* DocumentCaptureViews.swift in Sources */,
 				7B9B7E74115CAC263A33266E /* DocumentScannerView.swift in Sources */,
 				967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */,
 				FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */,

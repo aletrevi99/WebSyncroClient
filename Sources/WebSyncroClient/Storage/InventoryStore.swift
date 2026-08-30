@@ -1,5 +1,11 @@
 import Foundation
 import Combine
+#if canImport(PDFKit)
+import PDFKit
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Report dettagliato dell'analisi di deduplicazione di una nuova scansione rispetto al DB locale
 public struct DeduplicationReport: Sendable {
@@ -26,7 +32,7 @@ public struct DeduplicationReport: Sendable {
     }
 }
 
-/// Gestore del database locale dell'inventario, isolato per utente e negozio, con tracciamento quantità e deduplicazione
+/// Gestore del database locale dell'inventario, isolato per utente e negozio, con tracciamento quantità, deduplicazione ed esportazione
 @MainActor
 public final class InventoryStore: ObservableObject {
     public static let shared = InventoryStore()
@@ -244,5 +250,33 @@ public final class InventoryStore: ObservableObject {
             let remainingCount = entry.status.remainingInShopCount
             return sum + entry.item.totalCurrentClientPayout(for: remainingCount)
         }
+    }
+
+    // MARK: - Esportazione Diagnostica & Dati (JSON e Report)
+
+    public func exportJSONData() -> Data? {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try? encoder.encode(batches)
+    }
+
+    public func exportDiagnosticReport(shopId: String, userCardCode: String) -> String {
+        let scopedBatches = batches(for: shopId, userCardCode: userCardCode)
+        var report = "=== REPORT INVENTARIO WEBSYNCRO ===\n"
+        report += "Data Esportazione: \(Date())\n"
+        report += "Negozio: \(shopId)\n"
+        report += "Codice Tessera Utente: \(userCardCode)\n"
+        report += "Lotti Totali: \(scopedBatches.count)\n"
+        report += "Articoli Totali: \(scopedBatches.flatMap { $0.items }.count)\n\n"
+
+        for (bIdx, batch) in scopedBatches.enumerated() {
+            report += "--- LISTA [\(bIdx + 1)] #\(batch.listNumber) (Data: \(batch.loadDate)) ---\n"
+            report += "Totale Pezzi: \(batch.totalPieces), Valore Concordato: € \(batch.totalAgreedValue), Valore Esposto: € \(batch.totalExposedValue)\n"
+            for item in batch.items {
+                report += " • Codice: \(item.rawCode) (ID: \(item.id)) | Qtà: \(item.quantity) | Titolo: \(item.title) | Concordato: € \(item.agreedPrice) | Rimborso: € \(item.clientPayoutInitial) | Esposto: € \(item.exposedPriceInitial)\n"
+            }
+            report += "\n"
+        }
+        return report
     }
 }
