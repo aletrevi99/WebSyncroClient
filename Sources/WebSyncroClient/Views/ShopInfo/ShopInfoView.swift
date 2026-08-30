@@ -31,46 +31,47 @@ public struct ShopInfoView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                LiquidGlassBackground()
+            ScrollView {
+                VStack(spacing: 18) {
+                    // Card Principale: Identità Visiva, Bio e Tasti Azione Rapida
+                    shopHeroCard
 
-                ScrollView {
-                    VStack(spacing: 18) {
-                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
-                        Color.clear.frame(height: 50)
-
-                        // Card Principale: Identità Visiva, Bio e Tasti Azione Rapida
-                        shopHeroCard
-
-                        // Card Stato Apertura Oggi in Tempo Reale
-                        if let shop = shopDetails {
-                            liveStatusCard(shop: shop)
-                        }
-
-                        // Card Orari della Settimana
-                        weeklyScheduleCard
-
-                        // Card Dati Negozio & Sede Completa (in basso sotto gli orari)
-                        if let shop = shopDetails {
-                            shopDetailsBottomCard(shop: shop)
-                        }
-
-                        // Card Espandibile: Come Funziona il Conto Vendita & Regolamento Recesso
-                        howItWorksCard
-
-                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                        Spacer(minLength: 90)
+                    // Card Stato Apertura Oggi in Tempo Reale
+                    if let shop = shopDetails {
+                        liveStatusCard(shop: shop)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                }
 
-                // Pinned Header Bar
-                pinnedShopHeaderBar
+                    // Card Orari della Settimana
+                    weeklyScheduleCard
+
+                    // Card Dati Negozio & Sede Completa (in basso sotto gli orari)
+                    if let shop = shopDetails {
+                        shopDetailsBottomCard(shop: shop)
+                    }
+
+                    // Card Espandibile: Come Funziona il Conto Vendita & Regolamento Recesso
+                    howItWorksCard
+
+                    // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .background(LiquidGlassBackground())
+            .navigationTitle("Negozio")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        HapticFeedback.selection()
+                        showingSettingsSheet = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.brandOrange)
+                    }
+                }
+            }
             .confirmationDialog("Scegli applicazione Mappe", isPresented: $showingMapsDialog, titleVisibility: .visible) {
                 if let address = shopDetails?.fullAddress,
                    let encodedAddr = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
@@ -108,55 +109,7 @@ public struct ShopInfoView: View {
         }
     }
 
-    // MARK: - Header Pinned Liquid Glass
-    @ViewBuilder
-    private var pinnedShopHeaderBar: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center) {
-                Text("Negozio")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                Button(action: {
-                    HapticFeedback.selection()
-                    showingSettingsSheet = true
-                }) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.brandOrange)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle().stroke(Color.brandOrange.opacity(0.4), lineWidth: 1)
-                        )
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                    Rectangle()
-                        .fill(Color.primary.opacity(0.02))
-                }
-                .ignoresSafeArea(edges: .top)
-            )
-            .overlay(
-                Rectangle()
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 0.8),
-                alignment: .bottom
-            )
-        }
-    }
-
-    // MARK: - Hero Card Principale
+    // MARK: - Header Shop Hero Card Principale
     @ViewBuilder
     private var shopHeroCard: some View {
         LiquidGlassCard(cornerRadius: 24, padding: 20) {

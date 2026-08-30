@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 #if canImport(PhotosUI)
 import PhotosUI
 #endif
@@ -132,121 +135,134 @@ public struct InventoryListView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                LiquidGlassBackground()
-
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
-                        Color.clear.frame(height: 50)
-
-                        // Avviso In-App Reso Articolo (se attivo)
-                        if let alert = notificationManager.activeReturnAlert {
-                            returnAlertBanner(alert)
-                        }
-
-                        // Banner Feedback Salvataggio Differenziale
-                        if let feedback = saveFeedbackBanner {
-                            LiquidGlassCard(cornerRadius: 18, padding: 12) {
-                                HStack(spacing: 10) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                    Text(feedback)
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.primary)
-                                    Spacer()
-                                    Button(action: {
-                                        withAnimation { saveFeedbackBanner = nil }
-                                    }) {
-                                        Image(systemName: "xmark")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-
-                        // Hero Card Statistiche Inventario
-                        summaryHeroCard
-
-                        // Barra Filtri con Tasto Ordina Fisso a Destra della stessa grandezza
-                        filterAndSortBar
-
-                        // Barra di Ricerca
-                        SearchBarView(text: $searchText)
-
-                        // Contenuto: Lista Articoli, Loading AI o Stato Vuoto
-                        if isProcessingAI {
-                            LiquidGlassCard(cornerRadius: 22, padding: 24) {
-                                VStack(spacing: 14) {
-                                    ProgressView()
-                                        .scaleEffect(1.2)
-                                        .tint(Color.brandOrange)
-                                    Text(processingStatusMessage)
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.primary)
-                                    Text("Estrazione intelligente della tabella e dei prezzi tramite LLM Vision.")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .multilineTextAlignment(.center)
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                            .padding(.top, 20)
-                        } else if filteredAndSortedList.isEmpty {
-                            emptyStateView
-                                .padding(.top, 20)
-                        } else {
-                            ForEach(filteredAndSortedList, id: \.item.id) { entry in
-                                inventoryItemRow(entry.item, status: entry.status)
-                            }
-                        }
-
-                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                        Spacer(minLength: 90)
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    // Avviso In-App Reso Articolo (se attivo)
+                    if let alert = notificationManager.activeReturnAlert {
+                        returnAlertBanner(alert)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                }
-                .refreshable {
-                    await dashboardViewModel.refresh()
-                }
 
-                // Header Pinned Liquid Glass Fisso in Alto
-                pinnedInventoryHeaderBar
+                    // Banner Feedback Salvataggio Differenziale
+                    if let feedback = saveFeedbackBanner {
+                        LiquidGlassCard(cornerRadius: 18, padding: 12) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text(feedback)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Button(action: {
+                                    withAnimation { saveFeedbackBanner = nil }
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
+                    // Hero Card Statistiche Inventario
+                    summaryHeroCard
+
+                    // Barra Filtri con Tasto Ordina Fisso a Destra della stessa grandezza
+                    filterAndSortBar
+
+                    // Barra di Ricerca
+                    SearchBarView(text: $searchText)
+
+                    // Contenuto: Lista Articoli, Loading AI o Stato Vuoto
+                    if isProcessingAI {
+                        LiquidGlassCard(cornerRadius: 22, padding: 24) {
+                            VStack(spacing: 14) {
+                                ProgressView()
+                                    .scaleEffect(1.2)
+                                    .tint(Color.brandOrange)
+                                Text(processingStatusMessage)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                Text("Estrazione intelligente della tabella e dei prezzi tramite LLM Vision.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding(.top, 20)
+                    } else if filteredAndSortedList.isEmpty {
+                        emptyStateView
+                    } else {
+                        ForEach(filteredAndSortedList, id: \.item.id) { entry in
+                            inventoryItemRow(entry.item, status: entry.status)
+                        }
+                    }
+
+                    // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .background(LiquidGlassBackground())
+            .navigationTitle("Inventario")
+            .toolbar {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    AccountSwitcherMenu(
+                        accountStore: accountStore,
+                        onManageAccounts: { showingBatchesManager = true }
+                    )
+
+                    Button(action: {
+                        HapticFeedback.selection()
+                        showingEditSheet = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(width: 34, height: 34)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+
+                    uploadMenuToolbarButton
+                }
+            }
+            .refreshable {
+                await dashboardViewModel.loadData()
+            }
             .sheet(isPresented: $showingEditSheet) {
                 EditInventorySheet(
                     inventoryStore: inventoryStore,
-                    accountStore: accountStore
+                    shopId: activeShopId,
+                    userCardCode: activeUserCardCode
                 )
             }
-            .sheet(isPresented: $showingBreakdownSheet) {
-                if let (item, status) = selectedItemForBreakdown {
-                    ItemSalesBreakdownSheet(item: item, status: status)
-                }
+            .sheet(isPresented: $showingBatchesManager) {
+                BatchesManagerSheet(
+                    inventoryStore: inventoryStore,
+                    shopId: activeShopId,
+                    userCardCode: activeUserCardCode
+                )
             }
             .sheet(isPresented: $showingCamera) {
-                ModernAVCameraView { capturedImage in
-                    processCapturedUIImage(capturedImage)
-                }
+                ModernAVCameraView(
+                    onImageCaptured: { capturedImage in
+                        processCapturedUIImage(capturedImage)
+                    },
+                    onCancel: {
+                        showingCamera = false
+                    }
+                )
             }
-            .sheet(isPresented: $showingFilePicker) {
-                FileDocumentPickerView { docData, fileName in
-                    processImportedDocumentData(docData, fileName: fileName)
-                }
-            }
-            .sheet(isPresented: $showingBatchesManager) {
-                BatchesManagerSheet()
-            }
-            #if os(iOS)
-            .photosPicker(isPresented: $showingPhotoPicker, selection: $selectedPhotoItem, matching: .images)
+            #if canImport(PhotosUI)
+            .photosPicker(
+                isPresented: $showingPhotoPicker,
+                selection: $selectedPhotoItem,
+                matching: .images
+            )
             .onChange(of: selectedPhotoItem) { _, newItem in
                 guard let item = newItem else { return }
                 Task {
@@ -289,65 +305,7 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Header Pinned Liquid Glass
-    @ViewBuilder
-    private var pinnedInventoryHeaderBar: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center, spacing: 8) {
-                Text("Inventario")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                // Account / Profilo Switcher
-                AccountSwitcherMenu(
-                    accountStore: accountStore,
-                    onManageAccounts: { showingBatchesManager = true }
-                )
-
-                // Tasto Matita (Slegato, Liquid Glass Neutro)
-                Button(action: {
-                    HapticFeedback.selection()
-                    showingEditSheet = true
-                }) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .frame(width: 36, height: 36)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle().stroke(Color.white.opacity(0.20), lineWidth: 1)
-                        )
-                }
-                .buttonStyle(PlainButtonStyle())
-
-                // Tasto + (Slegato, Liquid Glass Arancione Trasparente)
-                uploadMenuToolbarButton
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                    Rectangle()
-                        .fill(Color.primary.opacity(0.02))
-                }
-                .ignoresSafeArea(edges: .top)
-            )
-            .overlay(
-                Rectangle()
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 0.8),
-                alignment: .bottom
-            )
-        }
-    }
-
-    // MARK: - Tasto + con Sfondo Trasparente Liquid Glass Arancione
+    // MARK: - Tasto + con Sfondo Trasparente Liquid Glass
     @ViewBuilder
     private var uploadMenuToolbarButton: some View {
         Menu {
@@ -370,17 +328,11 @@ public struct InventoryListView: View {
             }
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 15, weight: .bold))
                 .foregroundColor(.brandOrange)
-                .frame(width: 38, height: 38)
-                .background(Color.brandOrange.opacity(0.18))
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
-                .overlay(
-                    Circle().stroke(Color.brandOrange.opacity(0.6), lineWidth: 1.2)
-                )
+                .frame(width: 34, height: 34)
+                .background(.ultraThinMaterial, in: Circle())
         }
-        .buttonStyle(PlainButtonStyle())
     }
 
     // MARK: - Banner Avviso Reso In-App
@@ -518,22 +470,9 @@ public struct InventoryListView: View {
                                 .fontWeight(isSelected ? .bold : .medium)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
-                                .background(
-                                    ZStack {
-                                        if isSelected {
-                                            Color.brandOrange
-                                        } else {
-                                            Color.clear
-                                        }
-                                    }
-                                )
-                                .background(.ultraThinMaterial)
-                                .foregroundColor(isSelected ? .white : .primary)
-                                .clipShape(Capsule())
-                                .overlay(
-                                    Capsule()
-                                        .stroke(isSelected ? Color.brandOrange : Color.white.opacity(0.18), lineWidth: 1)
-                                )
+                                .foregroundColor(isSelected ? .brandOrange : .primary)
+                                .background(isSelected ? Color.brandOrange.opacity(0.18) : Color.clear)
+                                .background(.ultraThinMaterial, in: Capsule())
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -558,12 +497,7 @@ public struct InventoryListView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .foregroundColor(selectedSortOption == .dateDescending ? .primary : .brandOrange)
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(selectedSortOption == .dateDescending ? Color.white.opacity(0.18) : Color.brandOrange, lineWidth: 1)
-                )
+                .background(.ultraThinMaterial, in: Capsule())
             }
             .buttonStyle(PlainButtonStyle())
         }

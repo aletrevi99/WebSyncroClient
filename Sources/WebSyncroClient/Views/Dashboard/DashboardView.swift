@@ -19,47 +19,44 @@ public struct DashboardView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                LiquidGlassBackground()
-
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
-                        Color.clear.frame(height: 50)
-
-                        // Avviso In-App Reso Articolo (se attivo)
-                        if let alert = notificationManager.activeReturnAlert {
-                            returnAlertBanner(alert)
-                        }
-
-                        // Header principale con selettore Maturato / In Recesso e totali
-                        SummaryHeaderView(viewModel: viewModel)
-
-                        // Barra di ricerca Liquid Glass
-                        SearchBarView(text: $viewModel.searchText)
-
-                        // Barra filtri e ordinamento
-                        filterAndSortControls
-
-                        // Contenuto principale: Lista, Stato di caricamento o Errore
-                        mainContent
-
-                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                        Spacer(minLength: 90)
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    // Avviso In-App Reso Articolo (se attivo)
+                    if let alert = notificationManager.activeReturnAlert {
+                        returnAlertBanner(alert)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                }
-                .refreshable {
-                    await viewModel.refresh()
-                }
 
-                // Header Pinned Liquid Glass Fisso in Alto
-                pinnedHeaderBar
+                    // Header principale con selettore Maturato / In Recesso e totali
+                    SummaryHeaderView(viewModel: viewModel)
+
+                    // Barra di ricerca Liquid Glass
+                    SearchBarView(text: $viewModel.searchText)
+
+                    // Barra filtri e ordinamento
+                    filterAndSortControls
+
+                    // Contenuto principale: Lista, Stato di caricamento o Errore
+                    mainContent
+
+                    // Spaziatore per evitare sovrapposizione con la TabBar
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .background(LiquidGlassBackground())
+            .navigationTitle(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    AccountSwitcherMenu(
+                        accountStore: accountStore,
+                        onManageAccounts: { showingAccountManager = true }
+                    )
+                }
+            }
+            .refreshable {
+                await viewModel.refresh()
+            }
             .sheet(isPresented: $showingAccountManager) {
                 AccountManagerView()
             }
@@ -71,43 +68,6 @@ public struct DashboardView: View {
                     await viewModel.loadData()
                 }
             }
-        }
-    }
-
-    // MARK: - Header Pinned Liquid Glass
-    @ViewBuilder
-    private var pinnedHeaderBar: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center) {
-                Text(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                AccountSwitcherMenu(
-                    accountStore: accountStore,
-                    onManageAccounts: { showingAccountManager = true }
-                )
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                    Rectangle()
-                        .fill(Color.primary.opacity(0.02))
-                }
-                .ignoresSafeArea(edges: .top)
-            )
-            .overlay(
-                Rectangle()
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 0.8),
-                alignment: .bottom
-            )
         }
     }
 
@@ -183,13 +143,9 @@ public struct DashboardView: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
-                    .background(viewModel.filterRange != .all ? Color.brandOrange.opacity(0.12) : Color.clear)
-                    .background(.ultraThinMaterial)
                     .foregroundColor(viewModel.filterRange != .all ? .brandOrange : .primary)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule().stroke(viewModel.filterRange != .all ? Color.brandOrange : Color.white.opacity(0.18), lineWidth: 1)
-                    )
+                    .background(viewModel.filterRange != .all ? Color.brandOrange.opacity(0.18) : Color.clear)
+                    .background(.ultraThinMaterial, in: Capsule())
                 }
 
                 // Menu Ordinamento
@@ -216,12 +172,8 @@ public struct DashboardView: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 7)
-                    .background(.ultraThinMaterial)
                     .foregroundColor(.primary)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule().stroke(Color.white.opacity(0.18), lineWidth: 1)
-                    )
+                    .background(.ultraThinMaterial, in: Capsule())
                 }
 
                 Spacer()

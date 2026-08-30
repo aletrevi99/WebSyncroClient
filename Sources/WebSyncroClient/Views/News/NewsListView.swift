@@ -24,54 +24,52 @@ public struct NewsListView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                LiquidGlassBackground()
-
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        Color.clear.frame(height: 50)
-
-                        if isLoading && notifications.isEmpty {
-                            EmptyOrErrorView(type: .loading(message: "Caricamento notizie dal mercatino..."))
-                                .padding(.top, 40)
-                        } else if let error = errorMessage, notifications.isEmpty {
-                            EmptyOrErrorView(
-                                type: .error(
-                                    message: error,
-                                    onRetry: { Task { await loadNotifications() } }
-                                )
-                            )
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    if isLoading && notifications.isEmpty {
+                        EmptyOrErrorView(type: .loading(message: "Caricamento notizie dal mercatino..."))
                             .padding(.top, 40)
-                        } else if notifications.isEmpty {
-                            EmptyOrErrorView(
-                                type: .empty(
-                                    title: "Nessuna Notizia",
-                                    message: "Il mercatino non ha pubblicato comunicazioni recenti."
-                                )
+                    } else if let error = errorMessage, notifications.isEmpty {
+                        EmptyOrErrorView(
+                            type: .error(
+                                message: error,
+                                onRetry: { Task { await loadNotifications() } }
                             )
-                            .padding(.top, 40)
-                        } else {
-                            ForEach(notifications) { notif in
-                                notificationCard(notif)
-                            }
+                        )
+                        .padding(.top, 40)
+                    } else if notifications.isEmpty {
+                        EmptyOrErrorView(
+                            type: .empty(
+                                title: "Nessuna Notizia",
+                                message: "Il mercatino non ha pubblicato comunicazioni recenti."
+                            )
+                        )
+                        .padding(.top, 40)
+                    } else {
+                        ForEach(notifications) { notif in
+                            notificationCard(notif)
                         }
-
-                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                        Spacer(minLength: 90)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                }
-                .refreshable {
-                    await loadNotifications()
-                }
 
-                // Pinned Header Bar
-                pinnedNewsHeaderBar
+                    // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                    Spacer(minLength: 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
+            .background(LiquidGlassBackground())
+            .navigationTitle("Notizie")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    AccountSwitcherMenu(
+                        accountStore: accountStore,
+                        onManageAccounts: {}
+                    )
+                }
+            }
+            .refreshable {
+                await loadNotifications()
+            }
             .sheet(item: $selectedNotification) { notif in
                 notificationDetailSheet(notif)
             }
@@ -83,43 +81,6 @@ public struct NewsListView: View {
                     await loadNotifications()
                 }
             }
-        }
-    }
-
-    // MARK: - Header Pinned Liquid Glass
-    @ViewBuilder
-    private var pinnedNewsHeaderBar: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center) {
-                Text("Notizie")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                AccountSwitcherMenu(
-                    accountStore: accountStore,
-                    onManageAccounts: {}
-                )
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                    Rectangle()
-                        .fill(Color.primary.opacity(0.02))
-                }
-                .ignoresSafeArea(edges: .top)
-            )
-            .overlay(
-                Rectangle()
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 0.8),
-                alignment: .bottom
-            )
         }
     }
 

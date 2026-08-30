@@ -14,110 +14,70 @@ public struct UserCardView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                LiquidGlassBackground()
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Card Fornitore in stile Liquid Glass
+                    cardWidget
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
-                        Color.clear.frame(height: 50)
+                    // Informazioni di utilizzo
+                    LiquidGlassCard(cornerRadius: 20, padding: 16) {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "barcode.viewfinder")
+                                .font(.title2)
+                                .foregroundColor(.brandOrange)
+                                .padding(.top, 2)
 
-                        // Card Fornitore in stile Liquid Glass
-                        cardWidget
-
-                        // Informazioni di utilizzo
-                        LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "barcode.viewfinder")
-                                    .font(.title2)
-                                    .foregroundColor(.brandOrange)
-                                    .padding(.top, 2)
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Riconoscimento in Cassa")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                    Text("Mostra questo codice a barre all'operatore di cassa del mercatino per caricare nuovi oggetti in conto vendita o ritirare i tuoi guadagni maturati.")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Riconoscimento in Cassa")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text("Mostra questo codice a barre all'operatore di cassa del mercatino per caricare nuovi oggetti in conto vendita o ritirare i tuoi guadagni maturati.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
-
-                        // Dettagli Account Attivo
-                        if let account = activeAccount {
-                            LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        Label("Dettagli Tessera", systemImage: "person.crop.circle.fill")
-                                            .font(.headline)
-                                        Spacer()
-                                    }
-
-                                    Divider()
-
-                                    detailRow(title: "Codice Tessera", value: account.cardCode.isEmpty ? (account.userId.isEmpty ? "N/D" : account.userId) : account.cardCode)
-                                    detailRow(title: "Negozio Associato", value: account.shopId)
-                                    if !account.pin.isEmpty {
-                                        detailRow(title: "PIN Configurato", value: "••••")
-                                    }
-                                    if let lastSync = account.lastSyncDate {
-                                        detailRow(title: "Ultima Sincronizzazione", value: formattedDate(lastSync))
-                                    }
-                                }
-                            }
-                        }
-
-                        // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                        Spacer(minLength: 90)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
+
+                    // Dettagli Account Attivo
+                    if let account = activeAccount {
+                        LiquidGlassCard(cornerRadius: 20, padding: 16) {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Label("Dettagli Tessera", systemImage: "person.crop.circle.fill")
+                                        .font(.headline)
+                                    Spacer()
+                                }
+
+                                Divider()
+
+                                detailRow(title: "Codice Tessera", value: account.cardCode.isEmpty ? (account.userId.isEmpty ? "N/D" : account.userId) : account.cardCode)
+                                detailRow(title: "Negozio Associato", value: account.shopId)
+                                if !account.pin.isEmpty {
+                                    detailRow(title: "PIN Configurato", value: "••••")
+                                }
+                                if let lastSync = account.lastSyncDate {
+                                    detailRow(title: "Ultima Sincronizzazione", value: formattedDate(lastSync))
+                                }
+                            }
+                        }
+                    }
+
+                    // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
+                    Spacer(minLength: 40)
                 }
-
-                // Pinned Header Bar
-                pinnedCardHeaderBar
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .navigationBar)
-            #endif
-        }
-    }
-
-    // MARK: - Header Pinned Liquid Glass
-    @ViewBuilder
-    private var pinnedCardHeaderBar: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: .center) {
-                Text("Card")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                AccountSwitcherMenu(
-                    accountStore: accountStore,
-                    onManageAccounts: {}
-                )
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 6)
-            .padding(.bottom, 10)
-            .background(
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                    Rectangle()
-                        .fill(Color.primary.opacity(0.02))
+            .background(LiquidGlassBackground())
+            .navigationTitle("Card")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    AccountSwitcherMenu(
+                        accountStore: accountStore,
+                        onManageAccounts: {}
+                    )
                 }
-                .ignoresSafeArea(edges: .top)
-            )
-            .overlay(
-                Rectangle()
-                    .fill(Color.primary.opacity(0.08))
-                    .frame(height: 0.8),
-                alignment: .bottom
-            )
+            }
         }
     }
 
