@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Vista informativa sul negozio, orari di apertura settimanali e regolamento recesso
+/// Vista informativa sul negozio, recapiti, orari di apertura settimanali e regolamento recesso
 public struct ShopInfoView: View {
     let shopId: String
-    @State private var shopInfo: ShopInfo?
+    @State private var shopDetails: ShopDetails?
     @State private var isLoading = false
     @State private var errorMessage: String?
     
@@ -27,26 +27,149 @@ public struct ShopInfoView: View {
                     VStack(spacing: 20) {
                         // Card Intestazione Negozio
                         LiquidGlassCard(cornerRadius: 24, padding: 20) {
-                            VStack(spacing: 10) {
+                            VStack(spacing: 12) {
                                 ZStack {
                                     Circle()
                                         .fill(Color.accentColor.opacity(0.15))
-                                        .frame(width: 56, height: 56)
+                                        .frame(width: 60, height: 60)
 
                                     Image(systemName: "storefront.fill")
-                                        .font(.system(size: 26))
+                                        .font(.system(size: 28))
                                         .foregroundColor(.accentColor)
                                 }
 
-                                Text(shopId.capitalized)
-                                    .font(.system(.title2, design: .rounded))
-                                    .fontWeight(.bold)
+                                VStack(spacing: 4) {
+                                    Text(shopDetails?.name ?? shopId.capitalized)
+                                        .font(.system(.title2, design: .rounded))
+                                        .fontWeight(.bold)
+                                        .multilineTextAlignment(.center)
 
-                                Text("Piattaforma Mercatino WebSyncro")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    Text("Mercatino Partner WebSyncro")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                // Pulsanti di contatto rapido
+                                if let shop = shopDetails {
+                                    HStack(spacing: 12) {
+                                        if !shop.phone.isEmpty, let telURL = URL(string: "tel:\(shop.cleanPhoneNumber)") {
+                                            Link(destination: telURL) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "phone.fill")
+                                                    Text("Chiama")
+                                                }
+                                                .font(.system(.caption, design: .rounded))
+                                                .fontWeight(.semibold)
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 8)
+                                                .background(Color.green.opacity(0.15))
+                                                .foregroundColor(.green)
+                                                .clipShape(Capsule())
+                                            }
+                                        }
+
+                                        if !shop.email.isEmpty, let mailURL = URL(string: "mailto:\(shop.email)") {
+                                            Link(destination: mailURL) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "envelope.fill")
+                                                    Text("Email")
+                                                }
+                                                .font(.system(.caption, design: .rounded))
+                                                .fontWeight(.semibold)
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 8)
+                                                .background(Color.blue.opacity(0.15))
+                                                .foregroundColor(.blue)
+                                                .clipShape(Capsule())
+                                            }
+                                        }
+
+                                        if !shop.fullAddress.isEmpty,
+                                           let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                                           let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
+                                            Link(destination: mapURL) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "map.fill")
+                                                    Text("Mappa")
+                                                }
+                                                .font(.system(.caption, design: .rounded))
+                                                .fontWeight(.semibold)
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 8)
+                                                .background(Color.purple.opacity(0.15))
+                                                .foregroundColor(.purple)
+                                                .clipShape(Capsule())
+                                            }
+                                        }
+                                    }
+                                    .padding(.top, 4)
+                                }
                             }
                             .frame(maxWidth: .infinity)
+                        }
+
+                        // Card Recapiti e Indirizzo
+                        if let shop = shopDetails, !shop.fullAddress.isEmpty || !shop.phone.isEmpty || !shop.email.isEmpty {
+                            LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Label("Recapiti & Sede", systemImage: "mappin.circle.fill")
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+
+                                    Divider()
+
+                                    if !shop.fullAddress.isEmpty {
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Image(systemName: "location.fill")
+                                                .font(.caption)
+                                                .foregroundColor(.accentColor)
+                                                .padding(.top, 2)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Indirizzo")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                Text(shop.fullAddress)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                    }
+
+                                    if !shop.phone.isEmpty {
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Image(systemName: "phone.fill")
+                                                .font(.caption)
+                                                .foregroundColor(.green)
+                                                .padding(.top, 2)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Telefono")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                Text(shop.phone)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                    }
+
+                                    if !shop.email.isEmpty {
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Image(systemName: "envelope.fill")
+                                                .font(.caption)
+                                                .foregroundColor(.blue)
+                                                .padding(.top, 2)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Email")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                Text(shop.email)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         // Card Orari di Apertura Settimanali
@@ -71,7 +194,7 @@ public struct ShopInfoView: View {
                                     Text("Impossibile caricare gli orari: \(error)")
                                         .font(.caption)
                                         .foregroundColor(.orange)
-                                } else if let info = shopInfo {
+                                } else if let info = shopDetails, !info.schedule.isEmpty {
                                     VStack(spacing: 10) {
                                         ForEach(info.schedule) { day in
                                             let isToday = info.todaySchedule?.id == day.id
@@ -102,7 +225,6 @@ public struct ShopInfoView: View {
 
                                                 Spacer()
 
-                                                // Badge Aperto/Chiuso
                                                 Text(day.isClosed ? "Chiuso" : "Aperto")
                                                     .font(.system(size: 11, weight: .semibold))
                                                     .padding(.horizontal, 8)
@@ -120,7 +242,7 @@ public struct ShopInfoView: View {
                                         }
                                     }
                                 } else {
-                                    Text("Caricamento orari in corso...")
+                                    Text("Orari non disponibili al momento.")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -140,7 +262,7 @@ public struct ShopInfoView: View {
                                         .fontWeight(.semibold)
                                 }
 
-                                Text("Gli articoli venduti sono soggetti a un periodo di diritto di recesso a tutela dell'acquirente. Durante questo intervallo di tempo compaiono nella sezione 'Non Maturati'. Trascorso il termine previsto dal mercatino, l'importo passa automaticamente in 'Maturato' e diventa disponibile per il ritiro in cassa.")
+                                Text("Gli articoli venduti sono soggetti a un periodo di diritto di recesso a tutela dell'acquirente. Durante questo intervallo di tempo compaiono nella sezione 'In Recesso'. Trascorso il termine previsto dal mercatino, l'importo passa automaticamente in 'Maturato' e diventa disponibile per il ritiro in cassa.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -162,16 +284,16 @@ public struct ShopInfoView: View {
                 }
             }
             .task {
-                await loadSchedule()
+                await loadShopDetails()
             }
         }
     }
 
-    private func loadSchedule() async {
+    private func loadShopDetails() async {
         isLoading = true
         errorMessage = nil
         do {
-            self.shopInfo = try await service.fetchShopInfo(shopId: shopId)
+            self.shopDetails = try await service.fetchShopDetails(shopId: shopId)
         } catch {
             self.errorMessage = error.localizedDescription
         }

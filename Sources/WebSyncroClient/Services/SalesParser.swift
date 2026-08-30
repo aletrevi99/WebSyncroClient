@@ -15,12 +15,10 @@ public enum SalesParser {
         syncTimestamp: String,
         isNonMatured: Bool = false
     ) -> SalesReport {
-        // Normalizza i ritorni a capo
         let normalized = content
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
 
-        // Separa la sezione dell'elenco
         var listSection = normalized
         var postDelimiterContent: String?
 
@@ -33,10 +31,8 @@ public enum SalesParser {
             listSection = String(listSection[inizioRange.upperBound...])
         }
 
-        // Estrai l'eventuale avviso opzionale
         let optionalNotice = extractOptionalNotice(from: normalized, postDelimiter: postDelimiterContent)
 
-        // Parsing delle righe
         let rawLines = listSection.components(separatedBy: "\n")
         var items: [SaleItem] = []
         var pendingTitle: String? = nil
@@ -46,23 +42,19 @@ public enum SalesParser {
             let line = rawLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
             index += 1
 
-            // Salta righe vuote o tag speciali
             if line.isEmpty || line.hasPrefix("<#") {
                 continue
             }
 
             if let match = matchHeaderLine(line) {
-                // Abbiamo trovato la riga ID DATA IMPORTO
                 let date = Date.fromSaleDateString(match.dateString) ?? Date()
                 let amount = parseAmount(match.rawAmount) ?? Decimal(0)
 
-                // Verifica se il titolo era nella riga precedente (es. WebSyncro standard)
                 let title: String
                 if let pt = pendingTitle, !pt.isEmpty {
                     title = pt
                     pendingTitle = nil
                 } else if index < rawLines.count {
-                    // Altrimenti controlla se è nella riga successiva
                     let nextCandidate = rawLines[index].trimmingCharacters(in: .whitespacesAndNewlines)
                     if !isHeaderLine(nextCandidate) && !nextCandidate.hasPrefix("<#") && !nextCandidate.isEmpty {
                         title = nextCandidate
@@ -84,12 +76,10 @@ public enum SalesParser {
                 )
                 items.append(saleItem)
             } else {
-                // Non è una testata: è una riga di descrizione/titolo
                 pendingTitle = line
             }
         }
 
-        // Calcola il totale
         let totalEarned = items.reduce(Decimal(0)) { $0 + $1.amount }
 
         return SalesReport(
@@ -104,8 +94,45 @@ public enum SalesParser {
         )
     }
 
+    /// Esegue il parsing del file ElencoNegozi.txt
+    public static func parseShopDirectory(content: String) -> [ShopDetails] {
+        let normalized = content
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+
+        let lines = normalized.components(separatedBy: "\n")
+        var shops: [ShopDetails] = []
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { continue }
+
+            let parts = trimmed.components(separatedBy: "/")
+            guard parts.count >= 2 else { continue }
+
+            let name = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+            let slug = parts[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            let address = parts.count > 2 ? parts[2].trimmingCharacters(in: .whitespacesAndNewlines) : ""
+            let cityZip = parts.count > 3 ? parts[3].trimmingCharacters(in: .whitespacesAndNewlines) : ""
+            let phone = parts.count > 4 ? parts[4].trimmingCharacters(in: .whitespacesAndNewlines) : ""
+            let email = parts.count > 6 ? parts[6].trimmingCharacters(in: .whitespacesAndNewlines) : (parts.count > 5 ? parts[5].trimmingCharacters(in: .whitespacesAndNewlines) : "")
+
+            let shop = ShopDetails(
+                name: name,
+                slug: slug,
+                address: address,
+                cityZip: cityZip,
+                phone: phone,
+                email: email
+            )
+            shops.append(shop)
+        }
+
+        return shops
+    }
+
     /// Esegue il parsing della stringa Orario.txt
-    public static func parseSchedule(content: String, shopId: String) -> ShopInfo {
+    public static func parseSchedule(content: String) -> [DaySchedule] {
         let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
         let dayTokens = trimmed.components(separatedBy: "|")
         let dayNames = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
@@ -121,8 +148,6 @@ public enum SalesParser {
             let token = dayTokens[index]
             let parts = token.components(separatedBy: "-")
 
-            // Formato standard: isClosed-openMattina-closeMattina-openPomeriggio-closePomeriggio
-            // Es: 0-09:30-12:30-15:00-19:30
             let isClosedFlag = parts.first == "1"
 
             var morning: String? = nil
@@ -155,7 +180,7 @@ public enum SalesParser {
             scheduleList.append(daySchedule)
         }
 
-        return ShopInfo(shopId: shopId, schedule: scheduleList, rawSchedule: trimmed)
+        return scheduleList
     }
 
     /// Estrae l'avviso opzionale da <#FRASEOPZIONALE>
@@ -212,14 +237,13 @@ public enum SalesParser {
             .replacingOccurrences(of: "EUR", with: "", options: .caseInsensitive)
             .replacingOccurrences(of: "eur", with: "", options: .caseInsensitive)
             .replacingOccurrences(of: "&euro;", with: "", options: .caseInsensitive)
-            .replacingOccurrences(of: "\u{00A0}", with: "") // Non-breaking space
+            .replacingOccurrences(of: "\u{00A0}", with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if cleaned.isEmpty {
             return nil
         }
 
-        // Se contiene sia punto che virgola (es. 1.234,56 o 1,234.56)
         if cleaned.contains(".") && cleaned.contains(",") {
             if let dotIndex = cleaned.firstIndex(of: "."),
                let commaIndex = cleaned.firstIndex(of: ","),

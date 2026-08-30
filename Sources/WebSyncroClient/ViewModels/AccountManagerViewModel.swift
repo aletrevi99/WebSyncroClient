@@ -7,6 +7,7 @@ public final class AccountManagerViewModel: ObservableObject {
     @Published public var activeAccountId: UUID?
     @Published public var isAddingAccount: Bool = false
     @Published public var editingAccount: UserAccount?
+    @Published public var availableShops: [ShopDetails] = []
 
     // Campi form
     @Published public var formShopId: String = "exnovomercatino"
@@ -16,11 +17,16 @@ public final class AccountManagerViewModel: ObservableObject {
     @Published public var formValidationError: String?
 
     private let accountStore: AccountStore
+    private let service: WebSyncroServiceProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    public init(accountStore: AccountStore? = nil) {
+    public init(
+        accountStore: AccountStore? = nil,
+        service: WebSyncroServiceProtocol = WebSyncroService.shared
+    ) {
         let store = accountStore ?? AccountStore.shared
         self.accountStore = store
+        self.service = service
 
         store.$accounts
             .assign(to: \.accounts, on: self)
@@ -29,6 +35,29 @@ public final class AccountManagerViewModel: ObservableObject {
         store.$activeAccountId
             .assign(to: \.activeAccountId, on: self)
             .store(in: &cancellables)
+
+        Task {
+            await loadAvailableShops()
+        }
+    }
+
+    public func loadAvailableShops() async {
+        do {
+            let list = try await service.fetchShopDirectory()
+            if !list.isEmpty {
+                self.availableShops = list
+            }
+        } catch {
+            // Fallback su elenco base
+        }
+    }
+
+    public func selectKnownShop(_ shop: ShopDetails) {
+        formShopId = shop.slug
+        if formAlias.isEmpty || availableShops.contains(where: { $0.name == formAlias }) {
+            formAlias = shop.name
+        }
+        HapticFeedback.selection()
     }
 
     public func selectAccount(_ account: UserAccount) {

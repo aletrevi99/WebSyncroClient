@@ -82,23 +82,42 @@ final class SalesParserTests: XCTestCase {
         XCTAssertEqual(report.items[0].id, "1260216")
     }
 
+    func testParseShopDirectory() {
+        let sampleDirectory = """
+        Armadio dell'Usato/armadiodellusato/Corso Milano 122A/37138 Verona (VR)/045 8031777//info@leotron.com
+        Mercatino Store/mercatinostore/Via G. Mazzini 91/36027 Rosà (VI)/0424 582956//info@mercatinostore.com
+        EX Novo/exnovomercatino/Via Vicenza 23/31050 Vedelago (TV)/042 3700120//info@exnovomercatino.it
+        """
+
+        let shops = SalesParser.parseShopDirectory(content: sampleDirectory)
+
+        XCTAssertEqual(shops.count, 3)
+        XCTAssertEqual(shops[0].name, "Armadio dell'Usato")
+        XCTAssertEqual(shops[0].slug, "armadiodellusato")
+        XCTAssertEqual(shops[2].name, "EX Novo")
+        XCTAssertEqual(shops[2].slug, "exnovomercatino")
+        XCTAssertEqual(shops[2].address, "Via Vicenza 23")
+        XCTAssertEqual(shops[2].cityZip, "31050 Vedelago (TV)")
+        XCTAssertEqual(shops[2].phone, "042 3700120")
+        XCTAssertEqual(shops[2].email, "info@exnovomercatino.it")
+    }
+
     func testParseOrarioTxt() {
         let rawOrario = "0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|1-00:00-00:00-00:00-00:00"
 
-        let shopInfo = SalesParser.parseSchedule(content: rawOrario, shopId: "exnovomercatino")
+        let schedule = SalesParser.parseSchedule(content: rawOrario)
 
-        XCTAssertEqual(shopInfo.shopId, "exnovomercatino")
-        XCTAssertEqual(shopInfo.schedule.count, 7)
+        XCTAssertEqual(schedule.count, 7)
 
         // Lunedì
-        let lunedi = shopInfo.schedule[0]
+        let lunedi = schedule[0]
         XCTAssertEqual(lunedi.dayName, "Lunedì")
         XCTAssertFalse(lunedi.isClosed)
         XCTAssertEqual(lunedi.morningHours, "09:30 - 12:30")
         XCTAssertEqual(lunedi.afternoonHours, "15:00 - 19:30")
 
         // Domenica
-        let domenica = shopInfo.schedule[6]
+        let domenica = schedule[6]
         XCTAssertEqual(domenica.dayName, "Domenica")
         XCTAssertTrue(domenica.isClosed)
         XCTAssertEqual(domenica.formattedHours, "Chiuso")

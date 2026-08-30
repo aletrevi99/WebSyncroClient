@@ -54,13 +54,53 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
         return (matured, nonMatured)
     }
 
-    public func fetchShopInfo(shopId: String) async throws -> ShopInfo {
+    public func fetchShopDirectory() async throws -> [ShopDetails] {
+        try await Task.sleep(nanoseconds: 100_000_000)
+        return [
+            ShopDetails(
+                name: "Armadio dell'Usato",
+                slug: "armadiodellusato",
+                address: "Corso Milano 122A",
+                cityZip: "37138 Verona (VR)",
+                phone: "045 8031777",
+                email: "info@leotron.com"
+            ),
+            ShopDetails(
+                name: "Mercatino Store",
+                slug: "mercatinostore",
+                address: "Via G. Mazzini 91",
+                cityZip: "36027 Rosà (VI)",
+                phone: "0424 582956",
+                email: "info@mercatinostore.com"
+            ),
+            ShopDetails(
+                name: "EX Novo",
+                slug: "exnovomercatino",
+                address: "Via Vicenza 23",
+                cityZip: "31050 Vedelago (TV)",
+                phone: "042 3700120",
+                email: "info@exnovomercatino.it"
+            )
+        ]
+    }
+
+    public func fetchShopDetails(shopId: String) async throws -> ShopDetails {
         try await Task.sleep(nanoseconds: delayNanoseconds / 2)
         if shouldFail {
             throw mockError ?? WebSyncroError.shopNotFound(shopId: shopId)
         }
         let sampleRaw = "0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|0-09:30-12:30-15:00-19:30|1-00:00-00:00-00:00-00:00"
-        return SalesParser.parseSchedule(content: sampleRaw, shopId: shopId)
+        let schedule = SalesParser.parseSchedule(content: sampleRaw)
+        
+        return ShopDetails(
+            name: "EX Novo",
+            slug: shopId,
+            address: "Via Vicenza 23",
+            cityZip: "31050 Vedelago (TV)",
+            phone: "042 3700120",
+            email: "info@exnovomercatino.it",
+            schedule: schedule
+        )
     }
 
     public func fetchAvailableSnapshots(shopId: String) async throws -> [String] {

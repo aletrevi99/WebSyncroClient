@@ -38,16 +38,38 @@ public struct DaySchedule: Identifiable, Hashable, Sendable, Codable {
     }
 }
 
-/// Modello informativo del negozio con orari settimanali
-public struct ShopInfo: Hashable, Sendable, Codable {
-    public let shopId: String
-    public let schedule: [DaySchedule]
-    public let rawSchedule: String
+/// Dettagli anagrafici e recapiti completi del negozio (da ElencoNegozi.txt)
+public struct ShopDetails: Identifiable, Hashable, Sendable, Codable {
+    public var id: String { slug }
+    public let name: String          // Es. "EX Novo"
+    public let slug: String          // Es. "exnovomercatino"
+    public let address: String       // Es. "Via Vicenza 23"
+    public let cityZip: String       // Es. "31050 Vedelago (TV)"
+    public let phone: String         // Es. "042 3700120"
+    public let email: String         // Es. "info@exnovomercatino.it"
+    public var schedule: [DaySchedule]
 
-    public init(shopId: String, schedule: [DaySchedule], rawSchedule: String) {
-        self.shopId = shopId
+    public init(
+        name: String,
+        slug: String,
+        address: String,
+        cityZip: String,
+        phone: String,
+        email: String,
+        schedule: [DaySchedule] = []
+    ) {
+        self.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.slug = slug.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.address = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.cityZip = cityZip.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.phone = phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         self.schedule = schedule
-        self.rawSchedule = rawSchedule
+    }
+
+    /// Indirizzo completo formattato
+    public var fullAddress: String {
+        [address, cityZip].filter { !$0.isEmpty }.joined(separator: ", ")
     }
 
     /// Ritorna l'orario di oggi
@@ -57,5 +79,12 @@ public struct ShopInfo: Hashable, Sendable, Codable {
         // In Calendar: 1 = Domenica, 2 = Lunedì, ..., 7 = Sabato
         let dayIndex = (weekday == 1) ? 6 : (weekday - 2)
         return schedule.first(where: { $0.id == dayIndex })
+    }
+
+    /// Telefono pulito per URL scheme tel:
+    public var cleanPhoneNumber: String {
+        phone.replacingOccurrences(of: " ", with: "")
+            .replacingOccurrences(of: "-", with: "")
+            .replacingOccurrences(of: "/", with: "")
     }
 }

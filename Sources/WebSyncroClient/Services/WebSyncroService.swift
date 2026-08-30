@@ -4,12 +4,11 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
     public static let shared = WebSyncroService()
 
     public static let defaultUserAgent = "ExnovoMercatino/1.2 CFNetwork/3896.100.1.2.1 Darwin/27.0.0"
-    public static let baseHost = "https://www.appwebsyncro.it/WebSyncro/ClientiWebSyncro/Negozi"
+    public static let baseHost = "https://www.appwebsyncro.it/WebSyncro/ClientiWebSyncro"
 
     private let session: URLSession
     private let userAgent: String
 
-    // Regex per cartelle di sincronizzazione: SM_YYYY-MM-DDTHH:MM:SS
     private static let snapshotRegex = try! NSRegularExpression(
         pattern: #"SM_\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"#
     )
@@ -22,7 +21,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         self.userAgent = userAgent
     }
 
-    /// Esegue il flusso a 2 fasi per recuperare maturato.txt o nonmaturato.txt
+    /// Esegue il recupero del report maturato o non maturato
     public func fetchSalesReport(
         shopId: String,
         userId: String,
@@ -51,7 +50,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         let fileName = isNonMatured ? "nonmaturato.txt" : "maturato.txt"
         onProgress?(.downloadingReport(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId))
         
-        let reportURLString = "\(Self.baseHost)/\(cleanShopId)/\(latestSnapshot)/\(cleanUserId)/\(fileName)"
+        let reportURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/\(latestSnapshot)/\(cleanUserId)/\(fileName)"
         guard let reportURL = URL(string: reportURLString) else {
             throw WebSyncroError.invalidURL(reportURLString)
         }
@@ -121,7 +120,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
 
         onProgress?(.downloadingReport(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId))
 
-        // FASE 2: Download parallelo di maturato.txt e nonmaturato.txt
+        // FASE 2: Download parallelo
         async let maturedData = fetchReportFile(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId, fileName: "maturato.txt")
         async let nonMaturedData = fetchReportFile(shopId: cleanShopId, snapshot: latestSnapshot, userId: cleanUserId, fileName: "nonmaturato.txt")
 
@@ -146,11 +145,9 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         return (maturedReport, nonMaturedReport)
     }
 
-    /// Recupera gli orari del negozio da Orario.txt
-    public func fetchShopInfo(shopId: String) async throws -> ShopInfo {
-        let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
-        let urlString = "\(Self.baseHost)/\(cleanShopId)/Orario.txt"
-
+    /// Recupera l'elenco di tutti i negozi WebSyncro da ElencoNegozi.txt
+    public func fetchShopDirectory() async throws -> [ShopDetails] {
+        let urlString = "\(Self.baseHost)/ElencoNegozi.txt"
         guard let url = URL(string: urlString) else {
             throw WebSyncroError.invalidURL(urlString)
         }
@@ -165,28 +162,68 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
 
         let (data, response) = try await session.data(for: request)
 
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw WebSyncroError.networkError("Risposta non HTTP")
-        }
-
-        if httpResponse.statusCode == 404 {
-            throw WebSyncroError.shopNotFound(shopId: cleanShopId)
-        }
-
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw WebSyncroError.httpError(
-                statusCode: httpResponse.statusCode,
-                message: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
-            )
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            return []
         }
 
         let raw = decodeDataToString(data)
-        return SalesParser.parseSchedule(content: raw, shopId: cleanShopId)
+        return SalesParser.parseShopDirectory(content: raw)
     }
 
-    /// Helper privato per il download di un file report
+    /// Recupera i dettagli completi e gli orari del negozio
+    public func fetchShopDetails(shopId: String) async throws -> ShopDetails {
+        let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Scarica l'elenco negozi per le info anagrafiche e contemporaneamente Orario.txt
+        async let directoryTask = fetchShopDirectory()
+        async let scheduleTask = fetchSchedule(shopId: cleanShopId)
+
+        let (directory, schedule) = await (try? directoryTask, try? scheduleTask)
+
+        // Trova il negozio corrispondente nello slug
+        let foundShop = directory?.first(where: { $0.slug.caseInsensitiveCompare(cleanShopId) == .orderedSame })
+
+        var details = foundShop ?? ShopDetails(
+            name: cleanShopId.capitalized,
+            slug: cleanShopId,
+            address: "",
+            cityZip: "",
+            phone: "",
+            email: ""
+        )
+
+        if let sched = schedule {
+            details.schedule = sched
+        }
+
+        return details
+    }
+
+    private func fetchSchedule(shopId: String) async throws -> [DaySchedule] {
+        let urlString = "\(Self.baseHost)/Negozi/\(shopId)/Orario.txt"
+        guard let url = URL(string: urlString) else {
+            throw WebSyncroError.invalidURL(urlString)
+        }
+
+        var request = URLRequest(
+            url: url,
+            cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+            timeoutInterval: 20.0
+        )
+        request.httpMethod = "GET"
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+            return []
+        }
+
+        let raw = decodeDataToString(data)
+        return SalesParser.parseSchedule(content: raw)
+    }
+
     private func fetchReportFile(shopId: String, snapshot: String, userId: String, fileName: String) async throws -> String {
-        let reportURLString = "\(Self.baseHost)/\(shopId)/\(snapshot)/\(userId)/\(fileName)"
+        let reportURLString = "\(Self.baseHost)/Negozi/\(shopId)/\(snapshot)/\(userId)/\(fileName)"
         guard let reportURL = URL(string: reportURLString) else {
             throw WebSyncroError.invalidURL(reportURLString)
         }
@@ -207,7 +244,6 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         }
 
         if httpResponse.statusCode == 404 {
-            // Se nonmaturato.txt o maturato.txt non esiste, fallback su stringa vuota
             return ""
         }
 
@@ -221,10 +257,9 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         return decodeDataToString(data)
     }
 
-    /// Esegue lo scrape del directory listing per estrarre tutti gli snapshot SM_... ordinati per data decrescente
     public func fetchAvailableSnapshots(shopId: String) async throws -> [String] {
         let cleanShopId = shopId.trimmingCharacters(in: .whitespacesAndNewlines)
-        let dirURLString = "\(Self.baseHost)/\(cleanShopId)/"
+        let dirURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/"
 
         guard let dirURL = URL(string: dirURLString) else {
             throw WebSyncroError.invalidURL(dirURLString)
@@ -260,7 +295,6 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         return Self.extractSnapshots(from: htmlString)
     }
 
-    /// Funzione statica per estrarre e ordinare gli snapshot da una stringa HTML
     public static func extractSnapshots(from html: String) -> [String] {
         let range = NSRange(location: 0, length: (html as NSString).length)
         let matches = snapshotRegex.matches(in: html, options: [], range: range)
@@ -276,7 +310,6 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         return uniqueSnapshots.sorted(by: >)
     }
 
-    /// Decodifica i byte provando UTF-8, Windows CP1252 e ISO Latin 1
     private func decodeDataToString(_ data: Data) -> String {
         if let utf8 = String(data: data, encoding: .utf8) {
             return utf8

@@ -48,8 +48,11 @@ public protocol WebSyncroServiceProtocol: Sendable {
         onProgress: (@Sendable (SyncStatus) -> Void)?
     ) async throws -> (matured: SalesReport, nonMatured: SalesReport)
 
-    /// Recupera gli orari del negozio da Orario.txt
-    func fetchShopInfo(shopId: String) async throws -> ShopInfo
+    /// Recupera i dettagli anagrafici e orari del negozio
+    func fetchShopDetails(shopId: String) async throws -> ShopDetails
+
+    /// Recupera l'elenco di tutti i negozi WebSyncro da ElencoNegozi.txt
+    func fetchShopDirectory() async throws -> [ShopDetails]
 
     /// Recupera l'elenco di tutte le cartelle snapshot disponibili per il negozio
     func fetchAvailableSnapshots(shopId: String) async throws -> [String]

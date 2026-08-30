@@ -28,9 +28,45 @@ public struct AddAccountSheet: View {
                                     Text("Credenziali WebSyncro")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
-                                    Text("Inserisci il nome del negozio (es. exnovomercatino), il codice alfanumerico della tua tessera cliente (es. TRE091) e il tuo PIN (es. 1762).")
+                                    Text("Seleziona o digita il negozio del mercatino, inserisci il codice alfanumerico della tua tessera cliente (es. TRE091) e il tuo PIN numerico (es. 1762).")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+
+                        // Selezione rapida negozi noti
+                        if !viewModel.availableShops.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Negozi Riconosciuti WebSyncro")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 4)
+
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 8) {
+                                        ForEach(viewModel.availableShops) { shop in
+                                            let isSelected = viewModel.formShopId.caseInsensitiveCompare(shop.slug) == .orderedSame
+
+                                            Button(action: {
+                                                viewModel.selectKnownShop(shop)
+                                            }) {
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "storefront.fill")
+                                                        .font(.caption2)
+                                                    Text(shop.name)
+                                                        .font(.system(.caption, design: .rounded))
+                                                        .fontWeight(.semibold)
+                                                }
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 8)
+                                                .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.12))
+                                                .foregroundColor(isSelected ? .white : .primary)
+                                                .clipShape(Capsule())
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -45,7 +81,7 @@ public struct AddAccountSheet: View {
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    TextField("Es. Ex Novo Mercatino", text: $viewModel.formAlias)
+                                    TextField("Es. EX Novo Mercatino", text: $viewModel.formAlias)
                                         .font(.body)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
