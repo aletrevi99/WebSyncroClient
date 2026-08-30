@@ -153,9 +153,21 @@ public struct DashboardView: View {
             EmptyOrErrorView(type: .loading(message: viewModel.syncStatus.statusDescription))
                 .padding(.top, 20)
         } else if let error = viewModel.errorMessage, viewModel.report == nil {
-            EmptyOrErrorView(type: .error(message: error, onRetry: {
-                Task { await viewModel.loadData() }
-            }))
+            EmptyOrErrorView(
+                type: .error(
+                    message: error,
+                    onRetry: {
+                        Task { await viewModel.loadData() }
+                    },
+                    onEditAccount: {
+                        showingAccountManager = true
+                    },
+                    onEnableDemo: {
+                        viewModel.isDemoMode = true
+                        Task { await viewModel.loadData() }
+                    }
+                )
+            )
             .padding(.top, 20)
         } else if viewModel.filteredItems.isEmpty {
             EmptyOrErrorView(
@@ -172,4 +184,3 @@ public struct DashboardView: View {
         }
     }
 }
-

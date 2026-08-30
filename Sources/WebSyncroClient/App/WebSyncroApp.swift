@@ -1,7 +1,9 @@
 import SwiftUI
 
 /// Entry point per l'applicazione iOS WebSyncro Mercatini
+#if os(iOS)
 @main
+#endif
 public struct WebSyncroApp: App {
     @StateObject private var appState = AppState.shared
 

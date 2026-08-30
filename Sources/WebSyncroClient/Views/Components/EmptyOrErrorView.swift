@@ -4,7 +4,12 @@ import SwiftUI
 public struct EmptyOrErrorView: View {
     public enum ViewType {
         case empty(title: String, message: String)
-        case error(message: String, onRetry: () -> Void)
+        case error(
+            message: String,
+            onRetry: () -> Void,
+            onEditAccount: (() -> Void)? = nil,
+            onEnableDemo: (() -> Void)? = nil
+        )
         case loading(message: String)
     }
 
@@ -33,11 +38,11 @@ public struct EmptyOrErrorView: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
 
-                case .error(let message, let onRetry):
+                case .error(let message, let onRetry, let onEditAccount, let onEnableDemo):
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 40))
+                        .font(.system(size: 44))
                         .foregroundColor(.orange)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
 
                     Text("Attenzione")
                         .font(.headline)
@@ -48,21 +53,58 @@ public struct EmptyOrErrorView: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
 
-                    Button(action: {
-                        HapticFeedback.impact(.medium)
-                        onRetry()
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.clockwise")
-                            Text("Riprova")
+                    VStack(spacing: 10) {
+                        Button(action: {
+                            HapticFeedback.impact(.medium)
+                            onRetry()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Riprova")
+                            }
+                            .font(.system(.subheadline, design: .rounded))
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
                         }
-                        .font(.system(.subheadline, design: .rounded))
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
+
+                        if let onEditAccount = onEditAccount {
+                            Button(action: {
+                                HapticFeedback.impact(.light)
+                                onEditAccount()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "person.crop.circle.badge.plus")
+                                    Text("Configura Negozio e Utente")
+                                }
+                                .font(.system(.subheadline, design: .rounded))
+                                .fontWeight(.medium)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Color.secondary.opacity(0.12))
+                                .foregroundColor(.primary)
+                                .clipShape(Capsule())
+                            }
+                        }
+
+                        if let onEnableDemo = onEnableDemo {
+                            Button(action: {
+                                HapticFeedback.selection()
+                                onEnableDemo()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "sparkles")
+                                    Text("Prova con Dati Simulati (Demo)")
+                                }
+                                .font(.system(.caption, design: .rounded))
+                                .fontWeight(.medium)
+                                .foregroundColor(.accentColor)
+                                .padding(.top, 4)
+                            }
+                        }
                     }
                     .padding(.top, 8)
 
@@ -82,4 +124,3 @@ public struct EmptyOrErrorView: View {
         }
     }
 }
-
