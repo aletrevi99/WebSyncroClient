@@ -835,7 +835,7 @@ public struct InventoryListView: View {
 
     private func processImportedDocumentData(_ data: Data, fileName: String) {
         if fileName.lowercased().hasSuffix(".pdf") {
-            if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data) as? UIImage,
+            if let renderedImage = PDFImageConverter.renderPDFPageToImage(data: data),
                let jpegData = renderedImage.jpegData(compressionQuality: 0.8) {
                 executeVisionAnalysis(imageData: jpegData)
             } else {

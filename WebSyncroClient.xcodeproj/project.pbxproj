@@ -82,6 +82,8 @@
 		F8D7F11C08AABD29F26949FB /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
 		FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */; };
 		FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */; };
+		AA1100022FA6B484920D6CE2 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100012FA6B484920D6CE1 /* NotificationManager.swift */; };
+		AA2200022FA6B484920D6CE4 /* ItemSalesBreakdownSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200012FA6B484920D6CE3 /* ItemSalesBreakdownSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -189,6 +191,8 @@
 		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
 		FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerView.swift; sourceTree = "<group>"; };
+		AA1100012FA6B484920D6CE1 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		AA2200012FA6B484920D6CE3 /* ItemSalesBreakdownSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSalesBreakdownSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -241,6 +245,7 @@
 				0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */,
 				D0A2E28CC16B4154B5BDB9C2 /* EditInventorySheet.swift */,
 				C0BB19835A8BA7BC984B023D /* InventoryListView.swift */,
+				AA2200012FA6B484920D6CE3 /* ItemSalesBreakdownSheet.swift */,
 				EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */,
 			);
 			path = Inventory;
@@ -414,6 +419,7 @@
 			children = (
 				498D0A2DFB469089585D591F /* InventoryOCRParser.swift */,
 				D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */,
+				AA1100012FA6B484920D6CE1 /* NotificationManager.swift */,
 				16118E43A3972ACC75A25C28 /* SalesParser.swift */,
 				336568C7A6FCFF8F2A7DCE87 /* VisionLLMService.swift */,
 				6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */,
@@ -635,6 +641,8 @@
 				86A8F4441B77DA3A194B76ED /* WebSyncroWidgetViews.swift in Sources */,
 				26EA438A7F51B997F0FF7920 /* WidgetDataProvider.swift in Sources */,
 				43EC3E395FF4DCCF34C8750E /* WidgetsGalleryView.swift in Sources */,
+				AA1100022FA6B484920D6CE2 /* NotificationManager.swift in Sources */,
+				AA2200022FA6B484920D6CE4 /* ItemSalesBreakdownSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
