@@ -182,3 +182,4 @@ public struct QRCodeScannerView: View {
     }
 }
 #endif
+

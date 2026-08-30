@@ -13,7 +13,10 @@
 		135CB0767DE6714C71AEF49E /* NewsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBEDF78623E6628EB6A857F2 /* NewsListView.swift */; };
 		1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */; };
 		170428F6149BE8150FD9AA05 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E92294B9CB3C28E1F2A329C /* MainTabView.swift */; };
+		1D40DAD24E11690D10F67ECE /* InventoryOCRParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E10CD272914B86BBB41EDC /* InventoryOCRParserTests.swift */; };
+		20595E196654E4BE81AAB0C3 /* InventoryOCRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D0A2DFB469089585D591F /* InventoryOCRParser.swift */; };
 		2254D4CC16AD1CEB2206354C /* SaleItemDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */; };
+		230CCFEDA3787E82C184FEC0 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BB19835A8BA7BC984B023D /* InventoryListView.swift */; };
 		25C1308F730217772501FFAE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070E6E59DAB1D9001F1BF4C0 /* AppState.swift */; };
 		26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */; };
 		29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */; };
@@ -30,7 +33,9 @@
 		739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */; };
 		751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */; };
 		769CF7449FB520FDFD1BE997 /* SalesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16118E43A3972ACC75A25C28 /* SalesParser.swift */; };
+		771B8D51AD84C711D3318F94 /* MandateClausesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B885D1F86AB9272AC8067E /* MandateClausesView.swift */; };
 		7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */; };
+		7B9B7E74115CAC263A33266E /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BCC7A6C8476E83CA0A37E1 /* DocumentScannerView.swift */; };
 		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
 		840DE55BA1179C0FAB3F3114 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */; };
 		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
@@ -43,11 +48,14 @@
 		AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFB02ED7971605E2178171 /* DateExtensions.swift */; };
 		B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D528026838E617059B33E3AC /* QRCodeParserTests.swift */; };
 		BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC221438A985A902E8B43FBD /* UserAccount.swift */; };
+		C47366A7A503B94F7B9D36FA /* InventoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */; };
+		C659E65E0F1A3D911E98B592 /* ScanInventoryReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */; };
 		C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */; };
 		CCF8193CAA26964E62C16BAA /* AccountManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */; };
 		D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3324D9007E4EC87452DF1B2A /* SyncStatus.swift */; };
 		DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */; };
 		DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
+		DF3981955D66D6596A8D48D9 /* InventoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094617839626F02AF8DFF349 /* InventoryStore.swift */; };
 		E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */; };
 		E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */; };
 		EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */; };
@@ -68,7 +76,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		06B885D1F86AB9272AC8067E /* MandateClausesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandateClausesView.swift; sourceTree = "<group>"; };
 		070E6E59DAB1D9001F1BF4C0 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		094617839626F02AF8DFF349 /* InventoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryStore.swift; sourceTree = "<group>"; };
+		0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryItem.swift; sourceTree = "<group>"; };
 		145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModel.swift; sourceTree = "<group>"; };
 		15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemRowView.swift; sourceTree = "<group>"; };
 		16118E43A3972ACC75A25C28 /* SalesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParser.swift; sourceTree = "<group>"; };
@@ -80,6 +91,7 @@
 		3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AdaptiveModifiers.swift"; sourceTree = "<group>"; };
 		3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceTests.swift; sourceTree = "<group>"; };
 		3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemDetailSheet.swift; sourceTree = "<group>"; };
+		498D0A2DFB469089585D591F /* InventoryOCRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryOCRParser.swift; sourceTree = "<group>"; };
 		4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParserTests.swift; sourceTree = "<group>"; };
 		5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroService.swift; sourceTree = "<group>"; };
@@ -87,6 +99,7 @@
 		674D4E9071C9DB89C845F209 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModelTests.swift; sourceTree = "<group>"; };
 		71725CBB90E6EACC1E2D1ECC /* LiquidGlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassCard.swift; sourceTree = "<group>"; };
+		76E10CD272914B86BBB41EDC /* InventoryOCRParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryOCRParserTests.swift; sourceTree = "<group>"; };
 		783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModelTests.swift; sourceTree = "<group>"; };
 		7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
@@ -107,13 +120,16 @@
 		BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopNotification.swift; sourceTree = "<group>"; };
 		BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		BBEDF78623E6628EB6A857F2 /* NewsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListView.swift; sourceTree = "<group>"; };
+		C0BB19835A8BA7BC984B023D /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
 		CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesListView.swift; sourceTree = "<group>"; };
 		CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
 		D528026838E617059B33E3AC /* QRCodeParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeParserTests.swift; sourceTree = "<group>"; };
 		D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSyncroService.swift; sourceTree = "<group>"; };
 		DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyOrErrorView.swift; sourceTree = "<group>"; };
 		E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeGenerator.swift; sourceTree = "<group>"; };
+		E5BCC7A6C8476E83CA0A37E1 /* DocumentScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentScannerView.swift; sourceTree = "<group>"; };
 		EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopInfoView.swift; sourceTree = "<group>"; };
+		EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanInventoryReviewSheet.swift; sourceTree = "<group>"; };
 		F3DFB02ED7971605E2178171 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
 		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
@@ -152,12 +168,22 @@
 				6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */,
 				27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */,
 				783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */,
+				76E10CD272914B86BBB41EDC /* InventoryOCRParserTests.swift */,
 				D528026838E617059B33E3AC /* QRCodeParserTests.swift */,
 				4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */,
 				3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */,
 			);
 			name = WebSyncroClientTests;
 			path = Tests/WebSyncroClientTests;
+			sourceTree = "<group>";
+		};
+		21E538E3463A59EFD870CAEB /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				C0BB19835A8BA7BC984B023D /* InventoryListView.swift */,
+				EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */,
+			);
+			path = Inventory;
 			sourceTree = "<group>";
 		};
 		31D0B22A4F9753BED819BDB3 /* WebSyncroClient */ = {
@@ -180,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */,
+				094617839626F02AF8DFF349 /* InventoryStore.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -187,6 +214,7 @@
 		3C0169A80E03EF86B96CFB49 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */,
 				674D4E9071C9DB89C845F209 /* Models.swift */,
 				AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */,
 				BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */,
@@ -219,6 +247,7 @@
 				E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */,
 				B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */,
 				F3DFB02ED7971605E2178171 /* DateExtensions.swift */,
+				E5BCC7A6C8476E83CA0A37E1 /* DocumentScannerView.swift */,
 				8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */,
 				A2335E052FA6B484920D6CE4 /* QRCodeScanner.swift */,
 				3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */,
@@ -235,6 +264,7 @@
 				0C367EFFD318DE4FDE39A066 /* Components */,
 				802988DA2F72D9C198DC96F4 /* Dashboard */,
 				83B3986FFA37729D6E0F78C2 /* Detail */,
+				21E538E3463A59EFD870CAEB /* Inventory */,
 				AB35765E3B75C78AF4BBD5D4 /* News */,
 				B53CB8540AE2929CFC75C009 /* Settings */,
 				974C7B5B4001437B1AB69C8D /* ShopInfo */,
@@ -263,6 +293,7 @@
 		974C7B5B4001437B1AB69C8D /* ShopInfo */ = {
 			isa = PBXGroup;
 			children = (
+				06B885D1F86AB9272AC8067E /* MandateClausesView.swift */,
 				EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */,
 			);
 			path = ShopInfo;
@@ -304,6 +335,7 @@
 		E4351689D742CCBF37156826 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				498D0A2DFB469089585D591F /* InventoryOCRParser.swift */,
 				D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */,
 				16118E43A3972ACC75A25C28 /* SalesParser.swift */,
 				6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */,
@@ -435,12 +467,18 @@
 				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
 				361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */,
 				AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */,
+				7B9B7E74115CAC263A33266E /* DocumentScannerView.swift in Sources */,
 				967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */,
 				FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */,
 				FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */,
+				C47366A7A503B94F7B9D36FA /* InventoryItem.swift in Sources */,
+				230CCFEDA3787E82C184FEC0 /* InventoryListView.swift in Sources */,
+				20595E196654E4BE81AAB0C3 /* InventoryOCRParser.swift in Sources */,
+				DF3981955D66D6596A8D48D9 /* InventoryStore.swift in Sources */,
 				DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */,
 				2C44DE11F2D2E80F752424DD /* LiquidGlassCard.swift in Sources */,
 				170428F6149BE8150FD9AA05 /* MainTabView.swift in Sources */,
+				771B8D51AD84C711D3318F94 /* MandateClausesView.swift in Sources */,
 				07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */,
 				8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */,
 				84E757A334247E2BEF628C80 /* Models.swift in Sources */,
@@ -450,6 +488,7 @@
 				6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */,
 				49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */,
 				769CF7449FB520FDFD1BE997 /* SalesParser.swift in Sources */,
+				C659E65E0F1A3D911E98B592 /* ScanInventoryReviewSheet.swift in Sources */,
 				F433990FA167F40786399D77 /* SearchBarView.swift in Sources */,
 				53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */,
 				E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */,
@@ -474,6 +513,7 @@
 				751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */,
 				43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */,
 				97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */,
+				1D40DAD24E11690D10F67ECE /* InventoryOCRParserTests.swift in Sources */,
 				B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */,
 				EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */,
 				09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */,

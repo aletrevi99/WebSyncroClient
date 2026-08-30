@@ -3,6 +3,7 @@ import SwiftUI
 /// Schermata principale con navigazione a Tab in stile Liquid Glass nativo
 public struct MainTabView: View {
     @ObservedObject var accountStore: AccountStore
+    @StateObject private var inventoryStore = InventoryStore.shared
     @State private var selectedTab: Int = 0
 
     public init(accountStore: AccountStore? = nil) {
@@ -15,33 +16,40 @@ public struct MainTabView: View {
 
     public var body: some View {
         TabView(selection: $selectedTab) {
-            // Tab 1: Vendite (Maturato / In Recesso)
+            // Tab 1: Vendite (Maturato / In Recesso online)
             DashboardView(accountStore: accountStore)
                 .tabItem {
                     Label("Vendite", systemImage: "cart.fill")
                 }
                 .tag(0)
 
-            // Tab 2: Notizie dal mercatino
+            // Tab 2: Inventario (Oggetti in Carico, Sconti 50% e Riconciliazione)
+            InventoryListView(inventoryStore: inventoryStore, accountStore: accountStore)
+                .tabItem {
+                    Label("Inventario", systemImage: "tray.full.fill")
+                }
+                .tag(1)
+
+            // Tab 3: Notizie dal mercatino
             NewsListView(accountStore: accountStore)
                 .tabItem {
                     Label("Notizie", systemImage: "megaphone.fill")
                 }
-                .tag(1)
+                .tag(2)
 
-            // Tab 3: Card Fornitore con Barcode
+            // Tab 4: Card Fornitore con Barcode
             UserCardView(accountStore: accountStore)
                 .tabItem {
                     Label("Card", systemImage: "barcode.viewfinder")
                 }
-                .tag(2)
+                .tag(3)
 
-            // Tab 4: Info Negozio & Orari
+            // Tab 5: Info Negozio, Orari & Mandato
             ShopInfoView(shopId: activeShopId)
                 .tabItem {
                     Label("Negozio", systemImage: "storefront.fill")
                 }
-                .tag(3)
+                .tag(4)
         }
         .tint(Color.brandOrange)
     }

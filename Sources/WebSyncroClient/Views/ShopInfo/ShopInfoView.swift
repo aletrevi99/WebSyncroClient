@@ -7,6 +7,7 @@ public struct ShopInfoView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var isPolicyExpanded: Bool = false
+    @State private var showingMandateSheet: Bool = false
 
     private let service: WebSyncroServiceProtocol
 
@@ -51,6 +52,9 @@ public struct ShopInfoView: View {
             }
             .navigationTitle("Negozio")
             .adaptiveLargeTitle()
+            .sheet(isPresented: $showingMandateSheet) {
+                MandateClausesView()
+            }
             .task {
                 await loadShopDetails()
             }
@@ -376,6 +380,22 @@ public struct ShopInfoView: View {
                             Text("Terminato il periodo di recesso, l'importo diventa 'Maturato'. Puoi recarti in cassa con la tua tessera (tab Card) e ritirare il tuo guadagno in contanti.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                        }
+
+                        Divider()
+
+                        Button(action: {
+                            showingMandateSheet = true
+                        }) {
+                            HStack {
+                                Image(systemName: "signature")
+                                    .font(.caption)
+                                Text("Leggi tutte le 8 clausole del Mandato →")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                            .foregroundColor(.brandOrange)
+                            .padding(.top, 4)
                         }
                     }
                     .transition(.opacity.combined(with: .move(edge: .top)))

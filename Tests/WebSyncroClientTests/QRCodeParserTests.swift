@@ -29,3 +29,4 @@ final class QRCodeParserTests: XCTestCase {
         XCTAssertNil(QRCodeParser.parse(qrString: "Shop/CardOnly"))
     }
 }
+
