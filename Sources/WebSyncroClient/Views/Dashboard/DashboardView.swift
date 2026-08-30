@@ -188,7 +188,6 @@ public struct DashboardView: View {
         }
     }
 
-    // MARK: - Contenuto Principale
     @ViewBuilder
     private var mainContent: some View {
         if viewModel.isLoading && viewModel.maturedReport == nil {
@@ -198,7 +197,7 @@ public struct DashboardView: View {
         } else if viewModel.filteredItems.isEmpty {
             emptyStateView
         } else {
-            saleItemsList
+            SalesListView(viewModel: viewModel)
         }
     }
 
@@ -271,14 +270,5 @@ public struct DashboardView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(.top, 20)
-    }
-
-    @ViewBuilder
-    private var saleItemsList: some View {
-        ForEach(viewModel.filteredItems) { item in
-            SaleItemRowView(item: item) {
-                viewModel.selectedItemForDetail = item
-            }
-        }
     }
 }

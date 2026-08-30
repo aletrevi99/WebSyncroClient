@@ -101,10 +101,6 @@ public final class AppSettingsStore: ObservableObject {
     }
 
     public func makeVisionService() -> VisionLLMServiceProtocol {
-        if visionProvider == "local_llm" {
-            return LocalVisionLLMService(endpointURL: localModelEndpoint, modelName: localModelName)
-        } else {
-            return OpenRouterVisionService(apiKey: openRouterApiKey, model: openRouterModel)
-        }
+        return OpenRouterVisionService(apiKey: openRouterApiKey, model: openRouterModel)
     }
 }

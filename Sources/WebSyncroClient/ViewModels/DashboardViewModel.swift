@@ -173,6 +173,10 @@ public final class DashboardViewModel: ObservableObject {
                 }
             )
 
+            guard !Task.isCancelled else {
+                return
+            }
+
             self.maturedReport = matured
             self.nonMaturedReport = nonMatured
             self.syncStatus = .success(lastSyncDate: Date())
@@ -186,12 +190,23 @@ public final class DashboardViewModel: ObservableObject {
             )
 
             HapticFeedback.notification(.success)
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch let error as WebSyncroError {
-            self.syncStatus = .failure(reason: error.localizedDescription)
-            self.errorMessage = error.localizedDescription
+            let desc = error.localizedDescription
+            if desc.lowercased().contains("cancelled") || desc.lowercased().contains("annullat") {
+                return
+            }
+            self.syncStatus = .failure(reason: desc)
+            self.errorMessage = desc
             HapticFeedback.notification(.error)
         } catch {
             let msg = error.localizedDescription
+            if msg.lowercased().contains("cancelled") || msg.lowercased().contains("annullat") {
+                return
+            }
             self.syncStatus = .failure(reason: msg)
             self.errorMessage = msg
             HapticFeedback.notification(.error)

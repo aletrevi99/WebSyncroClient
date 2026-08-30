@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -168,6 +169,26 @@ public struct InventoryListView: View {
                     handlePhotoPickerItem(newItem)
                 }
                 #endif
+                .fileImporter(
+                    isPresented: $showingFilePicker,
+                    allowedContentTypes: [.pdf, .image, .jpeg, .png],
+                    allowsMultipleSelection: false
+                ) { result in
+                    switch result {
+                    case .success(let urls):
+                        guard let url = urls.first else { return }
+                        if url.startAccessingSecurityScopedResource() {
+                            defer { url.stopAccessingSecurityScopedResource() }
+                            if let data = try? Data(contentsOf: url) {
+                                processImportedDocumentData(data, fileName: url.lastPathComponent)
+                            }
+                        }
+                    case .failure(let error):
+                        withAnimation {
+                            saveFeedbackBanner = "Errore selezione file: \(error.localizedDescription)"
+                        }
+                    }
+                }
                 .task {
                     if dashboardViewModel.maturedReport == nil {
                         await dashboardViewModel.loadData()
@@ -200,23 +221,18 @@ public struct InventoryListView: View {
         .background(LiquidGlassBackground())
         .navigationTitle("Inventario")
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                AccountSwitcherMenu(
-                    accountStore: accountStore,
-                    onManageAccounts: { showingBatchesManager = true }
-                )
-
+            ToolbarItem(placement: .primaryAction) {
                 Button(action: {
                     HapticFeedback.selection()
                     showingEditSheet = true
                 }) {
                     Image(systemName: "pencil")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 17, weight: .medium))
                         .foregroundColor(.primary)
-                        .frame(width: 34, height: 34)
-                        .background(.ultraThinMaterial, in: Circle())
                 }
+            }
 
+            ToolbarItem(placement: .primaryAction) {
                 uploadMenuToolbarButton
             }
         }
@@ -347,10 +363,8 @@ public struct InventoryListView: View {
             }
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 15, weight: .bold))
-                .foregroundColor(.brandOrange)
-                .frame(width: 34, height: 34)
-                .background(.ultraThinMaterial, in: Circle())
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(Color.brandOrange.opacity(0.85))
         }
     }
 

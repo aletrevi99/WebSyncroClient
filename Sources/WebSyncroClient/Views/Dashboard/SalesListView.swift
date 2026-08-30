@@ -9,27 +9,31 @@ public struct SalesListView: View {
     }
 
     public var body: some View {
-        LazyVStack(spacing: 16) {
+        LazyVStack(spacing: 20) {
             ForEach(viewModel.groupedItems, id: \.section) { group in
-                VStack(alignment: .leading, spacing: 10) {
-                    // Intestazione sezione (es. "Agosto 2026")
-                    HStack {
+                VStack(alignment: .leading, spacing: 12) {
+                    // Intestazione Mese con Totale
+                    HStack(alignment: .center) {
                         Text(group.section)
-                            .font(.system(.footnote, design: .rounded))
+                            .font(.system(.subheadline, design: .rounded))
                             .fontWeight(.bold)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.primary)
                             .textCase(.uppercase)
-                            .tracking(0.5)
+                            .tracking(0.6)
 
                         Spacer()
 
                         let sectionTotal = group.items.reduce(Decimal(0)) { $0 + $1.amount }
                         Text(CurrencyFormatter.format(decimal: sectionTotal))
                             .font(.system(.caption, design: .rounded))
-                            .fontWeight(.semibold)
+                            .fontWeight(.bold)
                             .foregroundColor(.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial, in: Capsule())
                     }
-                    .padding(.horizontal, 6)
+                    .padding(.horizontal, 4)
+                    .padding(.top, 6)
 
                     // Righe vendite del gruppo
                     ForEach(group.items) { item in

@@ -70,14 +70,6 @@ public struct UserCardView: View {
             }
             .background(LiquidGlassBackground())
             .navigationTitle("Card")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    AccountSwitcherMenu(
-                        accountStore: accountStore,
-                        onManageAccounts: {}
-                    )
-                }
-            }
         }
     }
 

@@ -59,14 +59,6 @@ public struct NewsListView: View {
             }
             .background(LiquidGlassBackground())
             .navigationTitle("Notizie")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    AccountSwitcherMenu(
-                        accountStore: accountStore,
-                        onManageAccounts: {}
-                    )
-                }
-            }
             .refreshable {
                 await loadNotifications()
             }

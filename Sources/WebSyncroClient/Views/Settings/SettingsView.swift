@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Schermata Impostazioni completa con Selezione Modelli Vision, Diagnostica Avanzata, File Browser ed Esportazione Dati
+/// Schermata Impostazioni snella, nativa e pulita in stile Apple Liquid Glass
 public struct SettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
@@ -11,32 +11,18 @@ public struct SettingsView: View {
     @ObservedObject private var notificationManager = NotificationManager.shared
     @Environment(\.dismiss) private var dismiss
 
-    @State private var pingWebSyncroStatus: String?
-    @State private var isPingingWebSyncro = false
-
     @State private var pingOpenRouterStatus: String?
     @State private var isPingingOpenRouter = false
-
-    @State private var showingResetAlert = false
-    @State private var showingFileBrowser = false
-    @State private var showingBatchesManager = false
-    @State private var showingWidgetsGallery = false
 
     @State private var isCustomModelSelected: Bool = false
     @State private var customModelText: String = ""
 
-    private let recommendedModels = [
-        ("google/gemini-2.5-flash", "⚡ Gemini 2.5 Flash (Consigliato, ~1s)"),
-        ("google/gemini-2.0-flash-001", "⚡ Gemini 2.0 Flash (Super Economico)"),
-        ("openai/gpt-4o-mini", "⚡ GPT-4o Mini (Alta Precisione)"),
-        ("qwen/qwen-2.5-vl-72b-instruct", "⚡ Qwen 2.5 VL 72B (Open Source)"),
-        ("mistralai/pixtral-12b", "⚡ Pixtral 12B (Leggero Open)")
-    ]
-
-    private let overkillModels = [
-        ("openai/gpt-4o", "⚠️ GPT-4o (Overkill / Più Lento)"),
-        ("anthropic/claude-3.5-sonnet", "⚠️ Claude 3.5 Sonnet (Overkill / Costoso)"),
-        ("google/gemini-1.5-pro", "⚠️ Gemini 1.5 Pro (Overkill)")
+    private let availableModels = [
+        ("google/gemini-2.5-flash", "Gemini 2.5 Flash"),
+        ("google/gemini-2.0-flash-001", "Gemini 2.0 Flash"),
+        ("openai/gpt-4o-mini", "GPT-4o Mini"),
+        ("qwen/qwen-2.5-vl-72b-instruct", "Qwen 2.5 VL 72B"),
+        ("mistralai/pixtral-12b", "Pixtral 12B")
     ]
 
     public init(
@@ -49,25 +35,17 @@ public struct SettingsView: View {
         self.inventoryStore = inventoryStore ?? InventoryStore.shared
     }
 
-    private var activeShopId: String {
-        accountStore.activeAccount?.shopId ?? "exnovomercatino"
-    }
-
-    private var activeUserCardCode: String {
-        accountStore.activeAccount?.cardCode ?? ""
-    }
-
     public var body: some View {
         NavigationStack {
             ZStack {
                 LiquidGlassBackground()
 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
                         // Sezione 1: Modalità Applicazione
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Modalità Applicazione", systemImage: "slider.horizontal.3")
+                                Label("Modalità Negozio", systemImage: "slider.horizontal.3")
                                     .font(.headline)
                                     .foregroundColor(.primary)
 
@@ -78,7 +56,7 @@ public struct SettingsView: View {
                                         Text("Client Esclusivo EX NOVO")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
-                                        Text("Ottimizza l'interfaccia per EX Novo: nasconde la selezione di altri negozi e mostra 'Aggiungi Utente'.")
+                                        Text("Ottimizza l'interfaccia nascondendo la selezione di altri negozi.")
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
@@ -87,271 +65,141 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 2: Motore Analisi Documenti Vision AI
+                        // Sezione 2: Motore AI Vision
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Motore AI Vision (Scansione Fogli)", systemImage: "sparkles")
+                                Label("Motore AI Vision (OpenRouter)", systemImage: "sparkles")
                                     .font(.headline)
                                     .foregroundColor(.primary)
 
                                 Divider()
 
-                                Picker("Provider", selection: $settingsStore.visionProvider) {
-                                    Text("OpenRouter API (Cloud)").tag("openrouter")
-                                    Text("Modello Locale (Ollama / Local)").tag("local_llm")
-                                }
-                                .pickerStyle(SegmentedPickerStyle())
+                                VStack(alignment: .leading, spacing: 14) {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text("Chiave API OpenRouter")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.secondary)
 
-                                if settingsStore.visionProvider == "openrouter" {
-                                    VStack(alignment: .leading, spacing: 14) {
-                                        HStack(alignment: .top, spacing: 10) {
-                                            Image(systemName: "lightbulb.fill")
-                                                .font(.caption)
-                                                .foregroundColor(.brandOrange)
-                                            Text("Per la lettura di tabelle e ricevute cartacee, i modelli leggeri (Gemini 2.5 Flash, GPT-4o Mini) sono ideali, istantanei (1-2s) e costano frazioni di centesimo. Modelli come GPT-4o o Sonnet sono overkill e rallentano l'analisi.")
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
-                                                .lineSpacing(2)
-                                        }
-                                        .padding(10)
-                                        .background(Color.brandOrange.opacity(0.08))
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        SecureField("sk-or-v1-...", text: $settingsStore.openRouterApiKey)
+                                            .font(.system(.body, design: .monospaced))
+                                            .padding(10)
+                                            .background(Color.secondary.opacity(0.1))
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
 
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text("Chiave API OpenRouter")
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.secondary)
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Modello Vision")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.secondary)
 
-                                            SecureField("sk-or-v1-...", text: $settingsStore.openRouterApiKey)
-                                                .font(.system(.body, design: .monospaced))
-                                                .padding(10)
-                                                .background(Color.secondary.opacity(0.1))
-                                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        }
-
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text("Modello Vision")
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.secondary)
-
-                                            Menu {
-                                                Section("⚡ Modelli Consigliati & Leggeri") {
-                                                    ForEach(recommendedModels, id: \.0) { model in
-                                                        Button(action: {
-                                                            settingsStore.openRouterModel = model.0
-                                                            isCustomModelSelected = false
-                                                        }) {
-                                                            HStack {
-                                                                Text(model.1)
-                                                                if settingsStore.openRouterModel == model.0 && !isCustomModelSelected {
-                                                                    Image(systemName: "checkmark")
-                                                                }
-                                                            }
+                                        Menu {
+                                            ForEach(availableModels, id: \.0) { model in
+                                                Button(action: {
+                                                    settingsStore.openRouterModel = model.0
+                                                    isCustomModelSelected = false
+                                                }) {
+                                                    HStack {
+                                                        Text(model.1)
+                                                        if settingsStore.openRouterModel == model.0 && !isCustomModelSelected {
+                                                            Image(systemName: "checkmark")
                                                         }
                                                     }
                                                 }
-
-                                                Section("⚠️ Modelli Pesanti (Overkill)") {
-                                                    ForEach(overkillModels, id: \.0) { model in
-                                                        Button(action: {
-                                                            settingsStore.openRouterModel = model.0
-                                                            isCustomModelSelected = false
-                                                        }) {
-                                                            HStack {
-                                                                Text(model.1)
-                                                                if settingsStore.openRouterModel == model.0 && !isCustomModelSelected {
-                                                                    Image(systemName: "checkmark")
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                Section("✏️ Personalizzato") {
-                                                    Button(action: {
-                                                        isCustomModelSelected = true
-                                                        customModelText = settingsStore.openRouterModel
-                                                    }) {
-                                                        HStack {
-                                                            Text("Inserisci ID Modello Personalizzato...")
-                                                            if isCustomModelSelected {
-                                                                Image(systemName: "checkmark")
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            } label: {
-                                                HStack {
-                                                    Text(isCustomModelSelected ? "Personalizzato (\(settingsStore.openRouterModel))" : displayName(for: settingsStore.openRouterModel))
-                                                        .font(.subheadline)
-                                                        .foregroundColor(.primary)
-                                                    Spacer()
-                                                    Image(systemName: "chevron.up.chevron.down")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                                .padding(10)
-                                                .background(Color.secondary.opacity(0.1))
-                                                .clipShape(RoundedRectangle(cornerRadius: 10))
                                             }
 
-                                            if isCustomModelSelected {
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    Text("Inserisci lo slug del modello OpenRouter:")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
+                                            Divider()
 
-                                                    TextField("Es. meta-llama/llama-3.2-11b-vision-instruct", text: $customModelText)
-                                                        .font(.system(.caption, design: .monospaced))
-                                                        .autocorrectionDisabled(true)
-                                                        #if os(iOS)
-                                                        .textInputAutocapitalization(.never)
-                                                        #endif
-                                                        .padding(10)
-                                                        .background(Color.secondary.opacity(0.1))
-                                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                                        .onChange(of: customModelText) { _, newVal in
-                                                            settingsStore.openRouterModel = newVal.trimmingCharacters(in: .whitespaces)
-                                                        }
-                                                }
-                                                .padding(.top, 4)
-                                            }
-                                        }
-
-                                        HStack {
                                             Button(action: {
-                                                Task { await testOpenRouterConnection() }
+                                                isCustomModelSelected = true
+                                                customModelText = settingsStore.openRouterModel
                                             }) {
-                                                HStack(spacing: 6) {
-                                                    Image(systemName: "bolt.fill")
-                                                    Text("Test Chiave OpenRouter")
+                                                HStack {
+                                                    Text("Modello personalizzato...")
+                                                    if isCustomModelSelected {
+                                                        Image(systemName: "checkmark")
+                                                    }
                                                 }
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.brandOrange)
                                             }
-
-                                            Spacer()
-
-                                            if isPingingOpenRouter {
-                                                ProgressView().scaleEffect(0.8)
-                                            } else if let status = pingOpenRouterStatus {
-                                                Text(status)
+                                        } label: {
+                                            HStack {
+                                                Text(isCustomModelSelected ? "Personalizzato (\(settingsStore.openRouterModel))" : displayName(for: settingsStore.openRouterModel))
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.primary)
+                                                Spacer()
+                                                Image(systemName: "chevron.up.chevron.down")
                                                     .font(.caption2)
-                                                    .fontWeight(.bold)
-                                                    .foregroundColor(status.contains("OK") ? .green : .red)
+                                                    .foregroundColor(.secondary)
                                             }
+                                            .padding(10)
+                                            .background(Color.secondary.opacity(0.1))
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        }
+
+                                        if isCustomModelSelected {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("Inserisci lo slug del modello OpenRouter:")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+
+                                                TextField("Es. meta-llama/llama-3.2-11b-vision-instruct", text: $customModelText)
+                                                    .font(.system(.caption, design: .monospaced))
+                                                    .autocorrectionDisabled(true)
+                                                    #if os(iOS)
+                                                    .textInputAutocapitalization(.never)
+                                                    #endif
+                                                    .padding(10)
+                                                    .background(Color.secondary.opacity(0.1))
+                                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                                    .onChange(of: customModelText) { _, newVal in
+                                                        settingsStore.openRouterModel = newVal.trimmingCharacters(in: .whitespaces)
+                                                    }
+                                            }
+                                            .padding(.top, 4)
                                         }
                                     }
-                                } else {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text("Endpoint Server Locale")
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.secondary)
 
-                                            TextField("http://localhost:11434", text: $settingsStore.localModelEndpoint)
-                                                .font(.system(.body, design: .monospaced))
-                                                .autocorrectionDisabled(true)
-                                                #if os(iOS)
-                                                .textInputAutocapitalization(.never)
-                                                #endif
-                                                .padding(10)
-                                                .background(Color.secondary.opacity(0.1))
-                                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        }
-
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text("Nome Modello (es. llava:latest, llama3.2-vision)")
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.secondary)
-
-                                            TextField("llava:latest", text: $settingsStore.localModelName)
-                                                .font(.system(.body, design: .monospaced))
-                                                .autocorrectionDisabled(true)
-                                                #if os(iOS)
-                                                .textInputAutocapitalization(.never)
-                                                #endif
-                                                .padding(10)
-                                                .background(Color.secondary.opacity(0.1))
-                                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Sezione 3: Gestione Liste di Carico & Database Locale
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("Archivio Liste di Carico", systemImage: "doc.stack.fill")
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-
-                                Text("Visualizza l'elenco di tutte le liste caricate, con dettaglio per articolo e statistiche.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-
-                                Divider()
-
-                                Button(action: {
-                                    showingBatchesManager = true
-                                }) {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "list.bullet.rectangle.portrait.fill")
+                                    HStack {
+                                        Button(action: {
+                                            Task { await testOpenRouterConnection() }
+                                        }) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: "bolt.fill")
+                                                Text("Test Chiave OpenRouter")
+                                            }
+                                            .font(.caption)
+                                            .fontWeight(.bold)
                                             .foregroundColor(.brandOrange)
-                                        Text("Anteprima Liste Caricate (\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count))")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                Divider()
+                                        }
 
-                                Button(action: {
-                                    showingWidgetsGallery = true
-                                }) {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "widget.small")
-                                            .foregroundColor(.purple)
-                                        Text("Galleria & Anteprima Widget iOS")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.primary)
                                         Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
+
+                                        if isPingingOpenRouter {
+                                            ProgressView().scaleEffect(0.8)
+                                        } else if let status = pingOpenRouterStatus {
+                                            Text(status)
+                                                .font(.caption2)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(status.contains("OK") ? .green : .red)
+                                        }
                                     }
                                 }
-                                .buttonStyle(PlainButtonStyle())
                             }
                         }
 
-                        // Sezione 4: Centro Notifiche & Background Refresh
+                        // Sezione 3: Preferenze Notifiche & Aggiornamenti
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
                                 Label("Notifiche & Background Refresh", systemImage: "bell.badge.fill")
                                     .font(.headline)
                                     .foregroundColor(.brandOrange)
 
-                                Text("Ricevi avvisi per le vendite, maturazione dei crediti, passaggio in saldo e resi merce.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-
                                 if !notificationManager.permissionGranted {
                                     HStack(spacing: 8) {
                                         Image(systemName: "bell.slash.fill")
                                             .foregroundColor(.orange)
-                                        Text("Notifiche non ancora consentite nelle impostazioni di sistema iOS.")
+                                        Text("Notifiche non ancora consentite nelle impostazioni iOS.")
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
                                         Spacer()
@@ -406,11 +254,11 @@ public struct SettingsView: View {
                                 // Frequenza Sincronizzazione in Background
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
-                                        Text("Frequenza Controllo Background")
+                                        Text("Controllo in Background")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundColor(.primary)
-                                        Text("Intervallo di aggiornamento automatico dei dati")
+                                        Text("Frequenza aggiornamento automatico")
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
                                     }
@@ -426,214 +274,48 @@ public struct SettingsView: View {
                                     }
                                     .pickerStyle(.menu)
                                 }
-
-                                Divider()
-
-                                // Tasti Test Demo
-                                VStack(spacing: 8) {
-                                    Button(action: {
-                                        NotificationManager.shared.sendDemoNotification()
-                                        HapticFeedback.notification(.success)
-                                    }) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "bell.and.waveform.fill")
-                                                .foregroundColor(.brandOrange)
-                                            Text("Test Notifica Vendita Demo")
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.primary)
-                                            Spacer()
-                                            Image(systemName: "paperplane.fill")
-                                                .font(.caption2)
-                                                .foregroundColor(.brandOrange)
-                                        }
-                                        .padding(.vertical, 4)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-
-                                    Divider()
-
-                                    Button(action: {
-                                        NotificationManager.shared.simulateDemoReturn()
-                                        HapticFeedback.notification(.warning)
-                                    }) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "exclamationmark.arrow.trianglehead.counterclockwise.rotate.90")
-                                                .foregroundColor(.red)
-                                            Text("Simula Reso Articolo Demo (In-App & Notifica)")
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.red)
-                                            Spacer()
-                                            Image(systemName: "play.circle.fill")
-                                                .font(.caption2)
-                                                .foregroundColor(.red)
-                                        }
-                                        .padding(.vertical, 4)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
                             }
                         }
 
-                        // Sezione 5: Esportazione Dati & File Browser
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("Esportazione Dati & File Browser", systemImage: "square.and.arrow.up")
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-
-                                Divider()
-
-                                // File Browser dell'App
-                                Button(action: {
-                                    showingFileBrowser = true
-                                }) {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "folder.badge.gearshape")
-                                            .foregroundColor(.blue)
-                                        Text("Esplora File e Cartelle dell'App")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                .buttonStyle(PlainButtonStyle())
-
-                                Divider()
-
-                                if let jsonData = inventoryStore.exportJSONData(),
-                                   let jsonString = String(data: jsonData, encoding: .utf8) {
-                                    ShareLink(item: jsonString, preview: SharePreview("WebSyncro_Inventario.json", image: Image(systemName: "doc.plaintext"))) {
-                                        HStack(spacing: 10) {
-                                            Image(systemName: "curlybraces")
-                                                .foregroundColor(.brandOrange)
-                                            Text("Esporta Database Inventario (.json)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.primary)
-                                            Spacer()
-                                            Image(systemName: "square.and.arrow.up")
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
-
-                                Divider()
-
-                                let csvString = inventoryStore.exportCSVData(shopId: activeShopId, userCardCode: activeUserCardCode)
-                                ShareLink(item: csvString, preview: SharePreview("WebSyncro_Inventario.csv", image: Image(systemName: "tablecells"))) {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "tablecells.fill")
-                                            .foregroundColor(.green)
-                                        Text("Esporta Tabella Excel / Numbers (.csv)")
-                                            .font(.subheadline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.primary)
-                                        Spacer()
-                                        Image(systemName: "square.and.arrow.up")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                                .buttonStyle(PlainButtonStyle())
-
-                                Divider()
-
-                                let diagnosticText = inventoryStore.exportDiagnosticReport(shopId: activeShopId, userCardCode: activeUserCardCode)
-                                ShareLink(item: diagnosticText, preview: SharePreview("WebSyncro_Report_Diagnostico.txt", image: Image(systemName: "doc.text"))) {
-                                    HStack(spacing: 10) {
-                                        Image(systemName: "doc.text.magnifyingglass")
+                        // Sezione 4: Collegamento Sottomenu Debug & Diagnostica
+                        NavigationLink {
+                            DebugSettingsView(
+                                settingsStore: settingsStore,
+                                accountStore: accountStore,
+                                inventoryStore: inventoryStore
+                            )
+                        } label: {
+                            LiquidGlassCard(cornerRadius: 20, padding: 16) {
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.brandOrange.opacity(0.12))
+                                            .frame(width: 38, height: 38)
+                                        Image(systemName: "wrench.and.screwdriver.fill")
+                                            .font(.system(size: 16, weight: .semibold))
                                             .foregroundColor(.brandOrange)
-                                        Text("Esporta Report Diagnostico Completo (.txt)")
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text("Debug & Diagnostica")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundColor(.primary)
-                                        Spacer()
-                                        Image(systemName: "square.and.arrow.up")
+                                        Text("Suite di test, esportazione dati, file browser e reset")
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
-                                    }
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-
-                        // Sezione 5: Diagnostica Avanzata & Info Sistema
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("Diagnostica Avanzata & Sistema", systemImage: "cpu")
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-
-                                Divider()
-
-                                #if os(iOS)
-                                detailRow(title: "Dispositivo", value: UIDevice.current.model)
-                                detailRow(title: "Sistema Operativo", value: "iOS \(UIDevice.current.systemVersion)")
-                                #endif
-                                detailRow(title: "Bundle ID", value: Bundle.main.bundleIdentifier ?? "it.websyncro.client")
-                                detailRow(title: "Endpoint WebSyncro", value: "appwebsyncro.it")
-                                detailRow(title: "Negozio Attivo", value: activeShopId)
-                                detailRow(title: "Codice Tessera Attiva", value: activeUserCardCode.isEmpty ? "N/D" : activeUserCardCode)
-                                detailRow(title: "Account Registrati", value: "\(accountStore.accounts.count)")
-                                detailRow(title: "Liste Caricate (Questo Utente)", value: "\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count)")
-                                detailRow(title: "Articoli in Inventario (Questo Utente)", value: "\(inventoryStore.items(for: activeShopId, userCardCode: activeUserCardCode).count)")
-
-                                Divider()
-
-                                HStack {
-                                    Button(action: {
-                                        Task { await testWebSyncroConnection() }
-                                    }) {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                            Text("Test Server WebSyncro")
-                                        }
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.brandOrange)
                                     }
 
                                     Spacer()
 
-                                    if isPingingWebSyncro {
-                                        ProgressView().scaleEffect(0.8)
-                                    } else if let status = pingWebSyncroStatus {
-                                        Text(status)
-                                            .font(.caption)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(status.contains("OK") ? .green : .red)
-                                    }
-                                }
-                            }
-                        }
-
-                        // Sezione 6: Gestione Dati & Reset
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Gestione Dati Locali", systemImage: "trash")
-                                    .font(.headline)
-                                    .foregroundColor(.red)
-
-                                Divider()
-
-                                Button(role: .destructive, action: {
-                                    showingResetAlert = true
-                                }) {
-                                    Text("Svuota Liste Inventario Locali")
-                                        .font(.subheadline)
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(.red)
+                                        .foregroundColor(.secondary.opacity(0.7))
                                 }
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
 
                         // Info Versione
                         VStack(spacing: 4) {
@@ -641,7 +323,7 @@ public struct SettingsView: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
-                            Text("Versione 1.0.0 (Build 2026) • OpenRouter Vision & Local LLM")
+                            Text("Versione 1.0.0 (Build 2026)")
                                 .font(.caption2)
                                 .foregroundColor(.secondary.opacity(0.7))
                         }
@@ -661,70 +343,21 @@ public struct SettingsView: View {
                         .fontWeight(.semibold)
                 }
             }
-            .sheet(isPresented: $showingFileBrowser) {
-                AppFilesBrowserView()
-            }
-            .sheet(isPresented: $showingBatchesManager) {
-                BatchesManagerSheet()
-            }
-            .sheet(isPresented: $showingWidgetsGallery) {
-                WidgetsGalleryView()
-            }
             .onAppear {
-                let allPresets = (recommendedModels + overkillModels).map { $0.0 }
+                let allPresets = availableModels.map { $0.0 }
                 if !allPresets.contains(settingsStore.openRouterModel) {
                     isCustomModelSelected = true
                     customModelText = settingsStore.openRouterModel
                 }
             }
-            .alert("Svuotare Inventario?", isPresented: $showingResetAlert) {
-                Button("Annulla", role: .cancel) {}
-                Button("Svuota", role: .destructive) {
-                    for batch in inventoryStore.batches {
-                        inventoryStore.deleteBatch(id: batch.id)
-                    }
-                }
-            } message: {
-                Text("Verranno rimosse tutte le liste di carico scansionate dal database locale.")
-            }
         }
     }
 
     private func displayName(for modelId: String) -> String {
-        if let found = (recommendedModels + overkillModels).first(where: { $0.0 == modelId }) {
+        if let found = availableModels.first(where: { $0.0 == modelId }) {
             return found.1
         }
         return modelId
-    }
-
-    @ViewBuilder
-    private func detailRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Spacer()
-            Text(value)
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-        }
-    }
-
-    private func testWebSyncroConnection() async {
-        isPingingWebSyncro = true
-        pingWebSyncroStatus = nil
-        let start = Date()
-        do {
-            _ = try await WebSyncroService.shared.fetchShopDirectory()
-            let elapsed = Int(Date().timeIntervalSince(start) * 1000)
-            pingWebSyncroStatus = "OK (\(elapsed)ms)"
-            HapticFeedback.notification(.success)
-        } catch {
-            pingWebSyncroStatus = "Errore Connessione"
-            HapticFeedback.notification(.error)
-        }
-        isPingingWebSyncro = false
     }
 
     private func testOpenRouterConnection() async {
@@ -738,18 +371,22 @@ public struct SettingsView: View {
             }
             guard let url = URL(string: "https://openrouter.ai/api/v1/auth/key") else { return }
             var req = URLRequest(url: url)
+            req.httpMethod = "GET"
             req.setValue("Bearer \(settingsStore.openRouterApiKey)", forHTTPHeaderField: "Authorization")
-            let (data, resp) = try await URLSession.shared.data(for: req)
-            if let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+            req.setValue(WebSyncroService.defaultUserAgent, forHTTPHeaderField: "User-Agent")
+
+            let (data, response) = try await URLSession.shared.data(for: req)
+            if let http = response as? HTTPURLResponse, http.statusCode == 200 {
                 pingOpenRouterStatus = "OK (Autenticato)"
                 HapticFeedback.notification(.success)
             } else {
-                let err = String(data: data, encoding: .utf8) ?? "Errore chiave"
+                let err = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Errore HTTP"
                 pingOpenRouterStatus = "Non valida (\(err))"
                 HapticFeedback.notification(.error)
             }
         } catch {
             pingOpenRouterStatus = "Errore: \(error.localizedDescription)"
+            HapticFeedback.notification(.error)
         }
         isPingingOpenRouter = false
     }
