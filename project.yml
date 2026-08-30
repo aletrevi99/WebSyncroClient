@@ -21,7 +21,8 @@ settings:
     INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
     INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
     INFOPLIST_KEY_UIRequiresFullScreen: "NO"
-    INFOPLIST_KEY_NSCameraUsageDescription: "Scansiona il codice QR della tua tessera per sincronizzare il tuo account del mercatino."
+    INFOPLIST_KEY_NSCameraUsageDescription: "Usa la fotocamera per scansionare codici QR e fotografare i fogli di carico dell'inventario."
+    INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Accedi alla libreria foto per caricare ricevute e fogli di carico dell'inventario."
     INFOPLIST_KEY_NSAppTransportSecurity:
       NSAllowsArbitraryLoads: true
 

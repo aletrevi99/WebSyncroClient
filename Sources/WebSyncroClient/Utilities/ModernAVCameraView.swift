@@ -272,3 +272,4 @@ public struct ModernAVCameraView: View {
     }
 }
 #endif
+

@@ -1,12 +1,14 @@
 import SwiftUI
 
-/// Modale di revisione, deduplicazione e conferma della lista oggetti prima del salvataggio nel database locale
+/// Scheda di revisione per confermare, modificare o rimuovere articoli estratti dall'AI Vision prima del salvataggio nel database locale
 public struct ScanInventoryReviewSheet: View {
-    @State var batch: InventoryBatch
-    @State var overwriteDuplicates: Bool = false
-    let deduplicationReport: DeduplicationReport
-    let onSave: (InventoryBatch, Bool) -> Void
+    @State private var batch: InventoryBatch
+    public let deduplicationReport: DeduplicationReport
+    public let onSave: (InventoryBatch, Bool) -> Void
+
     @Environment(\.dismiss) private var dismiss
+    @State private var overwriteDuplicates: Bool = false
+    @State private var showingAddManualItemSheet = false
 
     public init(
         batch: InventoryBatch,
@@ -18,14 +20,24 @@ public struct ScanInventoryReviewSheet: View {
         self.onSave = onSave
     }
 
-    private func itemStatusBadge(for itemId: String) -> (text: String, color: Color, icon: String) {
-        if deduplicationReport.newItems.contains(where: { $0.id == itemId }) {
-            return ("Nuovo", .green, "sparkles")
-        } else if deduplicationReport.updatedItems.contains(where: { $0.id == itemId }) {
-            return ("Aggiornato", .blue, "arrow.triangle.2.circlepath")
-        } else {
-            return ("Già nel DB", .orange, "checkmark.circle")
-        }
+    private var duplicateIds: Set<String> {
+        Set(deduplicationReport.duplicateItems.map { $0.id })
+    }
+
+    private var updatedIds: Set<String> {
+        Set(deduplicationReport.updatedItems.map { $0.id })
+    }
+
+    private var totalCalculatedPieces: Int {
+        batch.items.reduce(0) { $0 + $1.quantity }
+    }
+
+    private var totalCalculatedAgreed: Decimal {
+        batch.items.reduce(Decimal.zero) { $0 + ($1.agreedPrice * Decimal($1.quantity)) }
+    }
+
+    private var totalCalculatedExposed: Decimal {
+        batch.items.reduce(Decimal.zero) { $0 + ($1.exposedPriceInitial * Decimal($1.quantity)) }
     }
 
     public var body: some View {
@@ -34,18 +46,17 @@ public struct ScanInventoryReviewSheet: View {
                 LiquidGlassBackground()
 
                 ScrollView {
-                    VStack(spacing: 18) {
-                        // Card Analisi Deduplicazione
+                    LazyVStack(spacing: 16) {
+                        // Card Deduplicazione
                         if deduplicationReport.hasDuplicates {
                             LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    HStack(spacing: 8) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack {
                                         Image(systemName: "doc.on.doc.fill")
                                             .foregroundColor(.brandOrange)
                                         Text("Controllo Duplicati nel DB")
                                             .font(.headline)
                                             .foregroundColor(.primary)
-                                        Spacer()
                                     }
 
                                     Text("Questa scansione contiene articoli già registrati nel tuo database locale:")
@@ -53,27 +64,21 @@ public struct ScanInventoryReviewSheet: View {
                                         .foregroundColor(.secondary)
 
                                     HStack(spacing: 12) {
-                                        HStack(spacing: 4) {
-                                            Circle().fill(Color.green).frame(width: 8, height: 8)
-                                            Text("\(deduplicationReport.newItems.count) nuovi")
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                        }
+                                        Label("\(deduplicationReport.newItems.count) nuovi", systemImage: "sparkles")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.green)
 
-                                        HStack(spacing: 4) {
-                                            Circle().fill(Color.orange).frame(width: 8, height: 8)
-                                            Text("\(deduplicationReport.duplicateItems.count) già presenti")
-                                                .font(.caption)
-                                                .fontWeight(.bold)
-                                        }
+                                        Label("\(deduplicationReport.duplicateItems.count) già presenti", systemImage: "checkmark.circle.fill")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.orange)
 
                                         if !deduplicationReport.updatedItems.isEmpty {
-                                            HStack(spacing: 4) {
-                                                Circle().fill(Color.blue).frame(width: 8, height: 8)
-                                                Text("\(deduplicationReport.updatedItems.count) modificati")
-                                                    .font(.caption)
-                                                    .fontWeight(.bold)
-                                            }
+                                            Label("\(deduplicationReport.updatedItems.count) variati", systemImage: "arrow.triangle.2.circlepath")
+                                                .font(.caption)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.blue)
                                         }
                                     }
 
@@ -84,7 +89,9 @@ public struct ScanInventoryReviewSheet: View {
                                             Text("Sovrascrivi articoli duplicati")
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
-                                            Text("Se disattivato, verranno aggiunti solo i \(deduplicationReport.newItems.count) nuovi articoli.")
+                                            Text(overwriteDuplicates
+                                                 ? "Gli articoli già esistenti verranno aggiornati con i nuovi dati."
+                                                 : "Se disattivato, verranno aggiunti solo i \(deduplicationReport.newItems.count) nuovi articoli.")
                                                 .font(.caption2)
                                                 .foregroundColor(.secondary)
                                         }
@@ -94,15 +101,15 @@ public struct ScanInventoryReviewSheet: View {
                             }
                         }
 
-                        // Card Intestazione Documento
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                        // Header Riepilogo Lista Carico Modificabile
+                        LiquidGlassCard(cornerRadius: 22, padding: 16) {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Label("Dati Documento Carico", systemImage: "doc.text.fill")
                                         .font(.headline)
                                         .foregroundColor(.primary)
                                     Spacer()
-                                    Text("\(batch.items.count) articoli")
+                                    Text("\(batch.items.count) articoli (\(totalCalculatedPieces) pz)")
                                         .font(.caption)
                                         .fontWeight(.bold)
                                         .foregroundColor(.brandOrange)
@@ -142,7 +149,7 @@ public struct ScanInventoryReviewSheet: View {
                                         Text("Totale Concordato")
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
-                                        Text(CurrencyFormatter.format(decimal: batch.totalAgreedValue))
+                                        Text(CurrencyFormatter.format(decimal: totalCalculatedAgreed))
                                             .font(.subheadline)
                                             .fontWeight(.bold)
                                             .foregroundColor(.primary)
@@ -154,7 +161,7 @@ public struct ScanInventoryReviewSheet: View {
                                         Text("Totale Esposto Pubblico")
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
-                                        Text(CurrencyFormatter.format(decimal: batch.totalExposedValue))
+                                        Text(CurrencyFormatter.format(decimal: totalCalculatedExposed))
                                             .font(.subheadline)
                                             .fontWeight(.bold)
                                             .foregroundColor(.green)
@@ -163,25 +170,47 @@ public struct ScanInventoryReviewSheet: View {
                             }
                         }
 
-                        // Lista Articoli Estratti
+                        // Lista Articoli Estratti Modificabili
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("ARTICOLI ESTRATTI DALL'AI VISION")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 4)
+                            HStack {
+                                Text("ARTICOLI ESTRATTI DALL'AI VISION")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 4)
 
-                            ForEach($batch.items) { $item in
+                                Spacer()
+
+                                Button(action: {
+                                    addNewEmptyItem()
+                                }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "plus.circle.fill")
+                                        Text("Aggiungi Articolo")
+                                    }
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.brandOrange)
+                                }
+                            }
+
+                            ForEach(Array(batch.items.enumerated()), id: \.element.id) { index, item in
                                 let badge = itemStatusBadge(for: item.id)
 
                                 LiquidGlassCard(cornerRadius: 18, padding: 14) {
-                                    VStack(alignment: .leading, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 10) {
                                         HStack(alignment: .top) {
-                                            VStack(alignment: .leading, spacing: 2) {
+                                            VStack(alignment: .leading, spacing: 3) {
                                                 HStack(spacing: 6) {
-                                                    Text("#\(item.id)")
-                                                        .font(.system(.caption, design: .monospaced))
-                                                        .fontWeight(.bold)
-                                                        .foregroundColor(.brandOrange)
+                                                    TextField("Codice", text: Binding(
+                                                        get: { batch.items[index].rawCode },
+                                                        set: {
+                                                            batch.items[index].rawCode = $0
+                                                        }
+                                                    ))
+                                                    .font(.system(.caption, design: .monospaced))
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(.brandOrange)
+                                                    .frame(maxWidth: 120)
 
                                                     HStack(spacing: 3) {
                                                         Image(systemName: badge.icon)
@@ -196,43 +225,43 @@ public struct ScanInventoryReviewSheet: View {
                                                     .clipShape(Capsule())
                                                 }
 
-                                                TextField("Descrizione", text: $item.title)
-                                                    .font(.subheadline)
-                                                    .fontWeight(.medium)
+                                                TextField("Descrizione completa", text: Binding(
+                                                    get: { batch.items[index].title },
+                                                    set: { batch.items[index].title = $0 }
+                                                ))
+                                                .font(.subheadline)
+                                                .fontWeight(.medium)
                                             }
 
                                             Spacer()
 
                                             Button(action: {
-                                                if let idx = batch.items.firstIndex(where: { $0.id == item.id }) {
-                                                    batch.items.remove(at: idx)
+                                                if index < batch.items.count {
+                                                    batch.items.remove(at: index)
                                                 }
                                             }) {
                                                 Image(systemName: "trash")
                                                     .font(.caption)
                                                     .foregroundColor(.red.opacity(0.8))
+                                                    .padding(6)
                                             }
                                         }
 
                                         Divider()
 
+                                        // Campi Valori Modificabili
                                         HStack(spacing: 12) {
-                                            VStack(alignment: .leading, spacing: 1) {
-                                                Text("Qtà")
+                                            // Quantità con Stepper
+                                            HStack(spacing: 4) {
+                                                Text("Qtà:")
                                                     .font(.caption2)
                                                     .foregroundColor(.secondary)
-                                                Text("\(item.quantity)")
-                                                    .font(.caption)
-                                                    .fontWeight(.bold)
-                                            }
-
-                                            Spacer()
-
-                                            VStack(alignment: .center, spacing: 1) {
-                                                Text("Rimborso Unitario")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                                Text(CurrencyFormatter.format(decimal: item.clientPayoutInitial))
+                                                Stepper("\(batch.items[index].quantity)", value: Binding(
+                                                    get: { batch.items[index].quantity },
+                                                    set: { batch.items[index].quantity = max(1, $0) }
+                                                ), in: 1...999)
+                                                .labelsHidden()
+                                                Text("\(batch.items[index].quantity)")
                                                     .font(.caption)
                                                     .fontWeight(.bold)
                                                     .foregroundColor(.primary)
@@ -240,14 +269,47 @@ public struct ScanInventoryReviewSheet: View {
 
                                             Spacer()
 
-                                            VStack(alignment: .trailing, spacing: 1) {
-                                                Text("Esposto Iniziale")
+                                            // Rimborso Netto Unitario
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("Rimborso Unitario")
                                                     .font(.caption2)
                                                     .foregroundColor(.secondary)
-                                                Text(CurrencyFormatter.format(decimal: item.exposedPriceInitial))
+                                                HStack(spacing: 2) {
+                                                    Text("€")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                    TextField("0.00", value: Binding(
+                                                        get: { batch.items[index].clientPayoutInitial },
+                                                        set: { batch.items[index].clientPayoutInitial = $0 }
+                                                    ), format: .number.precision(.fractionLength(2)))
+                                                    .font(.caption)
+                                                    .fontWeight(.bold)
+                                                    .multilineTextAlignment(.trailing)
+                                                    .frame(maxWidth: 55)
+                                                }
+                                            }
+
+                                            Spacer()
+
+                                            // Esposto Iniziale
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("Esposto")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                HStack(spacing: 2) {
+                                                    Text("€")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                    TextField("0.00", value: Binding(
+                                                        get: { batch.items[index].exposedPriceInitial },
+                                                        set: { batch.items[index].exposedPriceInitial = $0 }
+                                                    ), format: .number.precision(.fractionLength(2)))
                                                     .font(.caption)
                                                     .fontWeight(.bold)
                                                     .foregroundColor(.green)
+                                                    .multilineTextAlignment(.trailing)
+                                                    .frame(maxWidth: 55)
+                                                }
                                             }
                                         }
                                     }
@@ -255,7 +317,7 @@ public struct ScanInventoryReviewSheet: View {
                             }
                         }
 
-                        Spacer()
+                        Spacer(minLength: 40)
                     }
                     .padding(16)
                 }
@@ -269,13 +331,46 @@ public struct ScanInventoryReviewSheet: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Salva nel DB") {
-                        onSave(batch, overwriteDuplicates)
+                        var finalBatch = batch
+                        finalBatch.totalPieces = totalCalculatedPieces
+                        finalBatch.totalAgreedValue = totalCalculatedAgreed
+                        finalBatch.totalExposedValue = totalCalculatedExposed
+                        onSave(finalBatch, overwriteDuplicates)
                         dismiss()
                     }
                     .fontWeight(.bold)
                     .foregroundColor(.brandOrange)
                 }
             }
+        }
+    }
+
+    private func addNewEmptyItem() {
+        let newId = "ART\(Int.random(in: 100000...999999))"
+        let newItem = InventoryItem(
+            id: newId,
+            rawCode: newId,
+            listNumber: batch.listNumber,
+            loadDate: batch.loadDate,
+            title: "Nuovo Articolo",
+            category: "VARIE",
+            quantity: 1,
+            agreedPrice: Decimal(2.00),
+            clientPayoutInitial: Decimal(1.00),
+            exposedPriceInitial: Decimal(2.00),
+            shopId: batch.shopId,
+            userCardCode: batch.userCardCode
+        )
+        batch.items.append(newItem)
+    }
+
+    private func itemStatusBadge(for itemId: String) -> (text: String, color: Color, icon: String) {
+        if duplicateIds.contains(itemId) {
+            return ("Già nel DB", .orange, "checkmark.circle.fill")
+        } else if updatedIds.contains(itemId) {
+            return ("Modificato", .blue, "arrow.triangle.2.circlepath")
+        } else {
+            return ("Nuovo", .green, "sparkles")
         }
     }
 }

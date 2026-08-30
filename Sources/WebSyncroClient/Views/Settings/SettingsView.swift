@@ -1,6 +1,9 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
-/// Schermata Impostazioni con selezione modelli Vision (Leggeri vs Overkill), Esportazione Dati e Diagnostica
+/// Schermata Impostazioni completa con Selezione Modelli Vision, Diagnostica Avanzata, File Browser ed Esportazione Dati
 public struct SettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
@@ -14,6 +17,9 @@ public struct SettingsView: View {
     @State private var isPingingOpenRouter = false
 
     @State private var showingResetAlert = false
+    @State private var showingFileBrowser = false
+    @State private var showingBatchesManager = false
+
     @State private var isCustomModelSelected: Bool = false
     @State private var customModelText: String = ""
 
@@ -277,48 +283,26 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 3: Esportazione Dati & Condivisione
+                        // Sezione 3: Gestione Liste di Carico & Database Locale
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Esportazione Database & Debug", systemImage: "square.and.arrow.up")
+                                Label("Archivio Liste di Carico", systemImage: "doc.stack.fill")
                                     .font(.headline)
                                     .foregroundColor(.primary)
 
-                                Text("Esporta il database locale in formato JSON o testo diagnostico per verificare i dati estratti.")
+                                Text("Visualizza l'elenco di tutte le liste caricate, con dettaglio per articolo e statistiche.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
 
                                 Divider()
 
-                                if let jsonData = inventoryStore.exportJSONData(),
-                                   let jsonString = String(data: jsonData, encoding: .utf8) {
-                                    ShareLink(item: jsonString, preview: SharePreview("WebSyncro_Inventario.json", image: Image(systemName: "doc.plaintext"))) {
-                                        HStack(spacing: 10) {
-                                            Image(systemName: "curlybraces")
-                                                .font(.caption)
-                                                .foregroundColor(.brandOrange)
-                                            Text("Esporta Database JSON (.json)")
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.primary)
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
-
-                                Divider()
-
-                                let diagnosticText = inventoryStore.exportDiagnosticReport(shopId: activeShopId, userCardCode: activeUserCardCode)
-                                ShareLink(item: diagnosticText, preview: SharePreview("WebSyncro_Report_Diagnostico.txt", image: Image(systemName: "doc.text"))) {
+                                Button(action: {
+                                    showingBatchesManager = true
+                                }) {
                                     HStack(spacing: 10) {
-                                        Image(systemName: "doc.text.magnifyingglass")
-                                            .font(.caption)
+                                        Image(systemName: "list.bullet.rectangle.portrait.fill")
                                             .foregroundColor(.brandOrange)
-                                        Text("Esporta Report Diagnostico (.txt)")
+                                        Text("Anteprima Liste Caricate (\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count))")
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .foregroundColor(.primary)
@@ -332,20 +316,96 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 4: Diagnostica e Rete
+                        // Sezione 4: Esportazione Dati & File Browser
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 14) {
-                                Label("Diagnostica & Rete", systemImage: "network")
+                                Label("Esportazione Dati & File Browser", systemImage: "square.and.arrow.up")
                                     .font(.headline)
                                     .foregroundColor(.primary)
 
                                 Divider()
 
+                                // File Browser dell'App
+                                Button(action: {
+                                    showingFileBrowser = true
+                                }) {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "folder.badge.gearshape")
+                                            .foregroundColor(.blue)
+                                        Text("Esplora File e Cartelle dell'App")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+
+                                Divider()
+
+                                if let jsonData = inventoryStore.exportJSONData(),
+                                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                                    ShareLink(item: jsonString, preview: SharePreview("WebSyncro_Inventario.json", image: Image(systemName: "doc.plaintext"))) {
+                                        HStack(spacing: 10) {
+                                            Image(systemName: "curlybraces")
+                                                .foregroundColor(.brandOrange)
+                                            Text("Esporta Database Inventario (.json)")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                            Image(systemName: "square.and.arrow.up")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+
+                                Divider()
+
+                                let diagnosticText = inventoryStore.exportDiagnosticReport(shopId: activeShopId, userCardCode: activeUserCardCode)
+                                ShareLink(item: diagnosticText, preview: SharePreview("WebSyncro_Report_Diagnostico.txt", image: Image(systemName: "doc.text"))) {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "doc.text.magnifyingglass")
+                                            .foregroundColor(.brandOrange)
+                                        Text("Esporta Report Diagnostico Completo (.txt)")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+
+                        // Sezione 5: Diagnostica Avanzata & Info Sistema
+                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                Label("Diagnostica Avanzata & Sistema", systemImage: "cpu")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+
+                                Divider()
+
+                                #if os(iOS)
+                                detailRow(title: "Dispositivo", value: UIDevice.current.model)
+                                detailRow(title: "Sistema Operativo", value: "iOS \(UIDevice.current.systemVersion)")
+                                #endif
+                                detailRow(title: "Bundle ID", value: Bundle.main.bundleIdentifier ?? "it.websyncro.client")
                                 detailRow(title: "Endpoint WebSyncro", value: "appwebsyncro.it")
                                 detailRow(title: "Negozio Attivo", value: activeShopId)
-                                detailRow(title: "Account Salvati", value: "\(accountStore.accounts.count)")
-                                detailRow(title: "Liste di Carico nel DB", value: "\(inventoryStore.batches.count)")
-                                detailRow(title: "Articoli Totali in Inventario", value: "\(inventoryStore.allItems.count)")
+                                detailRow(title: "Codice Tessera Attiva", value: activeUserCardCode.isEmpty ? "N/D" : activeUserCardCode)
+                                detailRow(title: "Account Registrati", value: "\(accountStore.accounts.count)")
+                                detailRow(title: "Liste Caricate (Questo Utente)", value: "\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count)")
+                                detailRow(title: "Articoli in Inventario (Questo Utente)", value: "\(inventoryStore.items(for: activeShopId, userCardCode: activeUserCardCode).count)")
 
                                 Divider()
 
@@ -376,7 +436,7 @@ public struct SettingsView: View {
                             }
                         }
 
-                        // Sezione 5: Gestione Dati & Reset
+                        // Sezione 6: Gestione Dati & Reset
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("Gestione Dati Locali", systemImage: "trash")
@@ -402,13 +462,13 @@ public struct SettingsView: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
-                            Text("Versione 1.0.0 • OpenRouter Vision & Local LLM")
+                            Text("Versione 1.0.0 (Build 2026) • OpenRouter Vision & Local LLM")
                                 .font(.caption2)
                                 .foregroundColor(.secondary.opacity(0.7))
                         }
                         .padding(.top, 8)
 
-                        Spacer(minLength: 20)
+                        Spacer(minLength: 40)
                     }
                     .padding(16)
                 }
@@ -421,6 +481,12 @@ public struct SettingsView: View {
                         .foregroundColor(.brandOrange)
                         .fontWeight(.semibold)
                 }
+            }
+            .sheet(isPresented: $showingFileBrowser) {
+                AppFilesBrowserView()
+            }
+            .sheet(isPresented: $showingBatchesManager) {
+                BatchesManagerSheet()
             }
             .onAppear {
                 let allPresets = (recommendedModels + overkillModels).map { $0.0 }

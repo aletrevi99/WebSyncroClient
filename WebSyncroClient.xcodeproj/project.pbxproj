@@ -30,6 +30,7 @@
 		547C946B0FB350C6B9A2EB02 /* InventoryDeduplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9C7C708574F6C6E6C20E9 /* InventoryDeduplicationTests.swift */; };
 		5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126A4E2980960209C9F3142 /* Color+Brand.swift */; };
 		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
+		67077CE86AFF1E590AA889B0 /* AppFilesBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A36D91CB207626BB3854C8 /* AppFilesBrowserView.swift */; };
 		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
 		739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */; };
 		751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */; };
@@ -40,6 +41,7 @@
 		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
 		840DE55BA1179C0FAB3F3114 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 865D0F5B68EC27C33B8E74D2 /* Assets.xcassets */; };
 		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
+		897609A93F89F70E7CA78605 /* BatchesManagerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */; };
 		8B4575FA9555144126575D66 /* ShopInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7D8DC0DE4D675BAABA19AE /* ShopInfoView.swift */; };
 		8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */; };
 		8ED30EA53B0335F1BBF4434A /* ShopNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2B908D27CDDBAD58321B82 /* ShopNotification.swift */; };
@@ -87,6 +89,7 @@
 		06B885D1F86AB9272AC8067E /* MandateClausesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandateClausesView.swift; sourceTree = "<group>"; };
 		070E6E59DAB1D9001F1BF4C0 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		094617839626F02AF8DFF349 /* InventoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryStore.swift; sourceTree = "<group>"; };
+		0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchesManagerSheet.swift; sourceTree = "<group>"; };
 		0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryItem.swift; sourceTree = "<group>"; };
 		11AE9080B2C5A9BB76EF573F /* VisionLLMServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionLLMServiceTests.swift; sourceTree = "<group>"; };
 		145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModel.swift; sourceTree = "<group>"; };
@@ -103,6 +106,7 @@
 		3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceTests.swift; sourceTree = "<group>"; };
 		3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemDetailSheet.swift; sourceTree = "<group>"; };
 		498D0A2DFB469089585D591F /* InventoryOCRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryOCRParser.swift; sourceTree = "<group>"; };
+		49A36D91CB207626BB3854C8 /* AppFilesBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFilesBrowserView.swift; sourceTree = "<group>"; };
 		4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParserTests.swift; sourceTree = "<group>"; };
 		5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroService.swift; sourceTree = "<group>"; };
@@ -197,6 +201,7 @@
 		21E538E3463A59EFD870CAEB /* Inventory */ = {
 			isa = PBXGroup;
 			children = (
+				0AFBC4CC2AAE15C6AA173C49 /* BatchesManagerSheet.swift */,
 				C0BB19835A8BA7BC984B023D /* InventoryListView.swift */,
 				EB02E47C3798C6691C78F5FD /* ScanInventoryReviewSheet.swift */,
 			);
@@ -339,6 +344,7 @@
 		B53CB8540AE2929CFC75C009 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				49A36D91CB207626BB3854C8 /* AppFilesBrowserView.swift */,
 				2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -481,9 +487,11 @@
 				C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */,
 				45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */,
 				F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */,
+				67077CE86AFF1E590AA889B0 /* AppFilesBrowserView.swift in Sources */,
 				F26721CD520975F15DAA7214 /* AppSettingsStore.swift in Sources */,
 				25C1308F730217772501FFAE /* AppState.swift in Sources */,
 				739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */,
+				897609A93F89F70E7CA78605 /* BatchesManagerSheet.swift in Sources */,
 				5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */,
 				DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */,
 				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
@@ -618,7 +626,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "EX Novo";
 				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Scansiona il codice QR della tua tessera per sincronizzare il tuo account del mercatino.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Usa la fotocamera per scansionare codici QR e fotografare i fogli di carico dell'inventario.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Accedi alla libreria foto per caricare ricevute e fogli di carico dell'inventario.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -706,7 +715,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "EX Novo";
 				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Scansiona il codice QR della tua tessera per sincronizzare il tuo account del mercatino.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Usa la fotocamera per scansionare codici QR e fotografare i fogli di carico dell'inventario.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Accedi alla libreria foto per caricare ricevute e fogli di carico dell'inventario.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

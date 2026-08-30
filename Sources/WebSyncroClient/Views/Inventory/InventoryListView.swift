@@ -25,8 +25,10 @@ public struct InventoryListView: View {
     @State private var searchText = ""
 
     @State private var showingCamera = false
+    @State private var showingPhotoPicker = false
     @State private var showingFilePicker = false
     @State private var showingReviewSheet = false
+    @State private var showingBatchesManager = false
 
     @State private var scannedBatchForReview: InventoryBatch?
     @State private var currentDeduplicationReport: DeduplicationReport?
@@ -94,11 +96,15 @@ public struct InventoryListView: View {
         }
     }
 
-    private var unsoldCount: Int {
+    private var unsoldPiecesCount: Int {
         reconciledList.reduce(0) { $0 + $1.status.remainingInShopCount }
     }
 
-    private var soldCount: Int {
+    private var unsoldArticlesCount: Int {
+        reconciledList.filter { $0.status.hasRemainingInShop }.count
+    }
+
+    private var soldPiecesCount: Int {
         reconciledList.reduce(0) { sum, entry in
             switch entry.status {
             case .unsoldInShop:
@@ -109,6 +115,10 @@ public struct InventoryListView: View {
                 return sum + matured + nonMatured
             }
         }
+    }
+
+    private var soldArticlesCount: Int {
+        reconciledList.filter { $0.status.isFullySold || $0.status.isPartiallySold }.count
     }
 
     private var estimatedUnsoldTotal: Decimal {
@@ -214,7 +224,11 @@ public struct InventoryListView: View {
                     processImportedDocumentData(docData, fileName: fileName)
                 }
             }
+            .sheet(isPresented: $showingBatchesManager) {
+                BatchesManagerSheet()
+            }
             #if os(iOS)
+            .photosPicker(isPresented: $showingPhotoPicker, selection: $selectedPhotoItem, matching: .images)
             .onChange(of: selectedPhotoItem) { _, newItem in
                 guard let item = newItem else { return }
                 Task {
@@ -257,7 +271,7 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Toolbar Upload Button
+    // MARK: - Toolbar Upload Button (Native Bordered Prominent Capsule)
     @ViewBuilder
     private var uploadMenuToolbarButton: some View {
         Menu {
@@ -267,32 +281,34 @@ public struct InventoryListView: View {
                 Label("Scatta Foto al Foglio", systemImage: "camera.fill")
             }
 
-            #if canImport(PhotosUI)
-            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+            Button(action: {
+                showingPhotoPicker = true
+            }) {
                 Label("Scegli da Galleria Foto", systemImage: "photo.on.rectangle.angled")
             }
-            #endif
 
             Button(action: {
                 showingFilePicker = true
             }) {
                 Label("Importa File PDF / Immagine", systemImage: "doc.badge.plus")
             }
+
+            Divider()
+
+            Button(action: {
+                showingBatchesManager = true
+            }) {
+                Label("Archivio Liste di Carico (\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count))", systemImage: "doc.stack.fill")
+            }
         } label: {
             HStack(spacing: 5) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: 13, weight: .bold))
                 Text("Carica Foglio")
-                    .font(.system(.subheadline, design: .rounded))
-                    .fontWeight(.bold)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .background(Color.brandOrange)
-            .foregroundColor(.white)
-            .clipShape(Capsule())
+            .font(.system(.subheadline, design: .rounded).bold())
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.borderedProminent)
+        .tint(Color.brandOrange)
     }
 
     // MARK: - Summary Hero Card
@@ -324,37 +340,45 @@ public struct InventoryListView: View {
                 Divider()
                     .background(Color.white.opacity(0.1))
 
-                HStack(spacing: 16) {
-                    HStack(spacing: 6) {
+                HStack(spacing: 12) {
+                    HStack(spacing: 5) {
                         Image(systemName: "storefront.fill")
                             .font(.caption)
                             .foregroundColor(.blue)
-                        Text("\(unsoldCount) pz in negozio")
+                        Text("\(unsoldPiecesCount) pz in negozio")
                             .font(.caption)
+                            .fontWeight(.medium)
                             .foregroundColor(.secondary)
                     }
 
                     Spacer()
 
-                    HStack(spacing: 6) {
+                    HStack(spacing: 5) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.caption)
                             .foregroundColor(.green)
-                        Text("\(soldCount) pz venduti")
+                        Text("\(soldPiecesCount) pz venduti")
                             .font(.caption)
+                            .fontWeight(.medium)
                             .foregroundColor(.secondary)
                     }
 
                     Spacer()
 
-                    HStack(spacing: 6) {
-                        Image(systemName: "doc.plaintext")
-                            .font(.caption)
-                            .foregroundColor(.brandOrange)
-                        Text("\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count) liste")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    Button(action: {
+                        showingBatchesManager = true
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "doc.stack.fill")
+                                .font(.caption)
+                                .foregroundColor(.brandOrange)
+                            Text("\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count) liste")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.brandOrange)
+                        }
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -497,7 +521,7 @@ public struct InventoryListView: View {
                 // Dettagli Prezzi (Unitario e Totale)
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Prezzo al Pubblico:")
+                        Text(status.isFullySold ? "Venduto al Pubblico:" : "Prezzo al Pubblico:")
                             .font(.caption2)
                             .foregroundColor(.secondary)
 
@@ -523,7 +547,7 @@ public struct InventoryListView: View {
                         let unitPayout = item.currentClientPayout()
 
                         if status.isFullySold {
-                            Text("Importo Totale Realizzato:")
+                            Text("Guadagno Netto Realizzato:")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
 

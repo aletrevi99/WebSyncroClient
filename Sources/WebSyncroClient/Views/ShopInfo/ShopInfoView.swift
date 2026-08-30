@@ -300,18 +300,18 @@ public struct ShopInfoView: View {
                                 if isToday {
                                     let openNow = info.currentOpenStatus.isOpen
                                     Text(openNow ? "Aperto Adesso" : (day.isClosed ? "Chiuso" : "Chiuso Ora"))
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(.system(size: 11, weight: .bold))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 4)
                                         .background(openNow ? Color.green.opacity(0.15) : Color.secondary.opacity(0.12))
                                         .foregroundColor(openNow ? .green : .secondary)
                                         .clipShape(Capsule())
-                                } else {
-                                    Text(day.isClosed ? "Chiuso" : "Aperto")
+                                } else if day.isClosed {
+                                    Text("Chiuso")
                                         .font(.system(size: 11, weight: .semibold))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 4)
-                                        .background(day.isClosed ? Color.secondary.opacity(0.12) : Color.primary.opacity(0.06))
+                                        .background(Color.secondary.opacity(0.12))
                                         .foregroundColor(.secondary)
                                         .clipShape(Capsule())
                                 }
@@ -339,84 +339,77 @@ public struct ShopInfoView: View {
     @ViewBuilder
     private var howItWorksCard: some View {
         LiquidGlassCard(cornerRadius: 22, padding: 18) {
-            VStack(alignment: .leading, spacing: 12) {
-                Button(action: {
-                    HapticFeedback.selection()
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isPolicyExpanded.toggle()
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "questionmark.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundColor(.brandOrange)
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Image(systemName: "questionmark.circle.fill")
+                        .foregroundColor(.brandOrange)
+                    Text("Come Funziona il Conto Vendita & Recesso")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
 
-                        Text("Come funziona: Vendite & Recesso")
-                            .font(.system(.subheadline, design: .rounded))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary)
+                Divider()
 
-                        Spacer()
+                VStack(alignment: .leading, spacing: 12) {
+                    policyItem(
+                        icon: "tag.fill",
+                        title: "1. Esposizione a Prezzo Pieno (0-60 gg)",
+                        desc: "I tuoi oggetti rimangono esposti al prezzo concordato per i primi 60 giorni dalla presa in carico."
+                    )
 
-                        Image(systemName: isPolicyExpanded ? "chevron.up" : "chevron.down")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    policyItem(
+                        icon: "percent",
+                        title: "2. Sconto in Saldo -50% (61-90 gg)",
+                        desc: "Trascorsi 60 giorni, la merce invenduta viene scontata del 50% sul prezzo al pubblico. Anche il rimborso spettante viene proporzionalmente dimezzato."
+                    )
+
+                    policyItem(
+                        icon: "clock.arrow.circlepath",
+                        title: "3. Diritto di Recesso (14 giorni)",
+                        desc: "Chi acquista ha diritto di ripensamento entro 14 giorni. Durante questo periodo l'importo è 'In Recesso'; terminati i 14 giorni diventa 'Maturato' e riscuotibile in cassa."
+                    )
+
+                    policyItem(
+                        icon: "exclamationmark.triangle.fill",
+                        title: "4. Scadenza Mandato (>90 gg)",
+                        desc: "Oltre i 90 giorni la merce passa a maggior realizzo o donazione secondo le clausole contrattuali."
+                    )
+
+                    NavigationLink(destination: MandateClausesView()) {
+                        HStack {
+                            Text("Leggi Tutte le Clausole Contrattuali")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.brandOrange)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                                .foregroundColor(.brandOrange)
+                        }
+                        .padding(.top, 4)
                     }
                 }
-                .buttonStyle(PlainButtonStyle())
+            }
+        }
+    }
 
-                if isPolicyExpanded {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Divider()
+    @ViewBuilder
+    private func policyItem(icon: String, title: String, desc: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(.brandOrange)
+                .frame(width: 20)
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("1. Conto Vendita")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            Text("Porta i tuoi oggetti in negozio: verranno etichettati con il tuo codice fornitore ed esposti al pubblico.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("2. Periodo di Diritto di Recesso")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            Text("Quando un articolo viene acquistato, appare nella sezione 'In Recesso'. Durante questo periodo l'acquirente può esercitare eventuale reso/garanzia.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("3. Incasso e Ritiro Maturato")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            Text("Terminato il periodo di recesso, l'importo diventa 'Maturato'. Puoi recarti in cassa con la tua tessera (tab Card) e ritirare il tuo guadagno in contanti.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        Divider()
-
-                        Button(action: {
-                            showingMandateSheet = true
-                        }) {
-                            HStack {
-                                Image(systemName: "signature")
-                                    .font(.caption)
-                                Text("Leggi tutte le 8 clausole del Mandato →")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                            }
-                            .foregroundColor(.brandOrange)
-                            .padding(.top, 4)
-                        }
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                Text(desc)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
