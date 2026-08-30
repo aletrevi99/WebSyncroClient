@@ -21,12 +21,19 @@ jobs:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. Select Latest Stable Xcode
+      - name: 2. Select Xcode 15.4 / Latest
         run: |
-          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          if [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          fi
           xcodebuild -version
 
-      - name: 3. Build Release .app (Unsigned)
+      - name: 3. Install XcodeGen & Generate Project
+        run: |
+          brew install xcodegen || true
+          xcodegen generate
+
+      - name: 4. Build Release .app (Unsigned)
         run: |
           mkdir -p build/DerivedData
           xcodebuild build \
@@ -41,7 +48,7 @@ jobs:
             CODE_SIGN_ENTITLEMENTS="" \
             COMPILER_INDEX_STORE_ENABLE=NO
 
-      - name: 4. Package into Sideloadable IPA
+      - name: 5. Package into Sideloadable IPA
         run: |
           mkdir -p build/Payload build/Exported
           
@@ -65,7 +72,7 @@ jobs:
           echo "Unsigned IPA successfully created at: build/Exported/WebSyncroClient-Unsigned.ipa"
           ls -lh build/Exported/WebSyncroClient-Unsigned.ipa
 
-      - name: 5. Upload IPA Artifact
+      - name: 6. Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: WebSyncroClient-Unsigned-IPA
@@ -73,7 +80,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: 6. Publish GitHub Release (On Tag)
+      - name: 7. Publish GitHub Release (On Tag)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
@@ -88,4 +95,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
