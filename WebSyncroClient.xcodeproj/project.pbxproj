@@ -27,6 +27,7 @@
 		45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */; };
 		49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */; };
 		53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */; };
+		547C946B0FB350C6B9A2EB02 /* InventoryDeduplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A9C7C708574F6C6E6C20E9 /* InventoryDeduplicationTests.swift */; };
 		5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126A4E2980960209C9F3142 /* Color+Brand.swift */; };
 		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
 		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
@@ -60,9 +61,11 @@
 		E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */; };
 		E8665CEB1E08F6F5491D5C2C /* ShopInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF293B9CA80AFDBFAA5B233F /* ShopInfo.swift */; };
 		EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */; };
+		EF835EBA518B170AFBE90A82 /* VisionLLMServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11AE9080B2C5A9BB76EF573F /* VisionLLMServiceTests.swift */; };
 		F26721CD520975F15DAA7214 /* AppSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4135147449377E5A6FE7A8 /* AppSettingsStore.swift */; };
 		F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */; };
 		F433990FA167F40786399D77 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */; };
+		F7FBEFD871AD09DEC32F5F83 /* VisionLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 336568C7A6FCFF8F2A7DCE87 /* VisionLLMService.swift */; };
 		FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */; };
 		FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */; };
 /* End PBXBuildFile section */
@@ -83,13 +86,16 @@
 		070E6E59DAB1D9001F1BF4C0 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		094617839626F02AF8DFF349 /* InventoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryStore.swift; sourceTree = "<group>"; };
 		0FBE97E1CDDF5886C6129A0E /* InventoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryItem.swift; sourceTree = "<group>"; };
+		11AE9080B2C5A9BB76EF573F /* VisionLLMServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionLLMServiceTests.swift; sourceTree = "<group>"; };
 		145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModel.swift; sourceTree = "<group>"; };
+		15A9C7C708574F6C6E6C20E9 /* InventoryDeduplicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryDeduplicationTests.swift; sourceTree = "<group>"; };
 		15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemRowView.swift; sourceTree = "<group>"; };
 		16118E43A3972ACC75A25C28 /* SalesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParser.swift; sourceTree = "<group>"; };
 		27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStoreTests.swift; sourceTree = "<group>"; };
 		2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		3126A4E2980960209C9F3142 /* Color+Brand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Brand.swift"; sourceTree = "<group>"; };
 		3324D9007E4EC87452DF1B2A /* SyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatus.swift; sourceTree = "<group>"; };
+		336568C7A6FCFF8F2A7DCE87 /* VisionLLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionLLMService.swift; sourceTree = "<group>"; };
 		33ABC5D71017CB2913388296 /* WebSyncroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroApp.swift; sourceTree = "<group>"; };
 		3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AdaptiveModifiers.swift"; sourceTree = "<group>"; };
 		3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceTests.swift; sourceTree = "<group>"; };
@@ -173,9 +179,11 @@
 				27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */,
 				01ECAF5FEC03A95AB488E9D8 /* AppSettingsStoreTests.swift */,
 				783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */,
+				15A9C7C708574F6C6E6C20E9 /* InventoryDeduplicationTests.swift */,
 				76E10CD272914B86BBB41EDC /* InventoryOCRParserTests.swift */,
 				D528026838E617059B33E3AC /* QRCodeParserTests.swift */,
 				4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */,
+				11AE9080B2C5A9BB76EF573F /* VisionLLMServiceTests.swift */,
 				3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */,
 			);
 			name = WebSyncroClientTests;
@@ -344,6 +352,7 @@
 				498D0A2DFB469089585D591F /* InventoryOCRParser.swift */,
 				D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */,
 				16118E43A3972ACC75A25C28 /* SalesParser.swift */,
+				336568C7A6FCFF8F2A7DCE87 /* VisionLLMService.swift */,
 				6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */,
 				62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */,
 			);
@@ -507,6 +516,7 @@
 				BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */,
 				9813311B39F78ED3675275E1 /* UserCardView.swift in Sources */,
 				26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */,
+				F7FBEFD871AD09DEC32F5F83 /* VisionLLMService.swift in Sources */,
 				83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */,
 				29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */,
 				1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */,
@@ -521,9 +531,11 @@
 				43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */,
 				A44ACD7FF7D1B0131F6B1C07 /* AppSettingsStoreTests.swift in Sources */,
 				97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */,
+				547C946B0FB350C6B9A2EB02 /* InventoryDeduplicationTests.swift in Sources */,
 				1D40DAD24E11690D10F67ECE /* InventoryOCRParserTests.swift in Sources */,
 				B250FEB916CC8D58A34C1DE3 /* QRCodeParserTests.swift in Sources */,
 				EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */,
+				EF835EBA518B170AFBE90A82 /* VisionLLMServiceTests.swift in Sources */,
 				09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

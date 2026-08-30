@@ -14,19 +14,22 @@ public enum InventoryFilter: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
 }
 
-/// Schermata per la consultazione e gestione dell'inventario degli oggetti in carico con sconti e riconciliazione vendite
+/// Schermata per la consultazione e gestione dell'inventario con analisi AI Vision e deduplicazione
 public struct InventoryListView: View {
     @ObservedObject var inventoryStore: InventoryStore
     @StateObject private var dashboardViewModel: DashboardViewModel
     @ObservedObject var accountStore: AccountStore
+    @ObservedObject var settingsStore: AppSettingsStore
 
     @State private var selectedFilter: InventoryFilter = .unsold
     @State private var searchText = ""
     @State private var showingCameraScanner = false
     @State private var showingReviewSheet = false
     @State private var scannedBatchForReview: InventoryBatch?
-    @State private var isProcessingOCR = false
-    @State private var ocrErrorMessage: String?
+    @State private var currentDeduplicationReport: DeduplicationReport?
+    @State private var isProcessingAI = false
+    @State private var processingStatusMessage = "Analisi visiva con AI in corso..."
+    @State private var saveFeedbackBanner: String?
 
     #if canImport(PhotosUI)
     @State private var selectedPhotoItem: PhotosPickerItem?
@@ -35,12 +38,15 @@ public struct InventoryListView: View {
     public init(
         inventoryStore: InventoryStore? = nil,
         accountStore: AccountStore? = nil,
+        settingsStore: AppSettingsStore? = nil,
         dashboardViewModel: DashboardViewModel? = nil
     ) {
         let store = inventoryStore ?? InventoryStore.shared
         let accStore = accountStore ?? AccountStore.shared
+        let setStore = settingsStore ?? AppSettingsStore.shared
         self.inventoryStore = store
         self.accountStore = accStore
+        self.settingsStore = setStore
         self._dashboardViewModel = StateObject(wrappedValue: dashboardViewModel ?? DashboardViewModel(accountStore: accStore))
     }
 
@@ -48,17 +54,21 @@ public struct InventoryListView: View {
         accountStore.activeAccount?.shopId ?? "exnovomercatino"
     }
 
+    private var activeUserCardCode: String {
+        accountStore.activeAccount?.cardCode ?? ""
+    }
+
     private var reconciledList: [(item: InventoryItem, status: InventorySaleStatus)] {
         inventoryStore.reconciledItems(
             maturedReport: dashboardViewModel.maturedReport,
             nonMaturedReport: dashboardViewModel.nonMaturedReport,
-            shopIdFilter: activeShopId
+            shopId: activeShopId,
+            userCardCode: activeUserCardCode
         )
     }
 
     private var filteredList: [(item: InventoryItem, status: InventorySaleStatus)] {
         reconciledList.filter { entry in
-            // Filtro per tab
             let matchesCategory: Bool
             switch selectedFilter {
             case .all:
@@ -73,7 +83,6 @@ public struct InventoryListView: View {
                 matchesCategory = (entry.status == .unsoldInShop && entry.item.currentStage() == .maxRealization)
             }
 
-            // Filtro per testo
             let matchesSearch = searchText.isEmpty ||
                 entry.item.title.localizedCaseInsensitiveContains(searchText) ||
                 entry.item.id.localizedCaseInsensitiveContains(searchText)
@@ -94,7 +103,8 @@ public struct InventoryListView: View {
         inventoryStore.estimatedUnsoldValue(
             maturedReport: dashboardViewModel.maturedReport,
             nonMaturedReport: dashboardViewModel.nonMaturedReport,
-            shopIdFilter: activeShopId
+            shopId: activeShopId,
+            userCardCode: activeUserCardCode
         )
     }
 
@@ -105,6 +115,29 @@ public struct InventoryListView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
+                        // Banner Feedback Salvataggio Differenziale
+                        if let feedback = saveFeedbackBanner {
+                            LiquidGlassCard(cornerRadius: 16, padding: 12) {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text(feedback)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Button(action: {
+                                        withAnimation { saveFeedbackBanner = nil }
+                                    }) {
+                                        Image(systemName: "xmark")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+
                         // Hero Card Statistiche Inventario
                         summaryHeroCard
 
@@ -115,9 +148,24 @@ public struct InventoryListView: View {
                         SearchBarView(text: $searchText)
 
                         // Contenuto: Lista Articoli o Stato Vuoto
-                        if isProcessingOCR {
-                            EmptyOrErrorView(type: .loading(message: "Analisi OCR della lista di carico in corso..."))
-                                .padding(.top, 30)
+                        if isProcessingAI {
+                            LiquidGlassCard(cornerRadius: 22, padding: 24) {
+                                VStack(spacing: 14) {
+                                    ProgressView()
+                                        .scaleEffect(1.2)
+                                        .tint(Color.brandOrange)
+                                    Text(processingStatusMessage)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                    Text("Estrazione intelligente della tabella e dei prezzi tramite LLM Vision.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                            .padding(.top, 20)
                         } else if filteredList.isEmpty {
                             emptyStateView
                                 .padding(.top, 20)
@@ -142,21 +190,21 @@ public struct InventoryListView: View {
                         Button(action: {
                             showingCameraScanner = true
                         }) {
-                            Label("Scansiona con Fotocamera", systemImage: "camera.viewfinder")
+                            Label("Scatta Foto con Fotocamera", systemImage: "camera.fill")
                         }
 
                         #if canImport(PhotosUI)
-                        // Selezione da Galleria
+                        // Selezione dalla Galleria Foto
                         #endif
                     } label: {
                         HStack(spacing: 4) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 16))
-                            Text("Aggiungi Lista")
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 14))
+                            Text("Carica Foglio")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(Color.brandOrange)
                         .foregroundColor(.white)
@@ -170,9 +218,25 @@ public struct InventoryListView: View {
                 }
             }
             .sheet(isPresented: $showingReviewSheet) {
-                if let batch = scannedBatchForReview {
-                    ScanInventoryReviewSheet(batch: batch) { confirmedBatch in
-                        inventoryStore.addBatch(confirmedBatch)
+                if let batch = scannedBatchForReview, let report = currentDeduplicationReport {
+                    ScanInventoryReviewSheet(
+                        batch: batch,
+                        deduplicationReport: report
+                    ) { confirmedBatch, overwriteDuplicates in
+                        let result = inventoryStore.addBatchWithDeduplication(
+                            batch: confirmedBatch,
+                            overwriteDuplicates: overwriteDuplicates
+                        )
+
+                        withAnimation {
+                            if result.skippedCount > 0 {
+                                self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli (\(result.skippedCount) duplicati ignorati nel DB)."
+                            } else if result.updatedCount > 0 {
+                                self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli e aggiornati \(result.updatedCount) articoli esistenti."
+                            } else {
+                                self.saveFeedbackBanner = "Salvati con successo \(result.addedCount) articoli nel database locale."
+                            }
+                        }
                     }
                 }
             }
@@ -240,12 +304,13 @@ public struct InventoryListView: View {
                         Image(systemName: "doc.plaintext")
                             .font(.caption)
                             .foregroundColor(.brandOrange)
-                        Text("\(inventoryStore.batches.count) liste caricate")
+                        Text("\(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).count) liste")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -277,12 +342,11 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Riga Articolo Inventario con Sconti e Timeline
+    // MARK: - Riga Articolo Inventario
     @ViewBuilder
     private func inventoryItemRow(_ item: InventoryItem, status: InventorySaleStatus) -> some View {
         LiquidGlassCard(cornerRadius: 20, padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
-                // Header Riga: ID, Titolo e Badge Stato Vendita
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(item.title)
@@ -315,7 +379,7 @@ public struct InventoryListView: View {
                 Divider()
                     .background(Color.white.opacity(0.06))
 
-                // Timeline Ciclo di Vita (0-60gg, 61-90gg, >90gg)
+                // Timeline Ciclo di Vita
                 if status == .unsoldInShop {
                     let days = item.daysSinceLoad()
                     let stage = item.currentStage()
@@ -334,13 +398,12 @@ public struct InventoryListView: View {
                                     .font(.system(size: 10, weight: .semibold))
                                     .foregroundColor(.brandOrange)
                             } else {
-                                Text("Oltre i 90 gg (Maggior Realizzo)")
+                                Text("Oltre 90 gg (Maggior Realizzo)")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(.red)
                             }
                         }
 
-                        // Barra grafica di progresso 90 giorni
                         GeometryReader { proxy in
                             ZStack(alignment: .leading) {
                                 Capsule()
@@ -356,7 +419,7 @@ public struct InventoryListView: View {
                     }
                 }
 
-                // Dettagli Prezzi (Esposto & Rimborso Cliente)
+                // Dettagli Prezzi
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Prezzo al Pubblico:")
@@ -393,6 +456,7 @@ public struct InventoryListView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -450,18 +514,18 @@ public struct InventoryListView: View {
                         .fill(Color.brandOrange.opacity(0.15))
                         .frame(width: 60, height: 60)
 
-                    Image(systemName: "doc.text.viewfinder")
+                    Image(systemName: "sparkles")
                         .font(.system(size: 28))
                         .foregroundColor(.brandOrange)
                 }
 
                 VStack(spacing: 4) {
-                    Text(inventoryStore.batches.isEmpty ? "Nessuna Lista di Carico" : "Nessun Articolo Trovato")
+                    Text(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).isEmpty ? "Nessuna Lista di Carico" : "Nessun Articolo Trovato")
                         .font(.headline)
                         .foregroundColor(.primary)
 
-                    Text(inventoryStore.batches.isEmpty
-                        ? "Scatta una foto al foglio 'Lista oggetti in carico' rilasciato dal mercatino per sincronizzare tutti i tuoi articoli ed i prezzi scontati."
+                    Text(inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).isEmpty
+                        ? "Scatta una foto al foglio 'Lista oggetti in carico': l'AI Vision estrarrà automaticamente articoli, quantità e prezzi nel tuo database locale."
                         : "Nessun articolo corrisponde ai filtri selezionati.")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -469,13 +533,13 @@ public struct InventoryListView: View {
                         .padding(.horizontal, 8)
                 }
 
-                if inventoryStore.batches.isEmpty {
+                if inventoryStore.batches(for: activeShopId, userCardCode: activeUserCardCode).isEmpty {
                     Button(action: {
                         showingCameraScanner = true
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "camera.fill")
-                            Text("Scansiona Lista Foglio Carico")
+                            Text("Analizza Foglio con AI Vision")
                         }
                         .font(.system(.subheadline, design: .rounded))
                         .fontWeight(.bold)
@@ -492,37 +556,39 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Elaborazione OCR
+    // MARK: - Elaborazione AI Vision
     #if canImport(UIKit)
     private func processScannedImage(_ uiImage: UIImage) {
-        guard let cgImage = uiImage.cgImage else { return }
-        isProcessingOCR = true
-        ocrErrorMessage = nil
+        guard let jpegData = uiImage.jpegData(compressionQuality: 0.8) else { return }
+        isProcessingAI = true
+        processingStatusMessage = "Analisi visiva del documento con AI..."
 
         Task {
             do {
-                let recognizedText = try await OCRManager.recognizeText(from: cgImage)
-                let parsedResult = InventoryOCRParser.parse(ocrText: recognizedText, shopId: activeShopId)
-
-                let batch = InventoryBatch(
-                    listNumber: parsedResult.listNumber,
-                    loadDate: parsedResult.loadDate,
+                let visionService = settingsStore.makeVisionService()
+                let parsedBatch = try await visionService.analyzeInventoryDocument(
+                    imageData: jpegData,
                     shopId: activeShopId,
-                    totalPieces: parsedResult.totalPieces,
-                    totalAgreedValue: parsedResult.totalAgreedValue,
-                    totalExposedValue: parsedResult.totalExposedValue,
-                    items: parsedResult.items
+                    userCardCode: activeUserCardCode
+                )
+
+                let deduplication = inventoryStore.analyzeBatchForDuplicates(
+                    batch: parsedBatch,
+                    shopId: activeShopId,
+                    userCardCode: activeUserCardCode
                 )
 
                 await MainActor.run {
-                    self.scannedBatchForReview = batch
-                    self.isProcessingOCR = false
+                    self.scannedBatchForReview = parsedBatch
+                    self.currentDeduplicationReport = deduplication
+                    self.isProcessingAI = false
                     self.showingReviewSheet = true
                 }
             } catch {
                 await MainActor.run {
-                    self.ocrErrorMessage = error.localizedDescription
-                    self.isProcessingOCR = false
+                    self.processingStatusMessage = error.localizedDescription
+                    self.isProcessingAI = false
+                    HapticFeedback.notification(.error)
                 }
             }
         }
@@ -531,4 +597,3 @@ public struct InventoryListView: View {
     private func processScannedImage(_ image: Any) {}
     #endif
 }
-

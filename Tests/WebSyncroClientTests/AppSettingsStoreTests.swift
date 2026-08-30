@@ -26,17 +26,20 @@ final class AppSettingsStoreTests: XCTestCase {
         store.isExNovoOnlyMode = false
         XCTAssertFalse(store.isExNovoOnlyMode)
 
-        // Verifica che ricaricando lo store il valore persista
         let reloadedStore = AppSettingsStore(userDefaults: tempDefaults)
         XCTAssertFalse(reloadedStore.isExNovoOnlyMode)
     }
 
-    func testCustomVisionApiKey() {
+    func testOpenRouterApiKeyAndModel() {
         let store = AppSettingsStore(userDefaults: tempDefaults)
-        store.customVisionApiKey = "test_key_123"
-        XCTAssertEqual(store.customVisionApiKey, "test_key_123")
+        store.openRouterApiKey = "sk-or-v1-test-12345"
+        store.openRouterModel = "openai/gpt-4o-mini"
+
+        XCTAssertEqual(store.openRouterApiKey, "sk-or-v1-test-12345")
+        XCTAssertEqual(store.openRouterModel, "openai/gpt-4o-mini")
 
         let reloaded = AppSettingsStore(userDefaults: tempDefaults)
-        XCTAssertEqual(reloaded.customVisionApiKey, "test_key_123")
+        XCTAssertEqual(reloaded.openRouterApiKey, "sk-or-v1-test-12345")
+        XCTAssertEqual(reloaded.openRouterModel, "openai/gpt-4o-mini")
     }
 }

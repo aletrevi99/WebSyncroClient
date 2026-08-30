@@ -105,7 +105,7 @@ final class InventoryOCRParserTests: XCTestCase {
         let item3 = InventoryItem(id: "1260999", title: "Libro Invenduto", clientPayoutInitial: Decimal(string: "5.00")!)
 
         let batch = InventoryBatch(listNumber: "2026/001", loadDate: Date(), items: [item1, item2, item3])
-        store.addBatch(batch)
+        _ = store.addBatchWithDeduplication(batch: batch)
 
         let maturedReport = MockWebSyncroService.sampleReport()
         let nonMaturedReport = MockWebSyncroService.sampleNonMaturedReport()
