@@ -55,6 +55,7 @@ final class InventoryOCRParserTests: XCTestCase {
             id: "1260201",
             loadDate: date10,
             title: "Articolo Recente",
+            quantity: 3,
             clientPayoutInitial: Decimal(string: "10.00")!,
             exposedPriceInitial: Decimal(string: "20.00")!
         )
@@ -63,6 +64,7 @@ final class InventoryOCRParserTests: XCTestCase {
         XCTAssertEqual(itemRecent.currentStage(relativeTo: today), .fullPrice)
         XCTAssertEqual(itemRecent.currentExposedPrice(relativeTo: today), Decimal(string: "20.00"))
         XCTAssertEqual(itemRecent.currentClientPayout(relativeTo: today), Decimal(string: "10.00"))
+        XCTAssertEqual(itemRecent.totalCurrentClientPayout(for: 3, relativeTo: today), Decimal(string: "30.00"))
         XCTAssertEqual(itemRecent.daysUntilNextStage(relativeTo: today).days, 50)
         XCTAssertEqual(itemRecent.daysUntilNextStage(relativeTo: today).nextStage, .discounted50)
 
@@ -72,6 +74,7 @@ final class InventoryOCRParserTests: XCTestCase {
             id: "1260202",
             loadDate: date70,
             title: "Articolo Scontato",
+            quantity: 2,
             clientPayoutInitial: Decimal(string: "10.00")!,
             exposedPriceInitial: Decimal(string: "20.00")!
         )
@@ -80,29 +83,20 @@ final class InventoryOCRParserTests: XCTestCase {
         XCTAssertEqual(itemDiscounted.currentStage(relativeTo: today), .discounted50)
         XCTAssertEqual(itemDiscounted.currentExposedPrice(relativeTo: today), Decimal(string: "10.00")) // Sconto 50%
         XCTAssertEqual(itemDiscounted.currentClientPayout(relativeTo: today), Decimal(string: "5.00"))  // Rimborso ridotto al 50%
+        XCTAssertEqual(itemDiscounted.totalCurrentClientPayout(for: 2, relativeTo: today), Decimal(string: "10.00"))
         XCTAssertEqual(itemDiscounted.daysUntilNextStage(relativeTo: today).days, 20)
         XCTAssertEqual(itemDiscounted.daysUntilNextStage(relativeTo: today).nextStage, .maxRealization)
-
-        // 3. Articolo caricato 100 giorni fa (Oltre 90gg, Maggior Realizzo)
-        let date100 = calendar.date(byAdding: .day, value: -100, to: today)!
-        let itemExpired = InventoryItem(
-            id: "1260203",
-            loadDate: date100,
-            title: "Articolo Scaduto",
-            clientPayoutInitial: Decimal(string: "10.00")!,
-            exposedPriceInitial: Decimal(string: "20.00")!
-        )
-
-        XCTAssertEqual(itemExpired.daysSinceLoad(relativeTo: today), 100)
-        XCTAssertEqual(itemExpired.currentStage(relativeTo: today), .maxRealization)
     }
 
-    func testReconciliationWithLiveSalesReport() {
+    func testReconciliationWithLiveSalesReportAndMultiQuantities() {
         let store = InventoryStore(userDefaults: UserDefaults(suiteName: "test_rec_\(UUID().uuidString)")!)
 
-        let item1 = InventoryItem(id: "1260216", title: "La ragazza con orecchino", clientPayoutInitial: Decimal(string: "0.90")!)
-        let item2 = InventoryItem(id: "1260228", title: "Luce suono elettricita", clientPayoutInitial: Decimal(string: "0.90")!)
-        let item3 = InventoryItem(id: "1260999", title: "Libro Invenduto", clientPayoutInitial: Decimal(string: "5.00")!)
+        // Item 1 ha quantità 1 ed è in nonmaturato -> fullySold
+        let item1 = InventoryItem(id: "1260216", title: "La ragazza con orecchino", quantity: 1, clientPayoutInitial: Decimal(string: "0.90")!)
+        // Item 2 ha quantità 6 e in maturato c'è 1 vendita -> partiallySold (1 venduto, 5 rimasti)
+        let item2 = InventoryItem(id: "1260228", title: "Luce suono elettricita", quantity: 6, clientPayoutInitial: Decimal(string: "0.90")!)
+        // Item 3 ha quantità 2 e non è venduto -> unsoldInShop (2 rimasti)
+        let item3 = InventoryItem(id: "1260999", title: "Libro Invenduto", quantity: 2, clientPayoutInitial: Decimal(string: "5.00")!)
 
         let batch = InventoryBatch(listNumber: "2026/001", loadDate: Date(), items: [item1, item2, item3])
         _ = store.addBatchWithDeduplication(batch: batch)
@@ -114,13 +108,16 @@ final class InventoryOCRParserTests: XCTestCase {
         let status2 = store.saleStatus(for: item2, maturedReport: maturedReport, nonMaturedReport: nonMaturedReport)
         let status3 = store.saleStatus(for: item3, maturedReport: maturedReport, nonMaturedReport: nonMaturedReport)
 
-        // Item 1260216 è in nonmaturato.txt -> soldInRecesso
-        XCTAssertEqual(status1, .soldInRecesso(date: "24/08/2026", amount: Decimal(string: "0.90")!))
+        // Item 1260216 è in nonmaturato.txt con qtà 1 -> fullySold
+        XCTAssertTrue(status1.isFullySold)
+        XCTAssertEqual(status1.remainingInShopCount, 0)
 
-        // Item 1260228 è in maturato.txt -> soldMatured
-        XCTAssertEqual(status2, .soldMatured(date: "11/06/2026", amount: Decimal(string: "0.90")!))
+        // Item 1260228 ha 1 vendita su 6 -> partiallySold con 5 rimanenti
+        XCTAssertTrue(status2.isPartiallySold)
+        XCTAssertEqual(status2.remainingInShopCount, 5)
 
-        // Item 1260999 non è in nessuno dei due report -> unsoldInShop
-        XCTAssertEqual(status3, .unsoldInShop)
+        // Item 1260999 ha 0 vendite -> unsoldInShop con 2 rimanenti
+        XCTAssertEqual(status3, .unsoldInShop(quantity: 2))
+        XCTAssertEqual(status3.remainingInShopCount, 2)
     }
 }

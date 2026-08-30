@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Schermata Impostazioni, configurazione modalità EX NOVO, LLM Vision (OpenRouter & Locale) e Diagnostica
+/// Schermata Impostazioni con selezione modelli Vision (Leggeri vs Overkill), Modello Personalizzato e Diagnostica
 public struct SettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
@@ -14,12 +14,23 @@ public struct SettingsView: View {
     @State private var isPingingOpenRouter = false
 
     @State private var showingResetAlert = false
+    @State private var isCustomModelSelected: Bool = false
+    @State private var customModelText: String = ""
 
-    private let popularOpenRouterModels = [
-        ("google/gemini-2.5-flash", "Gemini 2.5 Flash (Consigliato, Veloce)"),
-        ("openai/gpt-4o-mini", "GPT-4o Mini (Alta Precisione)"),
-        ("anthropic/claude-3.5-haiku", "Claude 3.5 Haiku"),
-        ("qwen/qwen-2.5-vl-72b-instruct", "Qwen 2.5 VL 72B (Open-Source)")
+    // Modelli Leggeri & Consigliati (ottimizzati per Vision OCR veloce ed economico)
+    private let recommendedModels = [
+        ("google/gemini-2.5-flash", "⚡ Gemini 2.5 Flash (Consigliato, ~1s)"),
+        ("google/gemini-2.0-flash-001", "⚡ Gemini 2.0 Flash (Super Economico)"),
+        ("openai/gpt-4o-mini", "⚡ GPT-4o Mini (Alta Precisione)"),
+        ("qwen/qwen-2.5-vl-72b-instruct", "⚡ Qwen 2.5 VL 72B (Open Source)"),
+        ("mistralai/pixtral-12b", "⚡ Pixtral 12B (Leggero Open)")
+    ]
+
+    // Modelli Pesanti / Overkill (più costosi e lenti, non necessari per scansione tabelle)
+    private let overkillModels = [
+        ("openai/gpt-4o", "⚠️ GPT-4o (Overkill / Più Lento)"),
+        ("anthropic/claude-3.5-sonnet", "⚠️ Claude 3.5 Sonnet (Overkill / Costoso)"),
+        ("google/gemini-1.5-pro", "⚠️ Gemini 1.5 Pro (Overkill)")
     ]
 
     public init(
@@ -71,7 +82,6 @@ public struct SettingsView: View {
 
                                 Divider()
 
-                                // Scelta Provider
                                 Picker("Provider", selection: $settingsStore.visionProvider) {
                                     Text("OpenRouter API (Cloud)").tag("openrouter")
                                     Text("Modello Locale (Ollama / Local)").tag("local_llm")
@@ -79,8 +89,22 @@ public struct SettingsView: View {
                                 .pickerStyle(SegmentedPickerStyle())
 
                                 if settingsStore.visionProvider == "openrouter" {
-                                    // Configurazione OpenRouter
-                                    VStack(alignment: .leading, spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 14) {
+                                        // Avviso UX Modelli Consigliati vs Overkill
+                                        HStack(alignment: .top, spacing: 10) {
+                                            Image(systemName: "lightbulb.fill")
+                                                .font(.caption)
+                                                .foregroundColor(.brandOrange)
+                                            Text("Per la lettura di tabelle e ricevute cartacee, i modelli leggeri (Gemini 2.5 Flash, GPT-4o Mini) sono ideali, istantanei (1-2s) e costano frazioni di centesimo. Modelli come GPT-4o o Sonnet sono overkill e rallentano l'analisi.")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                                .lineSpacing(2)
+                                        }
+                                        .padding(10)
+                                        .background(Color.brandOrange.opacity(0.08))
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                                        // Inserimento Chiave API
                                         VStack(alignment: .leading, spacing: 6) {
                                             Text("Chiave API OpenRouter")
                                                 .font(.caption)
@@ -94,23 +118,99 @@ public struct SettingsView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                         }
 
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text("Modello Vision Selezionato")
+                                        // Selezione Modello
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text("Modello Vision")
                                                 .font(.caption)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.secondary)
 
-                                            Picker("Modello", selection: $settingsStore.openRouterModel) {
-                                                ForEach(popularOpenRouterModels, id: \.0) { model in
-                                                    Text(model.1).tag(model.0)
+                                            Menu {
+                                                Section("⚡ Modelli Consigliati & Leggeri") {
+                                                    ForEach(recommendedModels, id: \.0) { model in
+                                                        Button(action: {
+                                                            settingsStore.openRouterModel = model.0
+                                                            isCustomModelSelected = false
+                                                        }) {
+                                                            HStack {
+                                                                Text(model.1)
+                                                                if settingsStore.openRouterModel == model.0 && !isCustomModelSelected {
+                                                                    Image(systemName: "checkmark")
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
+
+                                                Section("⚠️ Modelli Pesanti (Overkill)") {
+                                                    ForEach(overkillModels, id: \.0) { model in
+                                                        Button(action: {
+                                                            settingsStore.openRouterModel = model.0
+                                                            isCustomModelSelected = false
+                                                        }) {
+                                                            HStack {
+                                                                Text(model.1)
+                                                                if settingsStore.openRouterModel == model.0 && !isCustomModelSelected {
+                                                                    Image(systemName: "checkmark")
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                Section("✏️ Personalizzato") {
+                                                    Button(action: {
+                                                        isCustomModelSelected = true
+                                                        customModelText = settingsStore.openRouterModel
+                                                    }) {
+                                                        HStack {
+                                                            Text("Inserisci ID Modello Personalizzato...")
+                                                            if isCustomModelSelected {
+                                                                Image(systemName: "checkmark")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Text(isCustomModelSelected ? "Personalizzato (\(settingsStore.openRouterModel))" : displayName(for: settingsStore.openRouterModel))
+                                                        .font(.subheadline)
+                                                        .foregroundColor(.primary)
+                                                    Spacer()
+                                                    Image(systemName: "chevron.up.chevron.down")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                .padding(10)
+                                                .background(Color.secondary.opacity(0.1))
+                                                .clipShape(RoundedRectangle(cornerRadius: 10))
                                             }
-                                            .pickerStyle(MenuPickerStyle())
-                                            .padding(6)
-                                            .background(Color.secondary.opacity(0.1))
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                            // Campo per modello personalizzato
+                                            if isCustomModelSelected {
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text("Inserisci lo slug del modello OpenRouter:")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+
+                                                    TextField("Es. meta-llama/llama-3.2-11b-vision-instruct", text: $customModelText)
+                                                        .font(.system(.caption, design: .monospaced))
+                                                        .autocorrectionDisabled(true)
+                                                        #if os(iOS)
+                                                        .textInputAutocapitalization(.never)
+                                                        #endif
+                                                        .padding(10)
+                                                        .background(Color.secondary.opacity(0.1))
+                                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                                        .onChange(of: customModelText) { _, newVal in
+                                                            settingsStore.openRouterModel = newVal.trimmingCharacters(in: .whitespaces)
+                                                        }
+                                                }
+                                                .padding(.top, 4)
+                                            }
                                         }
 
+                                        // Test Connessione OpenRouter
                                         HStack {
                                             Button(action: {
                                                 Task { await testOpenRouterConnection() }
@@ -157,7 +257,7 @@ public struct SettingsView: View {
                                         }
 
                                         VStack(alignment: .leading, spacing: 6) {
-                                            Text("Nome Modello (es. llava:latest o llama3.2-vision)")
+                                            Text("Nome Modello (es. llava:latest, llama3.2-vision)")
                                                 .font(.caption)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.secondary)
@@ -267,6 +367,13 @@ public struct SettingsView: View {
                         .fontWeight(.semibold)
                 }
             }
+            .onAppear {
+                let allPresets = (recommendedModels + overkillModels).map { $0.0 }
+                if !allPresets.contains(settingsStore.openRouterModel) {
+                    isCustomModelSelected = true
+                    customModelText = settingsStore.openRouterModel
+                }
+            }
             .alert("Svuotare Inventario?", isPresented: $showingResetAlert) {
                 Button("Annulla", role: .cancel) {}
                 Button("Svuota", role: .destructive) {
@@ -278,6 +385,13 @@ public struct SettingsView: View {
                 Text("Verranno rimosse tutte le liste di carico scansionate dal database locale.")
             }
         }
+    }
+
+    private func displayName(for modelId: String) -> String {
+        if let found = (recommendedModels + overkillModels).first(where: { $0.0 == modelId }) {
+            return found.1
+        }
+        return modelId
     }
 
     @ViewBuilder
@@ -324,7 +438,7 @@ public struct SettingsView: View {
             req.setValue("Bearer \(settingsStore.openRouterApiKey)", forHTTPHeaderField: "Authorization")
             let (data, resp) = try await URLSession.shared.data(for: req)
             if let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) {
-                pingOpenRouterStatus = "Connesso con Successo!"
+                pingOpenRouterStatus = "OK (Autenticato)"
                 HapticFeedback.notification(.success)
             } else {
                 let err = String(data: data, encoding: .utf8) ?? "Errore chiave"

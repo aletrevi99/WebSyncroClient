@@ -80,3 +80,4 @@ final class VisionLLMServiceTests: XCTestCase {
         XCTAssertEqual(batch.items[0].title, "La ragazza con l'orecchino di perla")
     }
 }
+

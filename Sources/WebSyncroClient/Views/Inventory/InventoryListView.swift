@@ -14,14 +14,14 @@ public enum InventoryFilter: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
 }
 
-/// Schermata per la consultazione e gestione dell'inventario con analisi AI Vision e deduplicazione
+/// Schermata per la consultazione e gestione dell'inventario con tracciamento quantità, AI Vision e deduplicazione
 public struct InventoryListView: View {
     @ObservedObject var inventoryStore: InventoryStore
     @StateObject private var dashboardViewModel: DashboardViewModel
     @ObservedObject var accountStore: AccountStore
     @ObservedObject var settingsStore: AppSettingsStore
 
-    @State private var selectedFilter: InventoryFilter = .unsold
+    @State private var selectedFilter: InventoryFilter = .all
     @State private var searchText = ""
     @State private var showingCameraScanner = false
     @State private var showingReviewSheet = false
@@ -74,13 +74,13 @@ public struct InventoryListView: View {
             case .all:
                 matchesCategory = true
             case .unsold:
-                matchesCategory = (entry.status == .unsoldInShop)
+                matchesCategory = entry.status.hasRemainingInShop
             case .sold:
-                matchesCategory = entry.status.isSold
+                matchesCategory = entry.status.isFullySold || entry.status.isPartiallySold
             case .discounted:
-                matchesCategory = (entry.status == .unsoldInShop && entry.item.currentStage() == .discounted50)
+                matchesCategory = (entry.status.hasRemainingInShop && entry.item.currentStage() == .discounted50)
             case .expiring:
-                matchesCategory = (entry.status == .unsoldInShop && entry.item.currentStage() == .maxRealization)
+                matchesCategory = (entry.status.hasRemainingInShop && entry.item.currentStage() == .maxRealization)
             }
 
             let matchesSearch = searchText.isEmpty ||
@@ -92,11 +92,20 @@ public struct InventoryListView: View {
     }
 
     private var unsoldCount: Int {
-        reconciledList.filter { $0.status == .unsoldInShop }.count
+        reconciledList.reduce(0) { $0 + $1.status.remainingInShopCount }
     }
 
     private var soldCount: Int {
-        reconciledList.filter { $0.status.isSold }.count
+        reconciledList.reduce(0) { sum, entry in
+            switch entry.status {
+            case .unsoldInShop:
+                return sum
+            case .partiallySold(let matured, let nonMatured, _, _, _):
+                return sum + matured + nonMatured
+            case .fullySold(let matured, let nonMatured, _):
+                return sum + matured + nonMatured
+            }
+        }
     }
 
     private var estimatedUnsoldTotal: Decimal {
@@ -186,17 +195,9 @@ public struct InventoryListView: View {
             .adaptiveLargeTitle()
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button(action: {
-                            showingCameraScanner = true
-                        }) {
-                            Label("Scatta Foto con Fotocamera", systemImage: "camera.fill")
-                        }
-
-                        #if canImport(PhotosUI)
-                        // Selezione dalla Galleria Foto
-                        #endif
-                    } label: {
+                    Button(action: {
+                        showingCameraScanner = true
+                    }) {
                         HStack(spacing: 4) {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 14))
@@ -282,7 +283,7 @@ public struct InventoryListView: View {
                         Image(systemName: "storefront.fill")
                             .font(.caption)
                             .foregroundColor(.blue)
-                        Text("\(unsoldCount) in negozio")
+                        Text("\(unsoldCount) pz in negozio")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -293,7 +294,7 @@ public struct InventoryListView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.caption)
                             .foregroundColor(.green)
-                        Text("\(soldCount) venduti")
+                        Text("\(soldCount) pz venduti")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -342,11 +343,12 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Riga Articolo Inventario
+    // MARK: - Riga Articolo Inventario con Dettaglio Quantità e Prezzi
     @ViewBuilder
     private func inventoryItemRow(_ item: InventoryItem, status: InventorySaleStatus) -> some View {
         LiquidGlassCard(cornerRadius: 20, padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
+                // Header Riga
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(item.title)
@@ -368,19 +370,28 @@ public struct InventoryListView: View {
                             Text("Carico: \(item.formattedLoadDate)")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
+
+                            Text("•")
+                                .font(.caption2)
+                                .foregroundColor(.secondary.opacity(0.5))
+
+                            Text("Qtà: \(item.quantity) pz")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
                         }
                     }
 
                     Spacer()
 
-                    saleStatusBadge(status)
+                    saleStatusBadge(status, item: item)
                 }
 
                 Divider()
                     .background(Color.white.opacity(0.06))
 
-                // Timeline Ciclo di Vita
-                if status == .unsoldInShop {
+                // Timeline Ciclo di Vita (se ancora presente in negozio)
+                if status.hasRemainingInShop {
                     let days = item.daysSinceLoad()
                     let stage = item.currentStage()
                     let next = item.daysUntilNextStage()
@@ -419,7 +430,7 @@ public struct InventoryListView: View {
                     }
                 }
 
-                // Dettagli Prezzi
+                // Dettagli Prezzi (Unitario e Totale)
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Prezzo al Pubblico:")
@@ -432,7 +443,7 @@ public struct InventoryListView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary)
 
-                            if item.currentStage() == .discounted50 && status == .unsoldInShop {
+                            if item.currentStage() == .discounted50 && status.hasRemainingInShop {
                                 Text(CurrencyFormatter.format(decimal: item.exposedPriceInitial))
                                     .font(.caption2)
                                     .strikethrough()
@@ -444,15 +455,54 @@ public struct InventoryListView: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text(status == .unsoldInShop ? "Tuo Rimborso Netto:" : "Importo Realizzato:")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                        let remaining = status.remainingInShopCount
+                        let unitPayout = item.currentClientPayout()
 
-                        Text(CurrencyFormatter.format(decimal: item.currentClientPayout()))
-                            .font(.system(.headline, design: .rounded))
-                            .fontWeight(.bold)
-                            .monospacedDigit()
-                            .foregroundColor(status.isSold ? .green : .brandOrange)
+                        if status.isFullySold {
+                            Text("Importo Totale Realizzato:")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+
+                            Text(CurrencyFormatter.format(decimal: item.totalCurrentClientPayout(for: item.quantity)))
+                                .font(.system(.headline, design: .rounded))
+                                .fontWeight(.bold)
+                                .monospacedDigit()
+                                .foregroundColor(.green)
+                        } else if status.isPartiallySold {
+                            Text("Residuo in Negozio (\(remaining) pz):")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+
+                            HStack(spacing: 4) {
+                                Text("\(CurrencyFormatter.format(decimal: unitPayout)) cad. •")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+
+                                Text(CurrencyFormatter.format(decimal: item.totalCurrentClientPayout(for: remaining)))
+                                    .font(.system(.headline, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .monospacedDigit()
+                                    .foregroundColor(.brandOrange)
+                            }
+                        } else {
+                            Text(item.quantity > 1 ? "Tuo Rimborso (\(item.quantity) pz):" : "Tuo Rimborso Netto:")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+
+                            HStack(spacing: 4) {
+                                if item.quantity > 1 {
+                                    Text("\(CurrencyFormatter.format(decimal: unitPayout)) cad. •")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Text(CurrencyFormatter.format(decimal: item.totalCurrentClientPayout(for: item.quantity)))
+                                    .font(.system(.headline, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .monospacedDigit()
+                                    .foregroundColor(.brandOrange)
+                            }
+                        }
                     }
                 }
             }
@@ -461,13 +511,13 @@ public struct InventoryListView: View {
     }
 
     @ViewBuilder
-    private func saleStatusBadge(_ status: InventorySaleStatus) -> some View {
+    private func saleStatusBadge(_ status: InventorySaleStatus, item: InventoryItem) -> some View {
         switch status {
-        case .soldMatured(let date, _):
+        case .fullySold(let matured, let nonMatured, _):
             HStack(spacing: 4) {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.caption2)
-                Text("Maturato (\(date))")
+                Text(nonMatured > 0 ? "Venduto (\(matured) Mat, \(nonMatured) Rec)" : "Maturato (\(item.quantity) pz)")
                     .font(.system(size: 11, weight: .bold))
             }
             .padding(.horizontal, 8)
@@ -476,12 +526,12 @@ public struct InventoryListView: View {
             .foregroundColor(.green)
             .clipShape(Capsule())
 
-        case .soldInRecesso(let date, _):
+        case .partiallySold(let matured, let nonMatured, let remaining, _, _):
             HStack(spacing: 4) {
-                Image(systemName: "hourglass")
+                Image(systemName: "circle.lefthalf.filled")
                     .font(.caption2)
-                Text("In Recesso (\(date))")
-                    .font(.system(size: 11, weight: .bold))
+                Text("\(matured + nonMatured)/\(item.quantity) venduti • \(remaining) in negozio")
+                    .font(.system(size: 10, weight: .bold))
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -489,11 +539,11 @@ public struct InventoryListView: View {
             .foregroundColor(.brandOrange)
             .clipShape(Capsule())
 
-        case .unsoldInShop:
+        case .unsoldInShop(let qty):
             HStack(spacing: 4) {
                 Image(systemName: "storefront.fill")
                     .font(.caption2)
-                Text("In Negozio")
+                Text("In Negozio (\(qty) pz)")
                     .font(.system(size: 11, weight: .semibold))
             }
             .padding(.horizontal, 8)

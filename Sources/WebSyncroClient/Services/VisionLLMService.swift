@@ -365,3 +365,4 @@ public final class LocalVisionLLMService: VisionLLMServiceProtocol {
         return try OpenRouterVisionService.parseBatchJSON(data: jsonData, shopId: shopId, userCardCode: userCardCode)
     }
 }
+

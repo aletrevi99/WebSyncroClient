@@ -26,7 +26,7 @@ public struct DeduplicationReport: Sendable {
     }
 }
 
-/// Gestore del database locale dell'inventario, isolato per utente e negozio, con motore di deduplicazione e riconciliazione
+/// Gestore del database locale dell'inventario, isolato per utente e negozio, con tracciamento quantità e deduplicazione
 @MainActor
 public final class InventoryStore: ObservableObject {
     public static let shared = InventoryStore()
@@ -50,7 +50,6 @@ public final class InventoryStore: ObservableObject {
            let decoded = try? JSONDecoder().decode([InventoryBatch].self, from: data) {
             self.batches = decoded
         } else {
-            // Retrocompatibilità
             if let legacyData = userDefaults.data(forKey: "it.websyncro.client.inventory_batches"),
                let legacyDecoded = try? JSONDecoder().decode([InventoryBatch].self, from: legacyData) {
                 self.batches = legacyDecoded
@@ -69,7 +68,6 @@ public final class InventoryStore: ObservableObject {
 
     // MARK: - Filtri per Negozio & Utente Scoped
 
-    /// Ritorna solo le liste appartenenti allo specifico negozio e codice tessera utente
     public func batches(for shopId: String, userCardCode: String) -> [InventoryBatch] {
         batches.filter { batch in
             let matchShop = batch.shopId.isEmpty || batch.shopId.caseInsensitiveCompare(shopId) == .orderedSame
@@ -78,14 +76,12 @@ public final class InventoryStore: ObservableObject {
         }
     }
 
-    /// Ritorna tutti gli articoli dell'utente attivo nel negozio attivo
     public func items(for shopId: String, userCardCode: String) -> [InventoryItem] {
         batches(for: shopId, userCardCode: userCardCode).flatMap { $0.items }
     }
 
     // MARK: - Motore di Deduplicazione
 
-    /// Analizza gli articoli del nuovo lotto e li confronta con il DB locale per rilevare duplicati
     public func analyzeBatchForDuplicates(
         batch: InventoryBatch,
         shopId: String,
@@ -100,7 +96,6 @@ public final class InventoryStore: ObservableObject {
 
         for candidate in batch.items {
             if let existingItem = existingMap[candidate.id] {
-                // Controlla se i dati di prezzo/quantità sono cambiati
                 if existingItem.agreedPrice != candidate.agreedPrice ||
                    existingItem.quantity != candidate.quantity ||
                    existingItem.exposedPriceInitial != candidate.exposedPriceInitial {
@@ -120,7 +115,6 @@ public final class InventoryStore: ObservableObject {
         )
     }
 
-    /// Aggiunge o aggiorna un lotto applicando la logica di deduplicazione selezionata dall'utente
     public func addBatchWithDeduplication(
         batch: InventoryBatch,
         overwriteDuplicates: Bool = false
@@ -139,7 +133,6 @@ public final class InventoryStore: ObservableObject {
         for item in mutableBatch.items {
             if existingIds.contains(item.id) {
                 if overwriteDuplicates {
-                    // Rimuovi la versione precedente e inserisci la nuova
                     deleteItem(id: item.id, shopId: batch.shopId, userCardCode: batch.userCardCode)
                     finalItems.append(item)
                     updatedCount += 1
@@ -162,14 +155,12 @@ public final class InventoryStore: ObservableObject {
         return (addedCount, skippedCount, updatedCount)
     }
 
-    /// Rimuove un'intera lista di carico
     public func deleteBatch(id: UUID) {
         batches.removeAll(where: { $0.id == id })
         saveBatches()
         HapticFeedback.impact(.light)
     }
 
-    /// Rimuove un singolo articolo da tutte le liste dell'utente
     public func deleteItem(id: String, shopId: String? = nil, userCardCode: String? = nil) {
         let cleanId = id.replacingOccurrences(of: ".", with: "")
         for i in 0..<batches.count {
@@ -185,7 +176,7 @@ public final class InventoryStore: ObservableObject {
         saveBatches()
     }
 
-    // MARK: - Motore di Riconciliazione (In Carico vs Vendite Online)
+    // MARK: - Motore di Riconciliazione (Tracciamento Quantità e Vendite Parziali)
 
     public func saleStatus(
         for item: InventoryItem,
@@ -194,15 +185,34 @@ public final class InventoryStore: ObservableObject {
     ) -> InventorySaleStatus {
         let normalizedId = item.id
 
-        if let maturedItem = maturedReport?.items.first(where: { $0.id == normalizedId }) {
-            return .soldMatured(date: maturedItem.dateString, amount: maturedItem.amount)
-        }
+        let maturedMatches = maturedReport?.items.filter { $0.id == normalizedId } ?? []
+        let nonMaturedMatches = nonMaturedReport?.items.filter { $0.id == normalizedId } ?? []
 
-        if let nonMaturedItem = nonMaturedReport?.items.first(where: { $0.id == normalizedId }) {
-            return .soldInRecesso(date: nonMaturedItem.dateString, amount: nonMaturedItem.amount)
-        }
+        let maturedCount = maturedMatches.count
+        let nonMaturedCount = nonMaturedMatches.count
+        let totalSoldCount = maturedCount + nonMaturedCount
 
-        return .unsoldInShop
+        let maturedAmount = maturedMatches.reduce(Decimal.zero) { $0 + $1.amount }
+        let nonMaturedAmount = nonMaturedMatches.reduce(Decimal.zero) { $0 + $1.amount }
+
+        if totalSoldCount == 0 {
+            return .unsoldInShop(quantity: item.quantity)
+        } else if totalSoldCount >= item.quantity {
+            return .fullySold(
+                maturedQty: maturedCount,
+                inRecessoQty: nonMaturedCount,
+                totalAmount: maturedAmount + nonMaturedAmount
+            )
+        } else {
+            let remaining = max(0, item.quantity - totalSoldCount)
+            return .partiallySold(
+                soldMaturedQty: maturedCount,
+                soldInRecessoQty: nonMaturedCount,
+                remainingQty: remaining,
+                maturedAmount: maturedAmount,
+                inRecessoAmount: nonMaturedAmount
+            )
+        }
     }
 
     public func reconciledItems(
@@ -230,9 +240,9 @@ public final class InventoryStore: ObservableObject {
             shopId: shopId,
             userCardCode: userCardCode
         )
-        return list.filter { $0.status == .unsoldInShop }
-            .reduce(Decimal.zero) { sum, entry in
-                sum + (entry.item.currentClientPayout() * Decimal(entry.item.quantity))
-            }
+        return list.reduce(Decimal.zero) { sum, entry in
+            let remainingCount = entry.status.remainingInShopCount
+            return sum + entry.item.totalCurrentClientPayout(for: remainingCount)
+        }
     }
 }

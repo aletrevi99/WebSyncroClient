@@ -7,18 +7,41 @@ public enum ExposureStage: String, Codable, Sendable {
     case maxRealization = "Maggior Realizzo / Scaduto"
 }
 
-/// Stato di vendita dell'oggetto riconciliato con i dati del server WebSyncro
+/// Stato di vendita dettagliato con tracciamento delle quantità e vendite parziali
 public enum InventorySaleStatus: Equatable, Sendable {
-    case soldMatured(date: String, amount: Decimal)     // Venduto e maturato (incassabile)
-    case soldInRecesso(date: String, amount: Decimal)   // Venduto ma in periodo di recesso (15 gg)
-    case unsoldInShop                                   // Ancora fisicamente esposto in negozio
+    case unsoldInShop(quantity: Int)
+    case partiallySold(soldMaturedQty: Int, soldInRecessoQty: Int, remainingQty: Int, maturedAmount: Decimal, inRecessoAmount: Decimal)
+    case fullySold(maturedQty: Int, inRecessoQty: Int, totalAmount: Decimal)
 
-    public var isSold: Bool {
+    public var isFullySold: Bool {
+        if case .fullySold = self { return true }
+        return false
+    }
+
+    public var isPartiallySold: Bool {
+        if case .partiallySold = self { return true }
+        return false
+    }
+
+    public var hasRemainingInShop: Bool {
         switch self {
-        case .soldMatured, .soldInRecesso:
-            return true
-        case .unsoldInShop:
+        case .unsoldInShop(let qty):
+            return qty > 0
+        case .partiallySold(_, _, let remaining, _, _):
+            return remaining > 0
+        case .fullySold:
             return false
+        }
+    }
+
+    public var remainingInShopCount: Int {
+        switch self {
+        case .unsoldInShop(let qty):
+            return qty
+        case .partiallySold(_, _, let remaining, _, _):
+            return remaining
+        case .fullySold:
+            return 0
         }
     }
 }
@@ -31,10 +54,10 @@ public struct InventoryItem: Identifiable, Codable, Sendable, Equatable {
     public var loadDate: Date                   // Data di presa in carico (es. 11/06/2026)
     public var title: String                    // Descrizione/Titolo dell'oggetto
     public var category: String                 // Categoria merceologica (es. "LI" per Libri)
-    public var quantity: Int                    // Quantità caricata
-    public var agreedPrice: Decimal             // Prezzo totale concordato iniziale
-    public var clientPayoutInitial: Decimal     // Rimborso netto concordato iniziale (es. 1,35 €)
-    public var exposedPriceInitial: Decimal     // Prezzo esposto al pubblico iniziale (es. 3,00 €)
+    public var quantity: Int                    // Quantità caricata iniziale
+    public var agreedPrice: Decimal             // Prezzo unitario concordato iniziale
+    public var clientPayoutInitial: Decimal     // Rimborso netto unitario concordato iniziale (es. 1,35 €)
+    public var exposedPriceInitial: Decimal     // Prezzo unitario esposto al pubblico iniziale (es. 3,00 €)
     public var shopId: String                   // Negozio di appartenenza (es. "exnovomercatino")
     public var userCardCode: String             // Codice tessera utente proprietario (es. "CLI001")
 
@@ -58,7 +81,7 @@ public struct InventoryItem: Identifiable, Codable, Sendable, Equatable {
         self.loadDate = loadDate
         self.title = title
         self.category = category
-        self.quantity = quantity
+        self.quantity = max(1, quantity)
         self.agreedPrice = agreedPrice
         self.clientPayoutInitial = clientPayoutInitial
         self.exposedPriceInitial = exposedPriceInitial
@@ -109,6 +132,10 @@ public struct InventoryItem: Identifiable, Codable, Sendable, Equatable {
         case .maxRealization:
             return (clientPayoutInitial * Decimal(0.5))
         }
+    }
+
+    public func totalCurrentClientPayout(for remainingQty: Int, relativeTo date: Date = Date()) -> Decimal {
+        return currentClientPayout(relativeTo: date) * Decimal(remainingQty)
     }
 
     public func daysUntilNextStage(relativeTo date: Date = Date()) -> (days: Int, nextStage: ExposureStage?) {
@@ -164,7 +191,7 @@ public struct InventoryBatch: Identifiable, Codable, Sendable {
         self.shopId = shopId
         self.userCardCode = userCardCode
         self.totalPieces = totalPieces > 0 ? totalPieces : items.reduce(0) { $0 + $1.quantity }
-        self.totalAgreedValue = totalAgreedValue > 0 ? totalAgreedValue : items.reduce(Decimal.zero) { $0 + $1.agreedPrice }
+        self.totalAgreedValue = totalAgreedValue > 0 ? totalAgreedValue : items.reduce(Decimal.zero) { $0 + ($1.agreedPrice * Decimal($1.quantity)) }
         self.totalExposedValue = totalExposedValue > 0 ? totalExposedValue : items.reduce(Decimal.zero) { $0 + ($1.exposedPriceInitial * Decimal($1.quantity)) }
         self.items = items
     }

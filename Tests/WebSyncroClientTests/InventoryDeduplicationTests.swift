@@ -71,3 +71,4 @@ final class InventoryDeduplicationTests: XCTestCase {
         XCTAssertEqual(store.items(for: shop, userCardCode: user2).count, 0)
     }
 }
+
