@@ -59,8 +59,15 @@ public struct ShopInfoView: View {
                 .padding(.top, 8)
             }
             .background(LiquidGlassBackground())
-            .navigationTitle("Negozio")
             .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Negozio")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+                #endif
+
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
                         HapticFeedback.selection()

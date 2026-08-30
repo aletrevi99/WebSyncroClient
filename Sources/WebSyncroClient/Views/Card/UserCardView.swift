@@ -69,7 +69,15 @@ public struct UserCardView: View {
                 .padding(.top, 8)
             }
             .background(LiquidGlassBackground())
-            .navigationTitle("Card")
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Card")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+                #endif
+            }
         }
     }
 

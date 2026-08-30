@@ -3,11 +3,12 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Sottomenu dedicato a Debug, Suite di Test, Diagnostica Avanzata ed Esportazione Dati
+/// Sottomenu dedicato a Debug, Suite di Test, Diagnostica Avanzata, Log HTTPS ed Esportazione Dati
 public struct DebugSettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
     @ObservedObject var inventoryStore: InventoryStore
+    @ObservedObject private var networkLogStore = NetworkLogStore.shared
 
     @State private var pingWebSyncroStatus: String?
     @State private var isPingingWebSyncro = false
@@ -16,6 +17,7 @@ public struct DebugSettingsView: View {
     @State private var isPingingOpenRouter = false
 
     @State private var showingFileBrowser = false
+    @State private var showingNetworkLogs = false
     @State private var showingResetAlert = false
     @State private var resetConfirmationMessage: String?
 
@@ -210,7 +212,43 @@ public struct DebugSettingsView: View {
                         }
                     }
 
-                    // Sezione 2: Esportazione Dati & File System
+                    // Sezione 2: Log HTTPS & Traffico di Rete
+                    LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            Label("Traffico di Rete & Log", systemImage: "network")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Divider()
+
+                            Button(action: {
+                                showingNetworkLogs = true
+                            }) {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "point.3.connected.trianglepath.dotted")
+                                        .foregroundColor(.blue)
+                                    Text("Log Chiamate HTTPS")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Text("\(networkLogStore.logs.count)")
+                                        .font(.caption2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.blue)
+                                        .padding(.horizontal, 7)
+                                        .padding(.vertical, 2)
+                                        .background(Color.blue.opacity(0.12), in: Capsule())
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+
+                    // Sezione 3: Esportazione Dati & File System
                     LiquidGlassCard(cornerRadius: 22, padding: 18) {
                         VStack(alignment: .leading, spacing: 14) {
                             Label("File & Esportazione Dati", systemImage: "folder.fill")
@@ -298,7 +336,7 @@ public struct DebugSettingsView: View {
                         }
                     }
 
-                    // Sezione 3: Dati Runtime & Sistema
+                    // Sezione 4: Dati Runtime & Sistema
                     LiquidGlassCard(cornerRadius: 22, padding: 18) {
                         VStack(alignment: .leading, spacing: 14) {
                             Label("Informazioni di Sistema", systemImage: "cpu")
@@ -321,7 +359,7 @@ public struct DebugSettingsView: View {
                         }
                     }
 
-                    // Sezione 4: Gestione Database & Manutenzione
+                    // Sezione 5: Gestione Database & Manutenzione
                     LiquidGlassCard(cornerRadius: 22, padding: 18) {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Zona Manutenzione", systemImage: "trash.fill")
@@ -352,6 +390,9 @@ public struct DebugSettingsView: View {
         .navigationTitle("Debug & Diagnostica")
         .sheet(isPresented: $showingFileBrowser) {
             AppFilesBrowserView()
+        }
+        .sheet(isPresented: $showingNetworkLogs) {
+            NetworkLogsView()
         }
         .alert("Svuotare Inventario?", isPresented: $showingResetAlert) {
             Button("Annulla", role: .cancel) {}

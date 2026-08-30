@@ -64,11 +64,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/plain, text/html, */*", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw WebSyncroError.networkError("Risposta non HTTP")
-        }
+        let (data, httpResponse) = try await executeLoggedRequest(request)
 
         if httpResponse.statusCode == 404 {
             throw WebSyncroError.userReportNotFound(shopId: cleanShopId, userId: cleanUserId, snapshot: latestSnapshot)
@@ -160,9 +156,9 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.httpMethod = "GET"
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
 
-        let (data, response) = try await session.data(for: request)
+        let (data, httpResponse) = try await executeLoggedRequest(request)
 
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+        guard (200...299).contains(httpResponse.statusCode) else {
             return []
         }
 
@@ -215,21 +211,16 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html, */*", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
+        let (data, httpResponse) = try await executeLoggedRequest(request)
 
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+        guard (200...299).contains(httpResponse.statusCode) else {
             return []
         }
 
-        let html = decodeDataToString(data)
-        let filenames = SalesParser.extractNotificationFilenames(from: html)
+        let htmlString = decodeDataToString(data)
+        let filenames = SalesParser.extractNotificationFilenames(from: htmlString)
 
-        if filenames.isEmpty {
-            return []
-        }
-
-        // Scarica le singole notifiche in parallelo
-        return await withTaskGroup(of: ShopNotification?.self, returning: [ShopNotification].self) { group in
+        return try await withThrowingTaskGroup(of: ShopNotification?.self) { group in
             for filename in filenames {
                 group.addTask {
                     let fileURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/Notifiche/\(filename)"
@@ -239,8 +230,8 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
                     req.httpMethod = "GET"
                     req.setValue(self.userAgent, forHTTPHeaderField: "User-Agent")
 
-                    guard let (fileData, fileResp) = try? await self.session.data(for: req),
-                          let http = fileResp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                    guard let (fileData, fileResp) = try? await self.executeLoggedRequest(req),
+                          (200...299).contains(fileResp.statusCode) else {
                         return nil
                     }
 
@@ -274,8 +265,8 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.httpMethod = "GET"
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
 
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+        let (data, httpResponse) = try await executeLoggedRequest(request)
+        guard (200...299).contains(httpResponse.statusCode) else {
             return []
         }
 
@@ -298,11 +289,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/plain, text/html, */*", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw WebSyncroError.networkError("Risposta non HTTP")
-        }
+        let (data, httpResponse) = try await executeLoggedRequest(request)
 
         if httpResponse.statusCode == 404 {
             return ""
@@ -335,11 +322,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw WebSyncroError.networkError("Risposta non HTTP")
-        }
+        let (data, httpResponse) = try await executeLoggedRequest(request)
 
         if httpResponse.statusCode == 404 {
             throw WebSyncroError.shopNotFound(shopId: cleanShopId)
@@ -369,6 +352,47 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         }
 
         return uniqueSnapshots.sorted(by: >)
+    }
+
+    private func executeLoggedRequest(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        let start = Date()
+        let method = request.httpMethod ?? "GET"
+        let urlString = request.url?.absoluteString ?? ""
+        do {
+            let (data, response) = try await session.data(for: request)
+            let durationMs = Int(Date().timeIntervalSince(start) * 1000)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw WebSyncroError.networkError("Risposta non HTTP")
+            }
+
+            let snippet = String(data: data.prefix(300), encoding: .utf8) ?? "\(data.count) bytes"
+            Task { @MainActor in
+                NetworkLogStore.shared.addLog(
+                    NetworkCallLog(
+                        method: method,
+                        urlString: urlString,
+                        statusCode: httpResponse.statusCode,
+                        durationMs: durationMs,
+                        responseSnippet: snippet
+                    )
+                )
+            }
+            return (data, httpResponse)
+        } catch {
+            let durationMs = Int(Date().timeIntervalSince(start) * 1000)
+            Task { @MainActor in
+                NetworkLogStore.shared.addLog(
+                    NetworkCallLog(
+                        method: method,
+                        urlString: urlString,
+                        statusCode: (error as? URLError)?.errorCode,
+                        durationMs: durationMs,
+                        errorDescription: error.localizedDescription
+                    )
+                )
+            }
+            throw error
+        }
     }
 
     private func decodeDataToString(_ data: Data) -> String {

@@ -58,7 +58,15 @@ public struct NewsListView: View {
                 .padding(.top, 8)
             }
             .background(LiquidGlassBackground())
-            .navigationTitle("Notizie")
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Notizie")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+                #endif
+            }
             .refreshable {
                 await loadNotifications()
             }
