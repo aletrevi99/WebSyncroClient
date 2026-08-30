@@ -99,6 +99,41 @@ public final class AccountManagerViewModel: ObservableObject {
         isAddingAccount = true
     }
 
+    public func handleScannedQRCode(_ qrString: String) -> Bool {
+        guard let scanned = QRCodeParser.parse(qrString: qrString) else {
+            formValidationError = "Codice QR non valido per il mercatino"
+            HapticFeedback.notification(.error)
+            return false
+        }
+
+        // Cerca se corrisponde a un negozio noto
+        let rawLower = scanned.rawShop.lowercased()
+        if let matched = availableShops.first(where: {
+            $0.name.lowercased().contains(rawLower) ||
+            $0.slug.lowercased().contains(rawLower) ||
+            rawLower.contains($0.name.lowercased()) ||
+            rawLower.contains($0.slug.lowercased())
+        }) {
+            formShopId = matched.slug
+            formAlias = matched.name
+            isShopLocked = true
+        } else if rawLower.contains("ex novo") || rawLower.contains("exnovo") {
+            formShopId = "exnovomercatino"
+            formAlias = "EX Novo"
+            isShopLocked = true
+        } else {
+            formShopId = scanned.rawShop
+            formAlias = scanned.rawShop
+            isShopLocked = false
+        }
+
+        formCardCode = scanned.cardCode
+        formPin = scanned.pin
+        formValidationError = nil
+        HapticFeedback.notification(.success)
+        return true
+    }
+
     public func saveAccount() -> Bool {
         let cleanShop = formShopId.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanCard = formCardCode.trimmingCharacters(in: .whitespacesAndNewlines)

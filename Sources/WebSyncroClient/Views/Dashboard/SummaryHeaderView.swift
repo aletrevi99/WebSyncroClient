@@ -8,6 +8,19 @@ public struct SummaryHeaderView: View {
         self.viewModel = viewModel
     }
 
+    private var shouldShowNotice: Bool {
+        guard let notice = viewModel.activeReport?.optionalNotice, !notice.isEmpty else {
+            return false
+        }
+        let cleanNotice = notice.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        // Se è la frase di default ridondante sul recesso, non mostrarla
+        if cleanNotice.contains("articoli venduti ma non rimborsabile") ||
+           cleanNotice.contains("venduto non rimborsabile") {
+            return false
+        }
+        return true
+    }
+
     public var body: some View {
         VStack(spacing: 14) {
             // Selettore Principale: Maturato vs In Recesso
@@ -33,29 +46,25 @@ public struct SummaryHeaderView: View {
                 }
             }
 
-            // Card Principale con Totale Attivo
+            // Card Principale con Totale Attivo (perfettamente simmetrica tra Maturato e In Recesso)
             LiquidGlassCard(cornerRadius: 24, padding: 20) {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(viewModel.selectedTab == .matured ? "TOTALE MATURATO (DISPONIBILE)" : "VENDUTO IN DIRITTO DI RECESSO")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(viewModel.selectedTab == .matured ? .green : .brandOrange)
-                                .tracking(0.5)
+                VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(viewModel.selectedTab == .matured ? "VENDUTO MATURATO (DISPONIBILE)" : "VENDUTO IN DIRITTO DI RECESSO")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(viewModel.selectedTab == .matured ? .green : .brandOrange)
+                            .tracking(0.5)
 
-                            if let account = viewModel.activeAccount {
-                                Text(account.displayName)
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.secondary)
-                            }
+                        if let account = viewModel.activeAccount {
+                            Text(account.displayName)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
                         }
-
-                        Spacer()
                     }
 
-                    // Importo principale in evidenza
+                    // Importo principale in evidenza (uguale struttura in entrambe le schede)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         if let report = viewModel.activeReport {
                             Text(CurrencyFormatter.format(decimal: report.totalEarned))
@@ -77,7 +86,7 @@ public struct SummaryHeaderView: View {
                         HStack(spacing: 6) {
                             Image(systemName: viewModel.selectedTab == .matured ? "cart.fill" : "hourglass")
                                 .font(.caption)
-                                .foregroundColor(.brandOrange)
+                                .foregroundColor(viewModel.selectedTab == .matured ? .green : .brandOrange)
                             Text("\(viewModel.activeReport?.itemsCount ?? 0) articoli")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -122,12 +131,12 @@ public struct SummaryHeaderView: View {
                 }
             }
 
-            // Avviso del negozio se presente nel file maturato.txt (<#FRASEOPZIONALE>)
-            if let notice = viewModel.activeReport?.optionalNotice, !notice.isEmpty {
+            // Avviso del negozio se presente e rilevante
+            if shouldShowNotice, let notice = viewModel.activeReport?.optionalNotice {
                 LiquidGlassCard(cornerRadius: 18, padding: 14) {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 16))
+                            .font(.system(size: 18))
                             .foregroundColor(.brandOrange)
                             .padding(.top, 2)
 

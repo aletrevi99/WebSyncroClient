@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Modale per inserire o modificare i parametri di un account negozio
+/// Modale per inserire o modificare i parametri di un account negozio, anche tramite scansione QR
 public struct AddAccountSheet: View {
     @ObservedObject var viewModel: AccountManagerViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showingQRScanner = false
 
     public init(viewModel: AccountManagerViewModel) {
         self.viewModel = viewModel
@@ -15,25 +16,59 @@ public struct AddAccountSheet: View {
                 LiquidGlassBackground()
 
                 ScrollView {
-                    VStack(spacing: 20) {
-                        // Card informativa
-                        LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "person.badge.key.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.brandOrange)
-                                    .padding(.top, 2)
+                    VStack(spacing: 18) {
+                        // Pulsante Scansione Codice QR
+                        Button(action: {
+                            HapticFeedback.selection()
+                            showingQRScanner = true
+                        }) {
+                            LiquidGlassCard(cornerRadius: 20, padding: 16) {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.brandOrange.opacity(0.15))
+                                            .frame(width: 44, height: 44)
 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Credenziali Account Negozio")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                    Text("Seleziona il negozio affiliato, inserisci il codice alfanumerico della tua tessera cliente e il tuo PIN numerico per sincronizzare le vendite.")
+                                        Image(systemName: "qrcode.viewfinder")
+                                            .font(.system(size: 22, weight: .semibold))
+                                            .foregroundColor(.brandOrange)
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Scansiona Codice QR")
+                                            .font(.system(.headline, design: .rounded))
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+
+                                        Text("Inquadra il QR della tessera per compilare i dati in 1 secondo")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.secondary.opacity(0.6))
                                 }
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
+
+                        // Divisore O Inserimento Manuale
+                        HStack(spacing: 12) {
+                            Rectangle()
+                                .fill(Color.secondary.opacity(0.15))
+                                .frame(height: 1)
+                            Text("OPPURE INSERISCI MANUALMENTE")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.secondary)
+                                .tracking(0.5)
+                            Rectangle()
+                                .fill(Color.secondary.opacity(0.15))
+                                .frame(height: 1)
+                        }
+                        .padding(.vertical, 2)
 
                         // Selezione rapida negozi noti
                         if !viewModel.availableShops.isEmpty {
@@ -203,6 +238,40 @@ public struct AddAccountSheet: View {
                     }
                     .fontWeight(.bold)
                     .foregroundColor(.brandOrange)
+                }
+            }
+            .sheet(isPresented: $showingQRScanner) {
+                NavigationStack {
+                    ZStack {
+                        QRCodeScannerView { code in
+                            _ = viewModel.handleScannedQRCode(code)
+                        }
+
+                        // Mirino grafico overlay per scansione
+                        VStack {
+                            Text("Inquadra il codice QR della tua tessera")
+                                .font(.system(.subheadline, design: .rounded))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                                .padding(.top, 24)
+
+                            Spacer()
+                        }
+                    }
+                    .navigationTitle("Scansiona QR")
+                    .adaptiveInlineTitle()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Chiudi") {
+                                showingQRScanner = false
+                            }
+                            .foregroundColor(.white)
+                        }
+                    }
                 }
             }
         }

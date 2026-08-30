@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// Vista informativa sul negozio, recapiti, orari di apertura settimanali e regolamento recesso
+/// Vista informativa di alto livello con identità visiva del mercatino, orari live, bio e recapiti
 public struct ShopInfoView: View {
     let shopId: String
     @State private var shopDetails: ShopDetails?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    
+    @State private var isPolicyExpanded: Bool = false
+
     private let service: WebSyncroServiceProtocol
 
     public init(
@@ -17,6 +18,11 @@ public struct ShopInfoView: View {
         self.service = service
     }
 
+    private var isExNovoShop: Bool {
+        shopId.lowercased().contains("exnovo") ||
+        (shopDetails?.name.lowercased().contains("ex novo") ?? false)
+    }
+
     public var body: some View {
         NavigationStack {
             ZStack {
@@ -24,275 +30,21 @@ public struct ShopInfoView: View {
 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Card Intestazione Negozio
-                        LiquidGlassCard(cornerRadius: 24, padding: 20) {
-                            VStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.brandOrange.opacity(0.15))
-                                        .frame(width: 60, height: 60)
+                        // Card Principale: Identità Visiva, Bio, Sede e Contatti
+                        shopHeroCard
 
-                                    Image(systemName: "storefront.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(.brandOrange)
-                                }
-
-                                VStack(spacing: 4) {
-                                    Text(shopDetails?.name ?? shopId.capitalized)
-                                        .font(.system(.title2, design: .rounded))
-                                        .fontWeight(.bold)
-                                        .multilineTextAlignment(.center)
-
-                                    if let shop = shopDetails, !shop.cityZip.isEmpty {
-                                        Text(shop.cityZip)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-
-                                // Pulsanti di contatto rapido (Chiama, Email, Sito Web, Mappa)
-                                if let shop = shopDetails {
-                                    HStack(spacing: 8) {
-                                        if !shop.phone.isEmpty, let telURL = URL(string: "tel:\(shop.cleanPhoneNumber)") {
-                                            Link(destination: telURL) {
-                                                contactButtonLabel(icon: "phone.fill", text: "Chiama", color: .green)
-                                            }
-                                        }
-
-                                        if !shop.email.isEmpty, let mailURL = URL(string: "mailto:\(shop.email)") {
-                                            Link(destination: mailURL) {
-                                                contactButtonLabel(icon: "envelope.fill", text: "Email", color: .blue)
-                                            }
-                                        }
-
-                                        if !shop.website.isEmpty, let webURL = URL(string: shop.website) {
-                                            Link(destination: webURL) {
-                                                contactButtonLabel(icon: "globe", text: "Sito Web", color: .brandOrange)
-                                            }
-                                        }
-
-                                        if !shop.fullAddress.isEmpty,
-                                           let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                                           let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
-                                            Link(destination: mapURL) {
-                                                contactButtonLabel(icon: "map.fill", text: "Mappa", color: .purple)
-                                            }
-                                        }
-                                    }
-                                    .padding(.top, 4)
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-
-                        // Hero Card: Stato Apertura Oggi in Tempo Reale
+                        // Card Stato Apertura Oggi in Tempo Reale
                         if let shop = shopDetails {
-                            let status = shop.currentOpenStatus
-                            LiquidGlassCard(cornerRadius: 20, padding: 16) {
-                                HStack(spacing: 14) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(status.isOpen ? Color.green.opacity(0.15) : (status.statusText.contains("PAUSA") ? Color.orange.opacity(0.15) : Color.secondary.opacity(0.15)))
-                                            .frame(width: 44, height: 44)
-
-                                        Image(systemName: status.isOpen ? "clock.badge.checkmark.fill" : "clock.fill")
-                                            .font(.system(size: 20))
-                                            .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .secondary))
-                                    }
-
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(status.statusText)
-                                            .font(.system(.subheadline, design: .rounded))
-                                            .fontWeight(.bold)
-                                            .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .primary))
-
-                                        Text(status.detailText)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-                                }
-                            }
+                            liveStatusCard(shop: shop)
                         }
 
-                        // Card Orari di Apertura Settimanali
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 14) {
-                                HStack {
-                                    Label("Orari della Settimana", systemImage: "calendar")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
+                        // Card Orari della Settimana
+                        weeklyScheduleCard
 
-                                    Spacer()
+                        // Card Espandibile: Come Funziona il Conto Vendita & Regolamento Recesso
+                        howItWorksCard
 
-                                    if isLoading {
-                                        ProgressView()
-                                            .scaleEffect(0.8)
-                                    }
-                                }
-
-                                Divider()
-
-                                if let error = errorMessage {
-                                    Text("Impossibile caricare gli orari: \(error)")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                } else if let info = shopDetails, !info.schedule.isEmpty {
-                                    VStack(spacing: 10) {
-                                        ForEach(info.schedule) { day in
-                                            let isToday = info.todaySchedule?.id == day.id
-
-                                            HStack(alignment: .center) {
-                                                VStack(alignment: .leading, spacing: 2) {
-                                                    HStack(spacing: 6) {
-                                                        Text(day.dayName)
-                                                            .font(.subheadline)
-                                                            .fontWeight(isToday ? .bold : .medium)
-                                                            .foregroundColor(isToday ? .brandOrange : .primary)
-
-                                                        if isToday {
-                                                            Text("OGGI")
-                                                                .font(.system(size: 9, weight: .bold))
-                                                                .padding(.horizontal, 6)
-                                                                .padding(.vertical, 2)
-                                                                .background(Color.brandOrange.opacity(0.15))
-                                                                .foregroundColor(.brandOrange)
-                                                                .clipShape(Capsule())
-                                                        }
-                                                    }
-
-                                                    Text(day.formattedHours)
-                                                        .font(.caption)
-                                                        .foregroundColor(day.isClosed ? .secondary : .primary)
-                                                }
-
-                                                Spacer()
-
-                                                // Tag dinamico: Se è oggi mostra se è Aperto ora / Pausa / Chiuso, altrimenti solo Aperto/Chiuso generale
-                                                if isToday {
-                                                    let openNow = info.currentOpenStatus.isOpen
-                                                    Text(openNow ? "Aperto Adesso" : (day.isClosed ? "Chiuso" : "Chiuso Ora"))
-                                                        .font(.system(size: 11, weight: .semibold))
-                                                        .padding(.horizontal, 8)
-                                                        .padding(.vertical, 4)
-                                                        .background(openNow ? Color.green.opacity(0.15) : Color.secondary.opacity(0.12))
-                                                        .foregroundColor(openNow ? .green : .secondary)
-                                                        .clipShape(Capsule())
-                                                } else {
-                                                    Text(day.isClosed ? "Chiuso" : "Orario Regolare")
-                                                        .font(.system(size: 11, weight: .semibold))
-                                                        .padding(.horizontal, 8)
-                                                        .padding(.vertical, 4)
-                                                        .background(day.isClosed ? Color.secondary.opacity(0.12) : Color.primary.opacity(0.06))
-                                                        .foregroundColor(.secondary)
-                                                        .clipShape(Capsule())
-                                                }
-                                            }
-                                            .padding(.vertical, isToday ? 6 : 2)
-                                            .padding(.horizontal, isToday ? 8 : 0)
-                                            .background(isToday ? Color.brandOrange.opacity(0.06) : Color.clear)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                                            if day.id < 6 {
-                                                Divider()
-                                                    .background(Color.white.opacity(0.06))
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Text("Orari non disponibili al momento.")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-
-                        // Card Recapiti e Indirizzo
-                        if let shop = shopDetails, !shop.fullAddress.isEmpty || !shop.phone.isEmpty || !shop.email.isEmpty {
-                            LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Label("Sede & Contatti", systemImage: "mappin.circle.fill")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-
-                                    Divider()
-
-                                    if !shop.fullAddress.isEmpty {
-                                        HStack(alignment: .top, spacing: 10) {
-                                            Image(systemName: "location.fill")
-                                                .font(.caption)
-                                                .foregroundColor(.brandOrange)
-                                                .padding(.top, 2)
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text("Indirizzo")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                                Text(shop.fullAddress)
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.primary)
-                                            }
-                                        }
-                                    }
-
-                                    if !shop.phone.isEmpty {
-                                        HStack(alignment: .top, spacing: 10) {
-                                            Image(systemName: "phone.fill")
-                                                .font(.caption)
-                                                .foregroundColor(.green)
-                                                .padding(.top, 2)
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text("Telefono")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                                Text(shop.phone)
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.primary)
-                                            }
-                                        }
-                                    }
-
-                                    if !shop.email.isEmpty {
-                                        HStack(alignment: .top, spacing: 10) {
-                                            Image(systemName: "envelope.fill")
-                                                .font(.caption)
-                                                .foregroundColor(.blue)
-                                                .padding(.top, 2)
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text("Email")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                                Text(shop.email)
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.primary)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Card Informativa: Diritto di Recesso
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "arrow.uturn.backward.circle.fill")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(.brandOrange)
-
-                                    Text("Diritto di Recesso e Maturazione")
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .fontWeight(.semibold)
-                                }
-
-                                Text("Gli articoli venduti sono soggetti a un periodo di diritto di recesso a tutela dell'acquirente. Durante questo intervallo di tempo compaiono nella sezione 'In Recesso'. Trascorso il termine previsto dal mercatino, l'importo passa automaticamente in 'Maturato' e diventa disponibile per il ritiro in cassa.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }
-
-                        Spacer()
+                        Spacer(minLength: 20)
                     }
                     .padding(16)
                 }
@@ -305,8 +57,335 @@ public struct ShopInfoView: View {
         }
     }
 
+    // MARK: - Hero Card Principale
     @ViewBuilder
-    private func contactButtonLabel(icon: String, text: String, color: Color) -> some View {
+    private var shopHeroCard: some View {
+        LiquidGlassCard(cornerRadius: 24, padding: 22) {
+            VStack(spacing: 16) {
+                // Logo o Icona Negozio
+                if isExNovoShop {
+                    VStack(spacing: 8) {
+                        #if canImport(UIKit)
+                        if let uiImage = UIImage(named: "exnovo_logo") {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 38)
+                                .padding(.vertical, 4)
+                        } else {
+                            fallbackLogoView
+                        }
+                        #else
+                        fallbackLogoView
+                        #endif
+
+                        Text("SECONDA MANO • PRIMO AMORE")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(.brandOrange)
+                            .tracking(1.8)
+                    }
+                } else {
+                    fallbackLogoView
+                }
+
+                // Bio / Descrizione del Mercatino
+                Text("Mercatino dell'usato selezionato. Dai una seconda vita ai tuoi oggetti: esponi i tuoi articoli in conto vendita e scopri abbigliamento, libri, oggettistica e arredamento a prezzi vantaggiosi.")
+                    .font(.system(.subheadline, design: .default))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+                    .padding(.horizontal, 4)
+
+                Divider()
+                    .background(Color.white.opacity(0.1))
+
+                // Indirizzo e Sede (con tap rapido per aprire Apple Maps)
+                if let shop = shopDetails, !shop.fullAddress.isEmpty {
+                    if let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                       let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
+                        Link(destination: mapURL) {
+                            HStack(alignment: .center, spacing: 8) {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .font(.subheadline)
+                                    .foregroundColor(.brandOrange)
+
+                                Text(shop.fullAddress)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary.opacity(0.6))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.secondary.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }
+
+                // Pulsanti Azioni Rapide (Chiama, Email, Sito Web, Mappa)
+                if let shop = shopDetails {
+                    HStack(spacing: 8) {
+                        if !shop.phone.isEmpty, let telURL = URL(string: "tel:\(shop.cleanPhoneNumber)") {
+                            Link(destination: telURL) {
+                                contactButton(icon: "phone.fill", text: "Chiama", color: .green)
+                            }
+                        }
+
+                        if !shop.email.isEmpty, let mailURL = URL(string: "mailto:\(shop.email)") {
+                            Link(destination: mailURL) {
+                                contactButton(icon: "envelope.fill", text: "Email", color: .blue)
+                            }
+                        }
+
+                        if !shop.website.isEmpty, let webURL = URL(string: shop.website) {
+                            Link(destination: webURL) {
+                                contactButton(icon: "globe", text: "Sito Web", color: .brandOrange)
+                            }
+                        }
+
+                        if !shop.fullAddress.isEmpty,
+                           let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                           let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
+                            Link(destination: mapURL) {
+                                contactButton(icon: "map.fill", text: "Mappa", color: .purple)
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private var fallbackLogoView: some View {
+        HStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(Color.brandOrange.opacity(0.15))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: "storefront.fill")
+                    .font(.system(size: 22))
+                    .foregroundColor(.brandOrange)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(shopDetails?.name ?? shopId.capitalized)
+                    .font(.system(.title3, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+
+                Text("Mercatino dell'Usato")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func liveStatusCard(shop: ShopDetails) -> some View {
+        let status = shop.currentOpenStatus
+        LiquidGlassCard(cornerRadius: 20, padding: 16) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(status.isOpen ? Color.green.opacity(0.15) : (status.statusText.contains("PAUSA") ? Color.orange.opacity(0.15) : Color.secondary.opacity(0.15)))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: status.isOpen ? "clock.badge.checkmark.fill" : "clock.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .secondary))
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(status.statusText)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .primary))
+
+                    Text(status.detailText)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var weeklyScheduleCard: some View {
+        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Label("Orari di Apertura", systemImage: "calendar")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    Spacer()
+
+                    if isLoading {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
+                }
+
+                Divider()
+
+                if let error = errorMessage {
+                    Text("Impossibile caricare gli orari: \(error)")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                } else if let info = shopDetails, !info.schedule.isEmpty {
+                    VStack(spacing: 10) {
+                        ForEach(info.schedule) { day in
+                            let isToday = info.todaySchedule?.id == day.id
+
+                            HStack(alignment: .center) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Text(day.dayName)
+                                            .font(.subheadline)
+                                            .fontWeight(isToday ? .bold : .medium)
+                                            .foregroundColor(isToday ? .brandOrange : .primary)
+
+                                        if isToday {
+                                            Text("OGGI")
+                                                .font(.system(size: 9, weight: .bold))
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Color.brandOrange.opacity(0.15))
+                                                .foregroundColor(.brandOrange)
+                                                .clipShape(Capsule())
+                                        }
+                                    }
+
+                                    Text(day.formattedHours)
+                                        .font(.caption)
+                                        .foregroundColor(day.isClosed ? .secondary : .primary)
+                                }
+
+                                Spacer()
+
+                                if isToday {
+                                    let openNow = info.currentOpenStatus.isOpen
+                                    Text(openNow ? "Aperto Adesso" : (day.isClosed ? "Chiuso" : "Chiuso Ora"))
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(openNow ? Color.green.opacity(0.15) : Color.secondary.opacity(0.12))
+                                        .foregroundColor(openNow ? .green : .secondary)
+                                        .clipShape(Capsule())
+                                } else {
+                                    Text(day.isClosed ? "Chiuso" : "Aperto")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(day.isClosed ? Color.secondary.opacity(0.12) : Color.primary.opacity(0.06))
+                                        .foregroundColor(.secondary)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            .padding(.vertical, isToday ? 6 : 2)
+                            .padding(.horizontal, isToday ? 8 : 0)
+                            .background(isToday ? Color.brandOrange.opacity(0.06) : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                            if day.id < 6 {
+                                Divider()
+                                    .background(Color.white.opacity(0.06))
+                            }
+                        }
+                    }
+                } else {
+                    Text("Orari non disponibili al momento.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var howItWorksCard: some View {
+        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+            VStack(alignment: .leading, spacing: 12) {
+                Button(action: {
+                    HapticFeedback.selection()
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isPolicyExpanded.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "questionmark.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundColor(.brandOrange)
+
+                        Text("Come funziona: Vendite & Recesso")
+                            .font(.system(.subheadline, design: .rounded))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        Image(systemName: isPolicyExpanded ? "chevron.up" : "chevron.down")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+
+                if isPolicyExpanded {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("1. Conto Vendita")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            Text("Porta i tuoi oggetti in negozio: verranno etichettati con il tuo codice fornitore ed esposti al pubblico.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("2. Periodo di Diritto di Recesso")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            Text("Quando un articolo viene acquistato, appare nella sezione 'In Recesso'. Durante questo periodo l'acquirente può esercitare eventuale reso/garanzia.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("3. Incasso e Ritiro Maturato")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            Text("Terminato il periodo di recesso, l'importo diventa 'Maturato'. Puoi recarti in cassa con la tua tessera (tab Card) e ritirare il tuo guadagno in contanti.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func contactButton(icon: String, text: String, color: Color) -> some View {
         HStack(spacing: 5) {
             Image(systemName: icon)
                 .font(.system(size: 11))

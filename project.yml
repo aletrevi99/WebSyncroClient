@@ -17,10 +17,11 @@ settings:
     CODE_SIGNING_ALLOWED: "NO"
     ENABLE_BITCODE: "NO"
     GENERATE_INFOPLIST_FILE: "YES"
-    INFOPLIST_KEY_CFBundleDisplayName: "WebSyncro"
+    INFOPLIST_KEY_CFBundleDisplayName: "EX Novo"
     INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
     INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
     INFOPLIST_KEY_UIRequiresFullScreen: "NO"
+    INFOPLIST_KEY_NSCameraUsageDescription: "Scansiona il codice QR della tua tessera per sincronizzare il tuo account del mercatino."
     INFOPLIST_KEY_NSAppTransportSecurity:
       NSAllowsArbitraryLoads: true
 
