@@ -45,3 +45,4 @@ targets:
       - path: Tests/WebSyncroClientTests
     dependencies:
       - target: WebSyncroClient
+

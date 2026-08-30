@@ -28,3 +28,4 @@ rm -rf Payload
 
 echo "✅ Completato con successo!"
 echo "📍 Il file IPA è pronto in: $DIR/build/WebSyncroClient.ipa"
+
