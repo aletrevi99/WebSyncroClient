@@ -8,6 +8,7 @@ public struct SettingsView: View {
     @ObservedObject var settingsStore: AppSettingsStore
     @ObservedObject var accountStore: AccountStore
     @ObservedObject var inventoryStore: InventoryStore
+    @ObservedObject private var notificationManager = NotificationManager.shared
     @Environment(\.dismiss) private var dismiss
 
     @State private var pingWebSyncroStatus: String?
@@ -345,6 +346,38 @@ public struct SettingsView: View {
                                 Text("Ricevi avvisi per le vendite, maturazione dei crediti, passaggio in saldo e resi merce.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+
+                                if !notificationManager.permissionGranted {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "bell.slash.fill")
+                                            .foregroundColor(.orange)
+                                        Text("Notifiche non ancora consentite nelle impostazioni di sistema iOS.")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                        Button("Consenti") {
+                                            Task {
+                                                let granted = await notificationManager.requestPermission()
+                                                if !granted {
+                                                    #if canImport(UIKit)
+                                                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                    #endif
+                                                }
+                                            }
+                                        }
+                                        .font(.caption.bold())
+                                        .foregroundColor(.brandOrange)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(Color.brandOrange.opacity(0.12))
+                                        .clipShape(Capsule())
+                                    }
+                                    .padding(8)
+                                    .background(Color.orange.opacity(0.08))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                }
 
                                 Divider()
 

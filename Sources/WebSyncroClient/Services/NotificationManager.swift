@@ -2,6 +2,9 @@ import Foundation
 #if canImport(UserNotifications)
 import UserNotifications
 #endif
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Modello di un evento di reso (articolo restituito durante il periodo di recesso)
 public struct ReturnEvent: Identifiable, Codable, Sendable {
@@ -35,7 +38,17 @@ public final class NotificationManager: ObservableObject {
 
     @Published public private(set) var returnHistory: [ReturnEvent] = []
 
-    public init() {
+    public override init() {
+        super.init()
+        #if canImport(UserNotifications)
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        center.requestAuthorization(options: [.alert, .badge, .sound, .provisional]) { granted, _ in
+            Task { @MainActor in
+                self.permissionGranted = granted
+            }
+        }
+        #endif
         loadReturnHistory()
         checkPermission()
     }
@@ -53,8 +66,15 @@ public final class NotificationManager: ObservableObject {
     public func requestPermission() async -> Bool {
         #if canImport(UserNotifications)
         do {
-            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
-            self.permissionGranted = granted
+            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound, .provisional])
+            Task { @MainActor in
+                self.permissionGranted = granted
+                #if canImport(UIKit)
+                if granted {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+                #endif
+            }
             return granted
         } catch {
             return false
