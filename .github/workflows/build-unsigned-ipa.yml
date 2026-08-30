@@ -1,0 +1,90 @@
+name: Build Unsigned IPA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*.*.*" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-unsigned:
+    name: Build & Package Unsigned IPA
+    runs-on: macos-14
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Select Latest Stable Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          xcodebuild -version
+
+      - name: 3. Build Release .app (Unsigned)
+        run: |
+          mkdir -p build/DerivedData
+          xcodebuild build \
+            -project WebSyncroClient.xcodeproj \
+            -scheme WebSyncroClient \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: 4. Package into Sideloadable IPA
+        run: |
+          mkdir -p build/Payload build/Exported
+          
+          # Find the compiled .app bundle
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -maxdepth 1 | head -n 1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not locate built .app bundle in Release-iphoneos"
+            exit 1
+          fi
+          
+          echo "Found compiled app at: $APP_PATH"
+          cp -R "$APP_PATH" build/Payload/
+          
+          # Create IPA archive with standard Payload structure
+          cd build
+          zip -r -y "WebSyncroClient-Unsigned.ipa" Payload/
+          mv "WebSyncroClient-Unsigned.ipa" Exported/
+          cd ..
+          
+          echo "Unsigned IPA successfully created at: build/Exported/WebSyncroClient-Unsigned.ipa"
+          ls -lh build/Exported/WebSyncroClient-Unsigned.ipa
+
+      - name: 5. Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebSyncroClient-Unsigned-IPA
+          path: build/Exported/WebSyncroClient-Unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: 6. Publish GitHub Release (On Tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/Exported/WebSyncroClient-Unsigned.ipa
+          name: "WebSyncro Client ${{ github.ref_name }}"
+          body: |
+            ### WebSyncro Mercatini Client (Unsigned Sideload Release)
+            - Native WebSyncro sales & accrued earnings monitoring client.
+            - Built with SwiftUI & Liquid Glass design language.
+            - 100% compatible with AltStore, SideStore, TrollStore, Scarlet, and Sideloadly.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

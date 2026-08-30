@@ -1,0 +1,651 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80206B2CE06C1298F40122E3 /* MetricStatCard.swift */; };
+		09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */; };
+		1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */; };
+		2254D4CC16AD1CEB2206354C /* SaleItemDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */; };
+		25C1308F730217772501FFAE /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070E6E59DAB1D9001F1BF4C0 /* AppState.swift */; };
+		26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */; };
+		29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */; };
+		2C44DE11F2D2E80F752424DD /* LiquidGlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71725CBB90E6EACC1E2D1ECC /* LiquidGlassCard.swift */; };
+		35B478839838EFC58C2F2F67 /* AccountManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */; };
+		361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */; };
+		43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */; };
+		45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */; };
+		49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */; };
+		53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */; };
+		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
+		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
+		751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */; };
+		769CF7449FB520FDFD1BE997 /* SalesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16118E43A3972ACC75A25C28 /* SalesParser.swift */; };
+		7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */; };
+		83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33ABC5D71017CB2913388296 /* WebSyncroApp.swift */; };
+		84E757A334247E2BEF628C80 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674D4E9071C9DB89C845F209 /* Models.swift */; };
+		8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */; };
+		967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */; };
+		97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */; };
+		AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFB02ED7971605E2178171 /* DateExtensions.swift */; };
+		BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC221438A985A902E8B43FBD /* UserAccount.swift */; };
+		C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */; };
+		CCF8193CAA26964E62C16BAA /* AccountManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */; };
+		D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3324D9007E4EC87452DF1B2A /* SyncStatus.swift */; };
+		DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */; };
+		DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */; };
+		E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */; };
+		EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */; };
+		F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */; };
+		F433990FA167F40786399D77 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */; };
+		FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */; };
+		FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CE776A3A6114037AA1B553ED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41679E23ACBC636D7F3E06BA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9EE656A0EA39BAB0F49B003;
+			remoteInfo = WebSyncroClient;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		070E6E59DAB1D9001F1BF4C0 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModel.swift; sourceTree = "<group>"; };
+		15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemRowView.swift; sourceTree = "<group>"; };
+		16118E43A3972ACC75A25C28 /* SalesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParser.swift; sourceTree = "<group>"; };
+		27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStoreTests.swift; sourceTree = "<group>"; };
+		2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		3324D9007E4EC87452DF1B2A /* SyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatus.swift; sourceTree = "<group>"; };
+		33ABC5D71017CB2913388296 /* WebSyncroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroApp.swift; sourceTree = "<group>"; };
+		3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AdaptiveModifiers.swift"; sourceTree = "<group>"; };
+		3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceTests.swift; sourceTree = "<group>"; };
+		3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleItemDetailSheet.swift; sourceTree = "<group>"; };
+		4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParserTests.swift; sourceTree = "<group>"; };
+		5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
+		6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroService.swift; sourceTree = "<group>"; };
+		62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroServiceProtocol.swift; sourceTree = "<group>"; };
+		674D4E9071C9DB89C845F209 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerViewModelTests.swift; sourceTree = "<group>"; };
+		71725CBB90E6EACC1E2D1ECC /* LiquidGlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassCard.swift; sourceTree = "<group>"; };
+		783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModelTests.swift; sourceTree = "<group>"; };
+		7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
+		80206B2CE06C1298F40122E3 /* MetricStatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricStatCard.swift; sourceTree = "<group>"; };
+		8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSwitcherMenu.swift; sourceTree = "<group>"; };
+		8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WebSyncroClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedback.swift; sourceTree = "<group>"; };
+		A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountSheet.swift; sourceTree = "<group>"; };
+		A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WebSyncroClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC221438A985A902E8B43FBD /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
+		B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesListView.swift; sourceTree = "<group>"; };
+		CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
+		D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSyncroService.swift; sourceTree = "<group>"; };
+		DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyOrErrorView.swift; sourceTree = "<group>"; };
+		F3DFB02ED7971605E2178171 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
+		F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
+		F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
+		FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagerView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0C367EFFD318DE4FDE39A066 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */,
+				5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */,
+				F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */,
+				71725CBB90E6EACC1E2D1ECC /* LiquidGlassCard.swift */,
+				80206B2CE06C1298F40122E3 /* MetricStatCard.swift */,
+				15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */,
+				F8D3677B7F3214D51095AFD9 /* SearchBarView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		10D3F61B4D43A33952D209BE /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				145FA6E2FE51CCBAAFD98223 /* AccountManagerViewModel.swift */,
+				BBAABCFD5793B337928E2A9D /* DashboardViewModel.swift */,
+				7929CB9F13D82D865D8D2ECE /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		16714B15187A264BC7EE721D /* WebSyncroClientTests */ = {
+			isa = PBXGroup;
+			children = (
+				6AC527ED4989E3CF52EC7496 /* AccountManagerViewModelTests.swift */,
+				27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */,
+				783C69073E4AED2FF8A5D5C5 /* DashboardViewModelTests.swift */,
+				4C9E39CE670F61AB57FEACE4 /* SalesParserTests.swift */,
+				3BBB01FDF242F513A0ED6A9A /* WebSyncroServiceTests.swift */,
+			);
+			name = WebSyncroClientTests;
+			path = Tests/WebSyncroClientTests;
+			sourceTree = "<group>";
+		};
+		31D0B22A4F9753BED819BDB3 /* WebSyncroClient */ = {
+			isa = PBXGroup;
+			children = (
+				FB175AD118BE87AC8AE6533C /* App */,
+				3C0169A80E03EF86B96CFB49 /* Models */,
+				E4351689D742CCBF37156826 /* Services */,
+				39A020682F4A452E640E3846 /* Storage */,
+				5F433025E5A1DEC06D482F31 /* Utilities */,
+				10D3F61B4D43A33952D209BE /* ViewModels */,
+				78A70FEFC9816F816AFA823C /* Views */,
+			);
+			name = WebSyncroClient;
+			path = Sources/WebSyncroClient;
+			sourceTree = "<group>";
+		};
+		39A020682F4A452E640E3846 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				CBD3FBC67AC0651BAC8F1A7B /* AccountStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		3C0169A80E03EF86B96CFB49 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				674D4E9071C9DB89C845F209 /* Models.swift */,
+				3324D9007E4EC87452DF1B2A /* SyncStatus.swift */,
+				AC221438A985A902E8B43FBD /* UserAccount.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4633C2DE4A20EE15238767FD = {
+			isa = PBXGroup;
+			children = (
+				31D0B22A4F9753BED819BDB3 /* WebSyncroClient */,
+				16714B15187A264BC7EE721D /* WebSyncroClientTests */,
+				B1E977F0095C46ABE8E4AAE2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5F433025E5A1DEC06D482F31 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B832BCE1E668B20F34FA9062 /* CurrencyFormatter.swift */,
+				F3DFB02ED7971605E2178171 /* DateExtensions.swift */,
+				8F079FCF5A94DEAEB8034268 /* HapticFeedback.swift */,
+				3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		78A70FEFC9816F816AFA823C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				ED4CD470E215A29A4996F8DB /* Accounts */,
+				0C367EFFD318DE4FDE39A066 /* Components */,
+				802988DA2F72D9C198DC96F4 /* Dashboard */,
+				83B3986FFA37729D6E0F78C2 /* Detail */,
+				B53CB8540AE2929CFC75C009 /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		802988DA2F72D9C198DC96F4 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */,
+				CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */,
+				79B617D7C723EF73BC6244A5 /* SummaryHeaderView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		83B3986FFA37729D6E0F78C2 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				3CF18DFFF76B00E311865F94 /* SaleItemDetailSheet.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		B1E977F0095C46ABE8E4AAE2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */,
+				AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B53CB8540AE2929CFC75C009 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		E4351689D742CCBF37156826 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D9B24E6CC8170F6B5122F739 /* MockWebSyncroService.swift */,
+				16118E43A3972ACC75A25C28 /* SalesParser.swift */,
+				6163B07EA6552A12ED8BC6F5 /* WebSyncroService.swift */,
+				62CF4B5D91DD0DA4501B4D04 /* WebSyncroServiceProtocol.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		ED4CD470E215A29A4996F8DB /* Accounts */ = {
+			isa = PBXGroup;
+			children = (
+				FD093CC229E79C8BAE5A05F7 /* AccountManagerView.swift */,
+				8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */,
+				A57C75E610EC9F40CA3C5187 /* AddAccountSheet.swift */,
+			);
+			path = Accounts;
+			sourceTree = "<group>";
+		};
+		FB175AD118BE87AC8AE6533C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				070E6E59DAB1D9001F1BF4C0 /* AppState.swift */,
+				33ABC5D71017CB2913388296 /* WebSyncroApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8989C3E774F4FD6E62162941 /* WebSyncroClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E17F623C5C11901188B6A4BE /* Build configuration list for PBXNativeTarget "WebSyncroClientTests" */;
+			buildPhases = (
+				9AB34DF427AD9AB2F52F6922 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F520848D8F090186775E987 /* PBXTargetDependency */,
+			);
+			name = WebSyncroClientTests;
+			packageProductDependencies = (
+			);
+			productName = WebSyncroClientTests;
+			productReference = AA207B903BABC1BF0FF92A3D /* WebSyncroClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F9EE656A0EA39BAB0F49B003 /* WebSyncroClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2EBAA9C4AC06153CC66666DC /* Build configuration list for PBXNativeTarget "WebSyncroClient" */;
+			buildPhases = (
+				407AF01084349DA424854972 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WebSyncroClient;
+			packageProductDependencies = (
+			);
+			productName = WebSyncroClient;
+			productReference = 8E83004B2474FD058EDF9EB4 /* WebSyncroClient.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		41679E23ACBC636D7F3E06BA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					8989C3E774F4FD6E62162941 = {
+						DevelopmentTeam = "";
+					};
+					F9EE656A0EA39BAB0F49B003 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 2032312FEA96315596E782AC /* Build configuration list for PBXProject "WebSyncroClient" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 4633C2DE4A20EE15238767FD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B1E977F0095C46ABE8E4AAE2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F9EE656A0EA39BAB0F49B003 /* WebSyncroClient */,
+				8989C3E774F4FD6E62162941 /* WebSyncroClientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		407AF01084349DA424854972 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				35B478839838EFC58C2F2F67 /* AccountManagerView.swift in Sources */,
+				CCF8193CAA26964E62C16BAA /* AccountManagerViewModel.swift in Sources */,
+				C669EEE9A4A4227CA7B6AE91 /* AccountStore.swift in Sources */,
+				45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */,
+				F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */,
+				25C1308F730217772501FFAE /* AppState.swift in Sources */,
+				DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */,
+				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
+				361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */,
+				AA2DAB6954E5BCB401A8B132 /* DateExtensions.swift in Sources */,
+				967E9647EF0E8FF149125423 /* EmptyOrErrorView.swift in Sources */,
+				FB658A23511D2B985C8D0372 /* GlassButton.swift in Sources */,
+				FE61F9700771405AB0B98430 /* HapticFeedback.swift in Sources */,
+				DA84016450AAFA36AA8C7DC8 /* LiquidGlassBackground.swift in Sources */,
+				2C44DE11F2D2E80F752424DD /* LiquidGlassCard.swift in Sources */,
+				07AF50473F64FD68A7A48F88 /* MetricStatCard.swift in Sources */,
+				8D7425A6B5C06364BE39BABC /* MockWebSyncroService.swift in Sources */,
+				84E757A334247E2BEF628C80 /* Models.swift in Sources */,
+				2254D4CC16AD1CEB2206354C /* SaleItemDetailSheet.swift in Sources */,
+				6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */,
+				49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */,
+				769CF7449FB520FDFD1BE997 /* SalesParser.swift in Sources */,
+				F433990FA167F40786399D77 /* SearchBarView.swift in Sources */,
+				53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */,
+				E0100F3CB7866310A37E83BD /* SettingsViewModel.swift in Sources */,
+				7A51598988F0D6DF3EDC055F /* SummaryHeaderView.swift in Sources */,
+				D42D1A6E1826278088790742 /* SyncStatus.swift in Sources */,
+				BF9860D4EEC923016FAA8AAC /* UserAccount.swift in Sources */,
+				26E19DF35AA40A2775DCFC5B /* View+AdaptiveModifiers.swift in Sources */,
+				83B41FD1F631AC9FEE0605A5 /* WebSyncroApp.swift in Sources */,
+				29E971830313FFA9F1B69AB1 /* WebSyncroService.swift in Sources */,
+				1578A9F97D2F4CD90741A1A5 /* WebSyncroServiceProtocol.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AB34DF427AD9AB2F52F6922 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				751CF3AA9C72A9A1D56463AF /* AccountManagerViewModelTests.swift in Sources */,
+				43B19BB3ADDBC3465F5E055E /* AccountStoreTests.swift in Sources */,
+				97E13A5E785B358C999F399D /* DashboardViewModelTests.swift in Sources */,
+				EB09D162DD7E2084F903AD2C /* SalesParserTests.swift in Sources */,
+				09D943DF29FD4D85C3230889 /* WebSyncroServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6F520848D8F090186775E987 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9EE656A0EA39BAB0F49B003 /* WebSyncroClient */;
+			targetProxy = CE776A3A6114037AA1B553ED /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6CAEB858B937C5DBD33C53A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = WebSyncro;
+				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8FEE53F6EE2C970849AFD8EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.client;
+				PRODUCT_NAME = WebSyncroClient;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9067510183F9316FD9969BE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = WebSyncro;
+				INFOPLIST_KEY_NSAppTransportSecurity = "[\"NSAllowsArbitraryLoads\": true]";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiresFullScreen = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A4E25520AD34B582EDB0C81C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.WebSyncroClientTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WebSyncroClient.app/WebSyncroClient";
+			};
+			name = Debug;
+		};
+		CB2C536AB1FFB6C2FACE06BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.WebSyncroClientTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WebSyncroClient.app/WebSyncroClient";
+			};
+			name = Release;
+		};
+		CE7491C6297C50B7551E4669 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = it.websyncro.client;
+				PRODUCT_NAME = WebSyncroClient;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2032312FEA96315596E782AC /* Build configuration list for PBXProject "WebSyncroClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CAEB858B937C5DBD33C53A9 /* Debug */,
+				9067510183F9316FD9969BE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2EBAA9C4AC06153CC66666DC /* Build configuration list for PBXNativeTarget "WebSyncroClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8FEE53F6EE2C970849AFD8EC /* Debug */,
+				CE7491C6297C50B7551E4669 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E17F623C5C11901188B6A4BE /* Build configuration list for PBXNativeTarget "WebSyncroClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A4E25520AD34B582EDB0C81C /* Debug */,
+				CB2C536AB1FFB6C2FACE06BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 41679E23ACBC636D7F3E06BA /* Project object */;
+}

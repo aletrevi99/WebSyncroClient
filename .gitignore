@@ -1,0 +1,18 @@
+# Xcode
+.DS_Store
+*/.DS_Store
+build/
+DerivedData/
+*.xcworkspace
+!WebSyncroClient.xcodeproj/project.xcworkspace
+xcuserdata/
+*.xcuserdatad
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Fastlane / Output
+*.ipa
+*.dSYM.zip
+*.dSYM

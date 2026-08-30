@@ -1,0 +1,47 @@
+name: WebSyncroClient
+options:
+  bundleIdPrefix: it.websyncro
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.4"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    TARGETED_DEVICE_FAMILY: "1,2" # iPhone & iPad
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    ENABLE_BITCODE: "NO"
+    GENERATE_INFOPLIST_FILE: "YES"
+    INFOPLIST_KEY_CFBundleDisplayName: "WebSyncro"
+    INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+    INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    INFOPLIST_KEY_UIRequiresFullScreen: "NO"
+    INFOPLIST_KEY_NSAppTransportSecurity:
+      NSAllowsArbitraryLoads: true
+
+targets:
+  WebSyncroClient:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/WebSyncroClient
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: it.websyncro.client
+        PRODUCT_NAME: WebSyncroClient
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
+
+  WebSyncroClientTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/WebSyncroClientTests
+    dependencies:
+      - target: WebSyncroClient
