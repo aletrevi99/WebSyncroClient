@@ -70,15 +70,18 @@ public enum SalesParser {
                     title = ""
                 }
 
-                let saleItem = SaleItem(
-                    id: match.id,
-                    date: date,
-                    dateString: match.dateString,
-                    amount: amount,
-                    title: title,
-                    isNonMatured: isNonMatured
-                )
-                items.append(saleItem)
+                let cleanId = match.id.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !cleanId.isEmpty && amount > 0 {
+                    let saleItem = SaleItem(
+                        id: cleanId,
+                        date: date,
+                        dateString: match.dateString,
+                        amount: amount,
+                        title: title,
+                        isNonMatured: isNonMatured
+                    )
+                    items.append(saleItem)
+                }
             } else {
                 pendingTitle = line
             }

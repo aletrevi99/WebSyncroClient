@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Schermata principale con navigazione a Tab in stile Liquid Glass nativo
 public struct MainTabView: View {
@@ -8,6 +11,13 @@ public struct MainTabView: View {
 
     public init(accountStore: AccountStore? = nil) {
         self.accountStore = accountStore ?? AccountStore.shared
+        #if canImport(UIKit)
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        #endif
     }
 
     private var activeShopId: String {

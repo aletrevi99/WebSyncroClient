@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Card contenitore Liquid Glass ad alte prestazioni (120fps) con materiali di sistema nativi Apple (.ultraThinMaterial)
+/// Card contenitore Liquid Glass stock Apple basata al 100% su materiali di sistema (.ultraThinMaterial)
 public struct LiquidGlassCard<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     
@@ -9,7 +9,7 @@ public struct LiquidGlassCard<Content: View>: View {
     private let content: Content
 
     public init(
-        cornerRadius: CGFloat = 22,
+        cornerRadius: CGFloat = 20,
         padding: CGFloat = 16,
         @ViewBuilder content: () -> Content
     ) {
@@ -18,25 +18,27 @@ public struct LiquidGlassCard<Content: View>: View {
         self.content = content()
     }
 
+    private var isDark: Bool {
+        colorScheme == .dark
+    }
+
     public var body: some View {
         content
             .padding(padding)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(
-                        colorScheme == .dark
-                            ? Color.white.opacity(0.12)
-                            : Color.white.opacity(0.60),
-                        lineWidth: 1
+                        isDark ? Color.white.opacity(0.16) : Color.white.opacity(0.40),
+                        lineWidth: 0.8
                     )
             )
             .shadow(
-                color: colorScheme == .dark
-                    ? Color.black.opacity(0.20)
-                    : Color.black.opacity(0.04),
-                radius: 6,
+                color: Color.black.opacity(isDark ? 0.20 : 0.05),
+                radius: 8,
                 x: 0,
                 y: 3
             )
@@ -44,7 +46,7 @@ public struct LiquidGlassCard<Content: View>: View {
 }
 
 public extension View {
-    func liquidGlassBackground(cornerRadius: CGFloat = 22, padding: CGFloat = 16) -> some View {
+    func liquidGlassBackground(cornerRadius: CGFloat = 20, padding: CGFloat = 16) -> some View {
         LiquidGlassCard(cornerRadius: cornerRadius, padding: padding) {
             self
         }

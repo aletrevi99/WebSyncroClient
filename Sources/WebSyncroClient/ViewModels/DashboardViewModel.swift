@@ -92,7 +92,10 @@ public final class DashboardViewModel: ObservableObject {
     /// Filtra e ordina gli articoli in base a ricerca, periodo e criterio di ordinamento
     public var filteredItems: [SaleItem] {
         guard let report = activeReport else { return [] }
-        var result = report.items
+        var result = report.items.filter {
+            let idClean = $0.id.trimmingCharacters(in: .whitespacesAndNewlines)
+            return !idClean.isEmpty && $0.amount > 0
+        }
 
         // Filtro di ricerca per testo o ID
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
