@@ -27,7 +27,7 @@ public struct ReturnEvent: Identifiable, Codable, Sendable {
 
 /// Gestore centrale delle notifiche locali di sistema e del tracciamento resi / scadenze
 @MainActor
-public final class NotificationManager: ObservableObject {
+public final class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     public static let shared = NotificationManager()
 
     @Published public var activeReturnAlert: ReturnEvent?
@@ -52,6 +52,30 @@ public final class NotificationManager: ObservableObject {
         loadReturnHistory()
         checkPermission()
     }
+
+    // MARK: - UNUserNotificationCenterDelegate (Banner sia in Foreground che in Background)
+
+    #if canImport(UserNotifications)
+    public nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .sound, .badge, .list])
+        } else {
+            completionHandler([.alert, .sound, .badge])
+        }
+    }
+
+    public nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        completionHandler()
+    }
+    #endif
 
     public func checkPermission() {
         #if canImport(UserNotifications)
