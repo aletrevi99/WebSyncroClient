@@ -135,175 +135,194 @@ public struct InventoryListView: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    // Avviso In-App Reso Articolo (se attivo)
-                    if let alert = notificationManager.activeReturnAlert {
-                        returnAlertBanner(alert)
-                    }
-
-                    // Banner Feedback Salvataggio Differenziale
-                    if let feedback = saveFeedbackBanner {
-                        LiquidGlassCard(cornerRadius: 18, padding: 12) {
-                            HStack(spacing: 10) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                Text(feedback)
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Button(action: {
-                                    withAnimation { saveFeedbackBanner = nil }
-                                }) {
-                                    Image(systemName: "xmark")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-
-                    // Hero Card Statistiche Inventario
-                    summaryHeroCard
-
-                    // Barra Filtri con Tasto Ordina Fisso a Destra della stessa grandezza
-                    filterAndSortBar
-
-                    // Barra di Ricerca
-                    SearchBarView(text: $searchText)
-
-                    // Contenuto: Lista Articoli, Loading AI o Stato Vuoto
-                    if isProcessingAI {
-                        LiquidGlassCard(cornerRadius: 22, padding: 24) {
-                            VStack(spacing: 14) {
-                                ProgressView()
-                                    .scaleEffect(1.2)
-                                    .tint(Color.brandOrange)
-                                Text(processingStatusMessage)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                                Text("Estrazione intelligente della tabella e dei prezzi tramite LLM Vision.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .padding(.top, 20)
-                    } else if filteredAndSortedList.isEmpty {
-                        emptyStateView
-                    } else {
-                        ForEach(filteredAndSortedList, id: \.item.id) { entry in
-                            inventoryItemRow(entry.item, status: entry.status)
-                        }
-                    }
-
-                    // Spaziatore per evitare sovrapposizione con la TabBar fluttuante
-                    Spacer(minLength: 40)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-            }
-            .background(LiquidGlassBackground())
-            .navigationTitle("Inventario")
-            .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
-                    AccountSwitcherMenu(
-                        accountStore: accountStore,
-                        onManageAccounts: { showingBatchesManager = true }
+            inventoryContent
+                .sheet(isPresented: $showingEditSheet) {
+                    EditInventorySheet(
+                        inventoryStore: inventoryStore,
+                        accountStore: accountStore
                     )
-
-                    Button(action: {
-                        HapticFeedback.selection()
-                        showingEditSheet = true
-                    }) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .frame(width: 34, height: 34)
-                            .background(.ultraThinMaterial, in: Circle())
-                    }
-
-                    uploadMenuToolbarButton
                 }
-            }
-            .refreshable {
-                await dashboardViewModel.loadData()
-            }
-            .sheet(isPresented: $showingEditSheet) {
-                EditInventorySheet(
-                    inventoryStore: inventoryStore,
-                    shopId: activeShopId,
-                    userCardCode: activeUserCardCode
-                )
-            }
-            .sheet(isPresented: $showingBatchesManager) {
-                BatchesManagerSheet(
-                    inventoryStore: inventoryStore,
-                    shopId: activeShopId,
-                    userCardCode: activeUserCardCode
-                )
-            }
-            .sheet(isPresented: $showingCamera) {
-                ModernAVCameraView(
-                    onImageCaptured: { capturedImage in
-                        processCapturedUIImage(capturedImage)
-                    },
-                    onCancel: {
-                        showingCamera = false
-                    }
-                )
-            }
-            #if canImport(PhotosUI)
-            .photosPicker(
-                isPresented: $showingPhotoPicker,
-                selection: $selectedPhotoItem,
-                matching: .images
-            )
-            .onChange(of: selectedPhotoItem) { _, newItem in
-                guard let item = newItem else { return }
-                Task {
-                    if let data = try? await item.loadTransferable(type: Data.self),
-                       let img = UIImage(data: data) {
-                        processCapturedUIImage(img)
-                    }
-                    selectedPhotoItem = nil
+                .sheet(isPresented: $showingBatchesManager) {
+                    BatchesManagerSheet(
+                        inventoryStore: inventoryStore,
+                        accountStore: accountStore
+                    )
                 }
-            }
-            #endif
-            .sheet(isPresented: $showingReviewSheet) {
-                if let batch = scannedBatchForReview, let report = currentDeduplicationReport {
-                    ScanInventoryReviewSheet(
-                        batch: batch,
-                        deduplicationReport: report
-                    ) { confirmedBatch, overwriteDuplicates in
-                        let result = inventoryStore.addBatchWithDeduplication(
-                            batch: confirmedBatch,
-                            overwriteDuplicates: overwriteDuplicates
-                        )
-
-                        withAnimation {
-                            if result.skippedCount > 0 {
-                                self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli (\(result.skippedCount) duplicati ignorati nel DB)."
-                            } else if result.updatedCount > 0 {
-                                self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli e aggiornati \(result.updatedCount) articoli esistenti."
-                            } else {
-                                self.saveFeedbackBanner = "Salvati con successo \(result.addedCount) articoli nel database locale."
-                            }
+                .sheet(isPresented: $showingCamera) {
+                    ModernAVCameraView(
+                        onImageCaptured: { capturedImage in
+                            processCapturedUIImage(capturedImage)
                         }
+                    )
+                }
+                .sheet(isPresented: $showingReviewSheet) {
+                    reviewSheetView
+                }
+                #if canImport(PhotosUI)
+                .photosPicker(
+                    isPresented: $showingPhotoPicker,
+                    selection: $selectedPhotoItem,
+                    matching: .images
+                )
+                .onChange(of: selectedPhotoItem) { _, newItem in
+                    handlePhotoPickerItem(newItem)
+                }
+                #endif
+                .task {
+                    if dashboardViewModel.maturedReport == nil {
+                        await dashboardViewModel.loadData()
                     }
                 }
+        }
+    }
+
+    @ViewBuilder
+    private var inventoryContent: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                if let alert = notificationManager.activeReturnAlert {
+                    returnAlertBanner(alert)
+                }
+
+                if let feedback = saveFeedbackBanner {
+                    feedbackBannerView(feedback)
+                }
+
+                summaryHeroCard
+                filterAndSortBar
+                SearchBarView(text: $searchText)
+                mainInventoryListSection
+                Spacer(minLength: 40)
             }
-            .task {
-                if dashboardViewModel.maturedReport == nil {
-                    await dashboardViewModel.loadData()
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+        }
+        .background(LiquidGlassBackground())
+        .navigationTitle("Inventario")
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                AccountSwitcherMenu(
+                    accountStore: accountStore,
+                    onManageAccounts: { showingBatchesManager = true }
+                )
+
+                Button(action: {
+                    HapticFeedback.selection()
+                    showingEditSheet = true
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 34, height: 34)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+
+                uploadMenuToolbarButton
+            }
+        }
+        .refreshable {
+            await dashboardViewModel.loadData()
+        }
+    }
+
+    @ViewBuilder
+    private var mainInventoryListSection: some View {
+        if isProcessingAI {
+            aiLoadingCard
+        } else if filteredAndSortedList.isEmpty {
+            emptyStateView
+        } else {
+            ForEach(filteredAndSortedList, id: \.item.id) { entry in
+                inventoryItemRow(entry.item, status: entry.status)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var aiLoadingCard: some View {
+        LiquidGlassCard(cornerRadius: 22, padding: 24) {
+            VStack(spacing: 14) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                    .tint(Color.brandOrange)
+                Text(processingStatusMessage)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Text("Estrazione intelligente della tabella e dei prezzi tramite LLM Vision.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.top, 20)
+    }
+
+    @ViewBuilder
+    private func feedbackBannerView(_ feedback: String) -> some View {
+        LiquidGlassCard(cornerRadius: 18, padding: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                Text(feedback)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                Spacer()
+                Button(action: {
+                    withAnimation { saveFeedbackBanner = nil }
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
+    @ViewBuilder
+    private var reviewSheetView: some View {
+        if let batch = scannedBatchForReview, let report = currentDeduplicationReport {
+            ScanInventoryReviewSheet(
+                batch: batch,
+                deduplicationReport: report
+            ) { confirmedBatch, overwriteDuplicates in
+                let result = inventoryStore.addBatchWithDeduplication(
+                    batch: confirmedBatch,
+                    overwriteDuplicates: overwriteDuplicates
+                )
+
+                withAnimation {
+                    if result.skippedCount > 0 {
+                        self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli (\(result.skippedCount) duplicati ignorati nel DB)."
+                    } else if result.updatedCount > 0 {
+                        self.saveFeedbackBanner = "Aggiunti \(result.addedCount) nuovi articoli e aggiornati \(result.updatedCount) articoli esistenti."
+                    } else {
+                        self.saveFeedbackBanner = "Salvati con successo \(result.addedCount) articoli nel database locale."
+                    }
                 }
             }
         }
     }
+
+    #if canImport(PhotosUI) && canImport(UIKit)
+    private func handlePhotoPickerItem(_ newItem: PhotosPickerItem?) {
+        guard let item = newItem else { return }
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let img = UIImage(data: data) {
+                processCapturedUIImage(img)
+            }
+            selectedPhotoItem = nil
+        }
+    }
+    #elseif canImport(PhotosUI)
+    private func handlePhotoPickerItem(_ newItem: PhotosPickerItem?) {
+        selectedPhotoItem = nil
+    }
+    #endif
 
     // MARK: - Tasto + con Sfondo Trasparente Liquid Glass
     @ViewBuilder
