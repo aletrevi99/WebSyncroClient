@@ -9,72 +9,79 @@ public struct WidgetGlassBackgroundView: View {
 
     public init() {}
 
+    private var isDark: Bool {
+        colorScheme == .dark
+    }
+
+    private var baseColor: Color {
+        if isDark {
+            return Color(red: 0.08, green: 0.09, blue: 0.12)
+        } else {
+            return Color(red: 0.95, green: 0.96, blue: 0.98)
+        }
+    }
+
+    private var orangeGradientColors: [Color] {
+        if isDark {
+            return [Color.brandOrange.opacity(0.32), Color.brandOrange.opacity(0.10), Color.clear]
+        } else {
+            return [Color.brandOrange.opacity(0.20), Color.brandOrange.opacity(0.05), Color.clear]
+        }
+    }
+
+    private var blueGradientColors: [Color] {
+        if isDark {
+            return [Color.blue.opacity(0.24), Color.indigo.opacity(0.08), Color.clear]
+        } else {
+            return [Color.blue.opacity(0.14), Color.indigo.opacity(0.04), Color.clear]
+        }
+    }
+
+    private var borderGradientColors: [Color] {
+        if isDark {
+            return [
+                Color.white.opacity(0.25),
+                Color.white.opacity(0.05),
+                Color.brandOrange.opacity(0.18),
+                Color.white.opacity(0.10)
+            ]
+        } else {
+            return [
+                Color.white.opacity(0.90),
+                Color.white.opacity(0.35),
+                Color.brandOrange.opacity(0.20),
+                Color.white.opacity(0.60)
+            ]
+        }
+    }
+
     public var body: some View {
         ZStack {
-            // Tonalità di base adattiva
-            #if os(iOS)
-            (colorScheme == .dark
-                ? Color(red: 0.08, green: 0.09, blue: 0.12)
-                : Color(red: 0.95, green: 0.96, blue: 0.98))
-            #else
-            (colorScheme == .dark ? Color.black : Color.white)
-            #endif
+            baseColor
 
             // Sfera luminosa superiore Arancio Brand
             Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color.brandOrange.opacity(colorScheme == .dark ? 0.32 : 0.20),
-                            Color.brandOrange.opacity(colorScheme == .dark ? 0.10 : 0.05),
-                            Color.clear
-                        ],
-                        center: .center,
-                        startRadius: 10,
-                        endRadius: 130
-                    )
-                )
+                .fill(RadialGradient(colors: orangeGradientColors, center: .center, startRadius: 10, endRadius: 130))
                 .frame(width: 240, height: 240)
                 .offset(x: -50, y: -70)
                 .blur(radius: 28)
 
             // Sfera luminosa inferiore Zaffiro / Indaco
             Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color.blue.opacity(colorScheme == .dark ? 0.24 : 0.14),
-                            Color.indigo.opacity(colorScheme == .dark ? 0.08 : 0.04),
-                            Color.clear
-                        ],
-                        center: .center,
-                        startRadius: 15,
-                        endRadius: 140
-                    )
-                )
+                .fill(RadialGradient(colors: blueGradientColors, center: .center, startRadius: 15, endRadius: 140))
                 .frame(width: 260, height: 260)
                 .offset(x: 70, y: 70)
                 .blur(radius: 32)
 
             // Finitura satinata Ultra-Thin Material
             Rectangle()
-                .fill(.ultraThinMaterial.opacity(colorScheme == .dark ? 0.45 : 0.30))
+                .fill(.ultraThinMaterial.opacity(isDark ? 0.45 : 0.30))
 
             // Bordo speculare cristallo
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .strokeBorder(
                     LinearGradient(
-                        colors: colorScheme == .dark ? [
-                            Color.white.opacity(0.25),
-                            Color.white.opacity(0.05),
-                            Color.brandOrange.opacity(0.18),
-                            Color.white.opacity(0.10)
-                        ] : [
-                            Color.white.opacity(0.90),
-                            Color.white.opacity(0.35),
-                            Color.brandOrange.opacity(0.20),
-                            Color.white.opacity(0.60)
-                        ],
+                        colors: borderGradientColors,
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
@@ -91,6 +98,14 @@ public struct BalanceOverviewSmallWidgetView: View {
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
+    }
+
+    private var pillBackground: Color {
+        colorScheme == .dark ? Color.primary.opacity(0.06) : Color.primary.opacity(0.04)
+    }
+
+    private var pillStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.15) : Color.white.opacity(0.60)
     }
 
     public var body: some View {
@@ -142,13 +157,13 @@ public struct BalanceOverviewSmallWidgetView: View {
             .background(
                 ZStack {
                     Capsule().fill(.ultraThinMaterial)
-                    Capsule().fill(Color.primary.opacity(colorScheme == .dark ? 0.06 : 0.04))
+                    Capsule().fill(pillBackground)
                 }
             )
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .strokeBorder(Color.white.opacity(colorScheme == .dark ? 0.15 : 0.60), lineWidth: 0.8)
+                    .strokeBorder(pillStroke, lineWidth: 0.8)
             )
         }
         .padding(14)
@@ -163,6 +178,14 @@ public struct BalanceOverviewMediumWidgetView: View {
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
+    }
+
+    private var pillBackground: Color {
+        colorScheme == .dark ? Color.primary.opacity(0.06) : Color.primary.opacity(0.04)
+    }
+
+    private var pillStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.15) : Color.white.opacity(0.60)
     }
 
     public var body: some View {
@@ -253,13 +276,13 @@ public struct BalanceOverviewMediumWidgetView: View {
                 .background(
                     ZStack {
                         Capsule().fill(.ultraThinMaterial)
-                        Capsule().fill(Color.primary.opacity(colorScheme == .dark ? 0.06 : 0.04))
+                        Capsule().fill(pillBackground)
                     }
                 )
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
-                        .strokeBorder(Color.white.opacity(colorScheme == .dark ? 0.15 : 0.60), lineWidth: 0.8)
+                        .strokeBorder(pillStroke, lineWidth: 0.8)
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -276,6 +299,10 @@ public struct RecentSalesMediumWidgetView: View {
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
+    }
+
+    private var rowBackground: Color {
+        colorScheme == .dark ? Color.primary.opacity(0.05) : Color.primary.opacity(0.03)
     }
 
     public var body: some View {
@@ -344,7 +371,7 @@ public struct RecentSalesMediumWidgetView: View {
                         .padding(.vertical, 4)
                         .background(
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(Color.primary.opacity(colorScheme == .dark ? 0.05 : 0.03))
+                                .fill(rowBackground)
                         )
                     }
                 }
@@ -362,6 +389,10 @@ public struct ExpiringDiscountsMediumWidgetView: View {
 
     public init(snapshot: WebSyncroWidgetSnapshot) {
         self.snapshot = snapshot
+    }
+
+    private var rowBackground: Color {
+        colorScheme == .dark ? Color.primary.opacity(0.05) : Color.primary.opacity(0.03)
     }
 
     public var body: some View {
@@ -424,7 +455,7 @@ public struct ExpiringDiscountsMediumWidgetView: View {
                         .padding(.vertical, 4)
                         .background(
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(Color.primary.opacity(colorScheme == .dark ? 0.05 : 0.03))
+                                .fill(rowBackground)
                         )
                     }
                 }
