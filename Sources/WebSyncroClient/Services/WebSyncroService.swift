@@ -220,7 +220,7 @@ public final class WebSyncroService: WebSyncroServiceProtocol, @unchecked Sendab
         let htmlString = decodeDataToString(data)
         let filenames = SalesParser.extractNotificationFilenames(from: htmlString)
 
-        return try await withThrowingTaskGroup(of: ShopNotification?.self) { group in
+        return await withTaskGroup(of: ShopNotification?.self) { group in
             for filename in filenames {
                 group.addTask {
                     let fileURLString = "\(Self.baseHost)/Negozi/\(cleanShopId)/Notifiche/\(filename)"
