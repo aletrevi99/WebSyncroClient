@@ -53,6 +53,7 @@ public struct BalanceOverviewWidget: Widget {
         .configurationDisplayName("Saldo & Negozio")
         .description("Controlla il saldo maturato da ritirare in cassa e il valore residuo esposto.")
         .supportedFamilies([.systemSmall, .systemMedium])
+        .contentMarginsDisabled()
     }
 }
 
@@ -65,11 +66,16 @@ public struct BalanceOverviewWidgetEntryView: View {
     }
 
     public var body: some View {
-        switch family {
-        case .systemSmall:
-            BalanceOverviewSmallWidgetView(snapshot: entry.snapshot)
-        default:
-            BalanceOverviewMediumWidgetView(snapshot: entry.snapshot)
+        Group {
+            switch family {
+            case .systemSmall:
+                BalanceOverviewSmallWidgetView(snapshot: entry.snapshot)
+            default:
+                BalanceOverviewMediumWidgetView(snapshot: entry.snapshot)
+            }
+        }
+        .containerBackground(for: .widget) {
+            WidgetGlassBackgroundView()
         }
     }
 }
@@ -82,11 +88,27 @@ public struct RecentSalesWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WebSyncroTimelineProvider()) { entry in
-            RecentSalesMediumWidgetView(snapshot: entry.snapshot)
+            RecentSalesWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Ultime Vendite")
         .description("Visualizza gli ultimi articoli venduti e il guadagno netto.")
         .supportedFamilies([.systemMedium])
+        .contentMarginsDisabled()
+    }
+}
+
+public struct RecentSalesWidgetEntryView: View {
+    public let entry: WebSyncroWidgetEntry
+
+    public init(entry: WebSyncroWidgetEntry) {
+        self.entry = entry
+    }
+
+    public var body: some View {
+        RecentSalesMediumWidgetView(snapshot: entry.snapshot)
+            .containerBackground(for: .widget) {
+                WidgetGlassBackgroundView()
+            }
     }
 }
 
@@ -98,11 +120,27 @@ public struct ExpiringDiscountsWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WebSyncroTimelineProvider()) { entry in
-            ExpiringDiscountsMediumWidgetView(snapshot: entry.snapshot)
+            ExpiringDiscountsWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Saldi & Scadenze")
         .description("Monitora il passaggio a saldo al 50% e le scadenze del mandato.")
         .supportedFamilies([.systemMedium])
+        .contentMarginsDisabled()
+    }
+}
+
+public struct ExpiringDiscountsWidgetEntryView: View {
+    public let entry: WebSyncroWidgetEntry
+
+    public init(entry: WebSyncroWidgetEntry) {
+        self.entry = entry
+    }
+
+    public var body: some View {
+        ExpiringDiscountsMediumWidgetView(snapshot: entry.snapshot)
+            .containerBackground(for: .widget) {
+                WidgetGlassBackgroundView()
+            }
     }
 }
 
@@ -114,11 +152,27 @@ public struct QuickCardWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WebSyncroTimelineProvider()) { entry in
-            QuickCardMediumWidgetView(snapshot: entry.snapshot)
+            QuickCardWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Tessera Rapida")
         .description("Codice cliente e tessera digitale per il ritiro e controllo in cassa.")
         .supportedFamilies([.systemMedium])
+        .contentMarginsDisabled()
+    }
+}
+
+public struct QuickCardWidgetEntryView: View {
+    public let entry: WebSyncroWidgetEntry
+
+    public init(entry: WebSyncroWidgetEntry) {
+        self.entry = entry
+    }
+
+    public var body: some View {
+        QuickCardMediumWidgetView(snapshot: entry.snapshot)
+            .containerBackground(for: .widget) {
+                WidgetGlassBackgroundView()
+            }
     }
 }
 

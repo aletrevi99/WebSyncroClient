@@ -55,10 +55,13 @@ public struct WidgetsGalleryView: View {
                             }
                             .padding(.horizontal, 4)
 
-                            BalanceOverviewMediumWidgetView(snapshot: snapshot)
-                                .frame(height: 155)
-                                .clipShape(RoundedRectangle(cornerRadius: 22))
-                                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            ZStack {
+                                WidgetGlassBackgroundView()
+                                BalanceOverviewMediumWidgetView(snapshot: snapshot)
+                            }
+                            .frame(height: 155)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
                         }
 
                         // Widget 2: Saldo Maturato (Small)
@@ -75,10 +78,13 @@ public struct WidgetsGalleryView: View {
                             .padding(.horizontal, 4)
 
                             HStack(spacing: 14) {
-                                BalanceOverviewSmallWidgetView(snapshot: snapshot)
-                                    .frame(width: 155, height: 155)
-                                    .clipShape(RoundedRectangle(cornerRadius: 22))
-                                    .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                                ZStack {
+                                    WidgetGlassBackgroundView()
+                                    BalanceOverviewSmallWidgetView(snapshot: snapshot)
+                                }
+                                .frame(width: 155, height: 155)
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                                .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
 
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text("Vista Compatta")
@@ -105,10 +111,13 @@ public struct WidgetsGalleryView: View {
                             }
                             .padding(.horizontal, 4)
 
-                            RecentSalesMediumWidgetView(snapshot: snapshot)
-                                .frame(height: 155)
-                                .clipShape(RoundedRectangle(cornerRadius: 22))
-                                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            ZStack {
+                                WidgetGlassBackgroundView()
+                                RecentSalesMediumWidgetView(snapshot: snapshot)
+                            }
+                            .frame(height: 155)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
                         }
 
                         // Widget 4: Tessera Fornitore Rapida (Medium)
@@ -124,10 +133,13 @@ public struct WidgetsGalleryView: View {
                             }
                             .padding(.horizontal, 4)
 
-                            QuickCardMediumWidgetView(snapshot: snapshot)
-                                .frame(height: 155)
-                                .clipShape(RoundedRectangle(cornerRadius: 22))
-                                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            ZStack {
+                                WidgetGlassBackgroundView()
+                                QuickCardMediumWidgetView(snapshot: snapshot)
+                            }
+                            .frame(height: 155)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
                         }
 
                         // Widget 5: Scadenze & Saldi (Medium)
@@ -143,10 +155,13 @@ public struct WidgetsGalleryView: View {
                             }
                             .padding(.horizontal, 4)
 
-                            ExpiringDiscountsMediumWidgetView(snapshot: snapshot)
-                                .frame(height: 155)
-                                .clipShape(RoundedRectangle(cornerRadius: 22))
-                                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            ZStack {
+                                WidgetGlassBackgroundView()
+                                ExpiringDiscountsMediumWidgetView(snapshot: snapshot)
+                            }
+                            .frame(height: 155)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
                         }
 
                         // Tasto Sincronizza Snapshot

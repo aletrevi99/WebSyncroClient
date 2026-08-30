@@ -132,13 +132,13 @@ public struct InventoryListView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 LiquidGlassBackground()
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        // Header Nativo Apple HIG con Titolo e Tasti Allineati
-                        customHeaderBar
+                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
+                        Color.clear.frame(height: 50)
 
                         // Avviso In-App Reso Articolo (se attivo)
                         if let alert = notificationManager.activeReturnAlert {
@@ -214,6 +214,9 @@ public struct InventoryListView: View {
                 .refreshable {
                     await dashboardViewModel.refresh()
                 }
+
+                // Header Pinned Liquid Glass Fisso in Alto
+                pinnedInventoryHeaderBar
             }
             #if canImport(UIKit)
             .toolbar(.hidden, for: .navigationBar)
@@ -286,37 +289,62 @@ public struct InventoryListView: View {
         }
     }
 
-    // MARK: - Header Nativo Allineato Apple HIG
+    // MARK: - Header Pinned Liquid Glass
     @ViewBuilder
-    private var customHeaderBar: some View {
-        HStack(alignment: .center, spacing: 10) {
-            Text("Inventario")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
-
-            Spacer()
-
-            // Tasto Matita (Slegato, Liquid Glass Neutro)
-            Button(action: {
-                HapticFeedback.selection()
-                showingEditSheet = true
-            }) {
-                Image(systemName: "pencil")
-                    .font(.system(size: 16, weight: .semibold))
+    private var pinnedInventoryHeaderBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 8) {
+                Text("Inventario")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
-                    .frame(width: 38, height: 38)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle().stroke(Color.white.opacity(0.18), lineWidth: 1)
-                    )
-            }
-            .buttonStyle(PlainButtonStyle())
 
-            // Tasto + (Slegato, Liquid Glass Arancione Trasparente)
-            uploadMenuToolbarButton
+                Spacer()
+
+                // Account / Profilo Switcher
+                AccountSwitcherMenu(
+                    accountStore: accountStore,
+                    onManageAccounts: { showingBatchesManager = true }
+                )
+
+                // Tasto Matita (Slegato, Liquid Glass Neutro)
+                Button(action: {
+                    HapticFeedback.selection()
+                    showingEditSheet = true
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 36, height: 36)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle().stroke(Color.white.opacity(0.20), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+
+                // Tasto + (Slegato, Liquid Glass Arancione Trasparente)
+                uploadMenuToolbarButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
+            .background(
+                ZStack {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.02))
+                }
+                .ignoresSafeArea(edges: .top)
+            )
+            .overlay(
+                Rectangle()
+                    .fill(Color.primary.opacity(0.08))
+                    .frame(height: 0.8),
+                alignment: .bottom
+            )
         }
-        .padding(.top, 4)
     }
 
     // MARK: - Tasto + con Sfondo Trasparente Liquid Glass Arancione

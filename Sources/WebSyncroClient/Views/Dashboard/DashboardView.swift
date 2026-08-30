@@ -19,13 +19,13 @@ public struct DashboardView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 LiquidGlassBackground()
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        // Header nativo allineato Apple HIG
-                        customHeaderBar
+                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
+                        Color.clear.frame(height: 50)
 
                         // Avviso In-App Reso Articolo (se attivo)
                         if let alert = notificationManager.activeReturnAlert {
@@ -53,6 +53,9 @@ public struct DashboardView: View {
                 .refreshable {
                     await viewModel.refresh()
                 }
+
+                // Header Pinned Liquid Glass Fisso in Alto
+                pinnedHeaderBar
             }
             #if canImport(UIKit)
             .toolbar(.hidden, for: .navigationBar)
@@ -71,22 +74,41 @@ public struct DashboardView: View {
         }
     }
 
-    // MARK: - Header Nativo Allineato
+    // MARK: - Header Pinned Liquid Glass
     @ViewBuilder
-    private var customHeaderBar: some View {
-        HStack(alignment: .center) {
-            Text(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
+    private var pinnedHeaderBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                Text(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
 
-            Spacer()
+                Spacer()
 
-            AccountSwitcherMenu(
-                accountStore: accountStore,
-                onManageAccounts: { showingAccountManager = true }
+                AccountSwitcherMenu(
+                    accountStore: accountStore,
+                    onManageAccounts: { showingAccountManager = true }
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
+            .background(
+                ZStack {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.02))
+                }
+                .ignoresSafeArea(edges: .top)
+            )
+            .overlay(
+                Rectangle()
+                    .fill(Color.primary.opacity(0.08))
+                    .frame(height: 0.8),
+                alignment: .bottom
             )
         }
-        .padding(.top, 4)
     }
 
     // MARK: - Banner Avviso Reso In-App

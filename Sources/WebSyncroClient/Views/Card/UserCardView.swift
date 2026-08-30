@@ -14,19 +14,13 @@ public struct UserCardView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 LiquidGlassBackground()
 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Header Nativo allineato Apple HIG
-                        HStack(alignment: .center) {
-                            Text("Card")
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                            Spacer()
-                        }
-                        .padding(.top, 4)
+                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
+                        Color.clear.frame(height: 50)
 
                         // Card Fornitore in stile Liquid Glass
                         cardWidget
@@ -80,10 +74,50 @@ public struct UserCardView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 4)
                 }
+
+                // Pinned Header Bar
+                pinnedCardHeaderBar
             }
             #if canImport(UIKit)
             .toolbar(.hidden, for: .navigationBar)
             #endif
+        }
+    }
+
+    // MARK: - Header Pinned Liquid Glass
+    @ViewBuilder
+    private var pinnedCardHeaderBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                Text("Card")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                AccountSwitcherMenu(
+                    accountStore: accountStore,
+                    onManageAccounts: {}
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
+            .background(
+                ZStack {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.02))
+                }
+                .ignoresSafeArea(edges: .top)
+            )
+            .overlay(
+                Rectangle()
+                    .fill(Color.primary.opacity(0.08))
+                    .frame(height: 0.8),
+                alignment: .bottom
+            )
         }
     }
 

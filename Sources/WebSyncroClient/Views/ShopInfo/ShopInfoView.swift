@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Vista informativa di alto livello con identità visiva del mercatino, orari live, bio e recapiti
 public struct ShopInfoView: View {
@@ -28,13 +31,13 @@ public struct ShopInfoView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 LiquidGlassBackground()
 
                 ScrollView {
                     VStack(spacing: 18) {
-                        // Header Nativo allineato Apple HIG
-                        customHeaderBar
+                        // Spaziatore per far iniziare il contenuto sotto l'header fisso
+                        Color.clear.frame(height: 50)
 
                         // Card Principale: Identità Visiva, Bio e Tasti Azione Rapida
                         shopHeroCard
@@ -61,6 +64,9 @@ public struct ShopInfoView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 4)
                 }
+
+                // Pinned Header Bar
+                pinnedShopHeaderBar
             }
             #if canImport(UIKit)
             .toolbar(.hidden, for: .navigationBar)
@@ -76,14 +82,15 @@ public struct ShopInfoView: View {
                     }
 
                     Button("Google Maps") {
-                        if let googleAppURL = URL(string: "comgooglemaps://?q=\(encodedAddr)") {
-                            openURL(googleAppURL) { accepted in
-                                if !accepted, let webGoogleURL = URL(string: "https://www.google.com/maps/search/?api=1&query=\(encodedAddr)") {
-                                    openURL(webGoogleURL)
-                                }
-                            }
-                        } else if let webGoogleURL = URL(string: "https://www.google.com/maps/search/?api=1&query=\(encodedAddr)") {
-                            openURL(webGoogleURL)
+                        #if canImport(UIKit)
+                        if let googleURL = URL(string: "comgooglemaps://?q=\(encodedAddr)"),
+                           UIApplication.shared.canOpenURL(googleURL) {
+                            openURL(googleURL)
+                            return
+                        }
+                        #endif
+                        if let webGoogle = URL(string: "https://maps.google.com/?q=\(encodedAddr)") {
+                            openURL(webGoogle)
                         }
                     }
                 }
@@ -101,30 +108,52 @@ public struct ShopInfoView: View {
         }
     }
 
-    // MARK: - Header Nativo Allineato
+    // MARK: - Header Pinned Liquid Glass
     @ViewBuilder
-    private var customHeaderBar: some View {
-        HStack(alignment: .center) {
-            Text("Negozio")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
+    private var pinnedShopHeaderBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                Text("Negozio")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
 
-            Spacer()
+                Spacer()
 
-            Button(action: {
-                HapticFeedback.selection()
-                showingSettingsSheet = true
-            }) {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.brandOrange)
-                    .frame(width: 38, height: 38)
-                    .background(Color.secondary.opacity(0.12))
-                    .clipShape(Circle())
+                Button(action: {
+                    HapticFeedback.selection()
+                    showingSettingsSheet = true
+                }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.brandOrange)
+                        .frame(width: 36, height: 36)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle().stroke(Color.brandOrange.opacity(0.4), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle())
+            .padding(.horizontal, 16)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
+            .background(
+                ZStack {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.02))
+                }
+                .ignoresSafeArea(edges: .top)
+            )
+            .overlay(
+                Rectangle()
+                    .fill(Color.primary.opacity(0.08))
+                    .frame(height: 0.8),
+                alignment: .bottom
+            )
         }
-        .padding(.top, 4)
     }
 
     // MARK: - Hero Card Principale

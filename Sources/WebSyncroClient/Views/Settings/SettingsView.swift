@@ -361,7 +361,7 @@ public struct SettingsView: View {
                                                 if !granted {
                                                     #if canImport(UIKit)
                                                     if let url = URL(string: UIApplication.openSettingsURLString) {
-                                                        UIApplication.shared.open(url)
+                                                        await UIApplication.shared.open(url)
                                                     }
                                                     #endif
                                                 }

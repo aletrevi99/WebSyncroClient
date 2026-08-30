@@ -24,19 +24,12 @@ public struct NewsListView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 LiquidGlassBackground()
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        // Header Nativo allineato Apple HIG
-                        HStack(alignment: .center) {
-                            Text("Notizie")
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                            Spacer()
-                        }
-                        .padding(.top, 4)
+                        Color.clear.frame(height: 50)
 
                         if isLoading && notifications.isEmpty {
                             EmptyOrErrorView(type: .loading(message: "Caricamento notizie dal mercatino..."))
@@ -72,6 +65,9 @@ public struct NewsListView: View {
                 .refreshable {
                     await loadNotifications()
                 }
+
+                // Pinned Header Bar
+                pinnedNewsHeaderBar
             }
             #if canImport(UIKit)
             .toolbar(.hidden, for: .navigationBar)
@@ -87,6 +83,43 @@ public struct NewsListView: View {
                     await loadNotifications()
                 }
             }
+        }
+    }
+
+    // MARK: - Header Pinned Liquid Glass
+    @ViewBuilder
+    private var pinnedNewsHeaderBar: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center) {
+                Text("Notizie")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                AccountSwitcherMenu(
+                    accountStore: accountStore,
+                    onManageAccounts: {}
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
+            .background(
+                ZStack {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                    Rectangle()
+                        .fill(Color.primary.opacity(0.02))
+                }
+                .ignoresSafeArea(edges: .top)
+            )
+            .overlay(
+                Rectangle()
+                    .fill(Color.primary.opacity(0.08))
+                    .frame(height: 0.8),
+                alignment: .bottom
+            )
         }
     }
 

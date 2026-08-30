@@ -50,7 +50,7 @@ public struct WebSyncroApp: App {
                 .environmentObject(appState)
                 .environmentObject(notificationManager)
                 .task {
-                    await notificationManager.requestPermission()
+                    _ = await notificationManager.requestPermission()
                 }
         }
     }
