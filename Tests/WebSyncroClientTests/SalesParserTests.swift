@@ -26,12 +26,12 @@ final class SalesParserTests: XCTestCase {
         let report = SalesParser.parse(
             content: sample,
             shopId: "exnovomercatino",
-            userId: "TRE091_1762",
+            userId: "CLI001_1234",
             syncTimestamp: "SM_2026-08-29T19:54:28"
         )
 
         XCTAssertEqual(report.shopId, "exnovomercatino")
-        XCTAssertEqual(report.userId, "TRE091_1762")
+        XCTAssertEqual(report.userId, "CLI001_1234")
         XCTAssertEqual(report.itemsCount, 3)
         XCTAssertEqual(report.items.count, 3)
 
@@ -70,7 +70,7 @@ final class SalesParserTests: XCTestCase {
         let report = SalesParser.parse(
             content: sample,
             shopId: "exnovomercatino",
-            userId: "TRE091_1762",
+            userId: "CLI001_1234",
             syncTimestamp: "SM_2026-08-29T19:54:28",
             isNonMatured: true
         )

@@ -6,7 +6,6 @@ public struct DashboardView: View {
     @StateObject private var accountStore: AccountStore
     
     @State private var showingAccountManager = false
-    @State private var showingShopInfo = false
 
     public init(
         viewModel: DashboardViewModel? = nil,
@@ -43,7 +42,7 @@ public struct DashboardView: View {
                     await viewModel.refresh()
                 }
             }
-            .navigationTitle("Maturato")
+            .navigationTitle(viewModel.selectedTab == .matured ? "Vendite" : "In Recesso")
             .adaptiveLargeTitle()
             .toolbar {
                 ToolbarItem(placement: .automatic) {
@@ -51,22 +50,6 @@ public struct DashboardView: View {
                         accountStore: accountStore,
                         onManageAccounts: { showingAccountManager = true }
                     )
-                }
-
-                ToolbarItem(placement: .automatic) {
-                    Button(action: {
-                        HapticFeedback.selection()
-                        showingShopInfo = true
-                    }) {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.primary)
-                    }
-                }
-            }
-            .sheet(isPresented: $showingShopInfo) {
-                if let shopId = viewModel.activeAccount?.shopId {
-                    ShopInfoView(shopId: shopId)
                 }
             }
             .sheet(isPresented: $showingAccountManager) {

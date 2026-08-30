@@ -26,18 +26,18 @@ public struct SaleItemDetailSheet: View {
                         // Card Importo Principale
                         LiquidGlassCard(cornerRadius: 24, padding: 24) {
                             VStack(spacing: 8) {
-                                Text("IMPORTO MATURATO")
+                                Text(item.isNonMatured ? "VENDUTO IN RECESSO" : "IMPORTO MATURATO")
                                     .font(.caption)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(item.isNonMatured ? .brandOrange : .secondary)
                                     .tracking(1)
 
                                 Text(CurrencyFormatter.format(decimal: item.amount))
                                     .font(.system(size: 44, weight: .bold, design: .rounded))
                                     .monospacedDigit()
-                                    .foregroundColor(.green)
+                                    .foregroundColor(item.isNonMatured ? .brandOrange : .green)
 
-                                Text("Credito riconosciuto in cassa")
+                                Text(item.isNonMatured ? "Importo in attesa del termine del diritto di recesso" : "Credito disponibile per il ritiro in cassa")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                             }
@@ -98,7 +98,7 @@ public struct SaleItemDetailSheet: View {
                                     }
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(.brandOrange)
                                     .frame(maxWidth: .infinity)
                                 }
                             }
@@ -106,7 +106,7 @@ public struct SaleItemDetailSheet: View {
 
                             // Condividi
                             ShareLink(
-                                item: "Vendita WebSyncro: \(item.displayTitle) (#\(item.id)) - Maturato: \(CurrencyFormatter.format(decimal: item.amount)) in data \(item.dateString)"
+                                item: "Vendita: \(item.displayTitle) (#\(item.id)) - Importo: \(CurrencyFormatter.format(decimal: item.amount)) (\(item.isNonMatured ? "In Recesso" : "Maturato")) in data \(item.dateString)"
                             ) {
                                 LiquidGlassCard(cornerRadius: 18, padding: 14) {
                                     HStack {
@@ -134,13 +134,15 @@ public struct SaleItemDetailSheet: View {
                     Button("Chiudi") {
                         dismiss()
                     }
+                    .foregroundColor(.brandOrange)
                 }
             }
         }
     }
 
     private func copyToClipboard() {
-        let content = "\(item.displayTitle)\nID: #\(item.id)\nData: \(item.dateString)\nImporto: \(CurrencyFormatter.format(decimal: item.amount))"
+        let status = item.isNonMatured ? "In Recesso" : "Maturato"
+        let content = "\(item.displayTitle)\nID: #\(item.id)\nData: \(item.dateString)\nStato: \(status)\nImporto: \(CurrencyFormatter.format(decimal: item.amount))"
         #if os(iOS)
         UIPasteboard.general.string = content
         #elseif os(macOS)
@@ -154,4 +156,3 @@ public struct SaleItemDetailSheet: View {
         }
     }
 }
-

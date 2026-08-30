@@ -12,7 +12,7 @@ public struct AccountSwitcherMenu: View {
 
     public var body: some View {
         Menu {
-            Section("Account WebSyncro") {
+            Section("I Miei Negozi") {
                 ForEach(accountStore.accounts) { account in
                     Button(action: {
                         accountStore.selectAccount(id: account.id)
@@ -33,14 +33,14 @@ public struct AccountSwitcherMenu: View {
                     HapticFeedback.impact(.light)
                     onManageAccounts()
                 }) {
-                    Label("Gestisci account...", systemImage: "person.crop.circle.badge.plus")
+                    Label("Gestisci negozi...", systemImage: "person.crop.circle.badge.plus")
                 }
             }
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "storefront.fill")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.brandOrange)
 
                 Text(accountStore.activeAccount?.displayName ?? "Seleziona")
                     .font(.subheadline)

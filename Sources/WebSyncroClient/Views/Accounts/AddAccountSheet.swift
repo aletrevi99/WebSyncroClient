@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Modale per inserire o modificare i parametri di un account WebSyncro
+/// Modale per inserire o modificare i parametri di un account negozio
 public struct AddAccountSheet: View {
     @ObservedObject var viewModel: AccountManagerViewModel
     @Environment(\.dismiss) private var dismiss
@@ -21,14 +21,14 @@ public struct AddAccountSheet: View {
                             HStack(alignment: .top, spacing: 12) {
                                 Image(systemName: "person.badge.key.fill")
                                     .font(.title3)
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(.brandOrange)
                                     .padding(.top, 2)
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Credenziali WebSyncro")
+                                    Text("Credenziali Account Negozio")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
-                                    Text("Seleziona o digita il negozio del mercatino, inserisci il codice alfanumerico della tua tessera cliente (es. TRE091) e il tuo PIN numerico (es. 1762).")
+                                    Text("Seleziona il negozio affiliato, inserisci il codice alfanumerico della tua tessera cliente e il tuo PIN numerico per sincronizzare le vendite.")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -38,11 +38,21 @@ public struct AddAccountSheet: View {
                         // Selezione rapida negozi noti
                         if !viewModel.availableShops.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Negozi Riconosciuti WebSyncro")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 4)
+                                HStack {
+                                    Text("Seleziona Negozio")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    if viewModel.isShopLocked {
+                                        Button("Altro...") {
+                                            viewModel.unlockShopSelection()
+                                        }
+                                        .font(.caption)
+                                        .foregroundColor(.brandOrange)
+                                    }
+                                }
+                                .padding(.horizontal, 4)
 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
@@ -61,7 +71,7 @@ public struct AddAccountSheet: View {
                                                 }
                                                 .padding(.horizontal, 12)
                                                 .padding(.vertical, 8)
-                                                .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.12))
+                                                .background(isSelected ? Color.brandOrange : Color.secondary.opacity(0.12))
                                                 .foregroundColor(isSelected ? .white : .primary)
                                                 .clipShape(Capsule())
                                             }
@@ -74,30 +84,45 @@ public struct AddAccountSheet: View {
                         // Card Campi Form
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 16) {
-                                // Alias Facoltativo
+                                // Alias Personalizzato
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Nome / Alias Personalizzato (Opzionale)")
+                                    Text("Nome / Alias Negozio (Opzionale)")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    TextField("Es. EX Novo Mercatino", text: $viewModel.formAlias)
+                                    TextField("Es. Mercatino Centro", text: $viewModel.formAlias)
                                         .font(.body)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                 }
 
-                                // Shop ID / Slug
+                                // Identificativo Negozio (Hardcoded / Bloccato se selezionato dai preset)
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Identificativo Negozio (Shop ID)")
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.secondary)
+                                    HStack {
+                                        Text("Identificativo Negozio")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.secondary)
 
-                                    TextField("Es. exnovomercatino", text: $viewModel.formShopId)
+                                        if viewModel.isShopLocked {
+                                            Spacer()
+                                            Text("Preimpostato")
+                                                .font(.system(size: 10, weight: .bold))
+                                                .foregroundColor(.brandOrange)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Color.brandOrange.opacity(0.12))
+                                                .clipShape(Capsule())
+                                        }
+                                    }
+
+                                    TextField("Identificativo negozio", text: $viewModel.formShopId)
                                         .font(.system(.body, design: .monospaced))
                                         .autocorrectionDisabled(true)
+                                        .disabled(viewModel.isShopLocked)
+                                        .opacity(viewModel.isShopLocked ? 0.75 : 1.0)
                                         #if os(iOS)
                                         .textInputAutocapitalization(.never)
                                         #endif
@@ -108,12 +133,12 @@ public struct AddAccountSheet: View {
 
                                 // Codice Tessera / Username
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Codice Tessera Cliente (Username)")
+                                    Text("Codice Tessera Cliente")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
-                                    TextField("Es. TRE091", text: $viewModel.formCardCode)
+                                    TextField("Es. Codice alfanumerico", text: $viewModel.formCardCode)
                                         .font(.system(.body, design: .monospaced))
                                         .autocorrectionDisabled(true)
                                         #if os(iOS)
@@ -126,20 +151,20 @@ public struct AddAccountSheet: View {
 
                                 // PIN
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("PIN Tessera (Numerico)")
+                                    Text("PIN Tessera")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.secondary)
 
                                     #if os(iOS)
-                                    TextField("Es. 1762", text: $viewModel.formPin)
+                                    TextField("PIN numerico", text: $viewModel.formPin)
                                         .font(.system(.body, design: .monospaced))
                                         .keyboardType(.numberPad)
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
                                     #else
-                                    TextField("Es. 1762", text: $viewModel.formPin)
+                                    TextField("PIN numerico", text: $viewModel.formPin)
                                         .font(.system(.body, design: .monospaced))
                                         .padding(10)
                                         .background(Color.secondary.opacity(0.1))
@@ -177,6 +202,7 @@ public struct AddAccountSheet: View {
                         }
                     }
                     .fontWeight(.bold)
+                    .foregroundColor(.brandOrange)
                 }
             }
         }

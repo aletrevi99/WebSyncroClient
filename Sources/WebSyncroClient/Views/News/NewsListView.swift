@@ -90,12 +90,12 @@ public struct NewsListView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "megaphone.fill")
                                 .font(.caption)
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.brandOrange)
 
                             Text(notif.sender)
                                 .font(.caption)
                                 .fontWeight(.bold)
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.brandOrange)
                         }
 
                         Spacer()
@@ -125,7 +125,7 @@ public struct NewsListView: View {
                         Text("Leggi tutto →")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.brandOrange)
                     }
                     .padding(.top, 2)
                 }
@@ -148,7 +148,7 @@ public struct NewsListView: View {
                                     Label(notif.sender, systemImage: "megaphone.fill")
                                         .font(.subheadline)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.accentColor)
+                                        .foregroundColor(.brandOrange)
 
                                     Spacer()
 
@@ -183,6 +183,7 @@ public struct NewsListView: View {
                     Button("Chiudi") {
                         selectedNotification = nil
                     }
+                    .foregroundColor(.brandOrange)
                 }
             }
         }

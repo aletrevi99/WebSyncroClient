@@ -8,7 +8,6 @@ public struct ShopInfoView: View {
     @State private var errorMessage: String?
     
     private let service: WebSyncroServiceProtocol
-    @Environment(\.dismiss) private var dismiss
 
     public init(
         shopId: String,
@@ -30,12 +29,12 @@ public struct ShopInfoView: View {
                             VStack(spacing: 12) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.accentColor.opacity(0.15))
+                                        .fill(Color.brandOrange.opacity(0.15))
                                         .frame(width: 60, height: 60)
 
                                     Image(systemName: "storefront.fill")
                                         .font(.system(size: 28))
-                                        .foregroundColor(.accentColor)
+                                        .foregroundColor(.brandOrange)
                                 }
 
                                 VStack(spacing: 4) {
@@ -44,43 +43,31 @@ public struct ShopInfoView: View {
                                         .fontWeight(.bold)
                                         .multilineTextAlignment(.center)
 
-                                    Text("Mercatino Partner WebSyncro")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    if let shop = shopDetails, !shop.cityZip.isEmpty {
+                                        Text(shop.cityZip)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
 
-                                // Pulsanti di contatto rapido
+                                // Pulsanti di contatto rapido (Chiama, Email, Sito Web, Mappa)
                                 if let shop = shopDetails {
-                                    HStack(spacing: 12) {
+                                    HStack(spacing: 8) {
                                         if !shop.phone.isEmpty, let telURL = URL(string: "tel:\(shop.cleanPhoneNumber)") {
                                             Link(destination: telURL) {
-                                                HStack(spacing: 6) {
-                                                    Image(systemName: "phone.fill")
-                                                    Text("Chiama")
-                                                }
-                                                .font(.system(.caption, design: .rounded))
-                                                .fontWeight(.semibold)
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 8)
-                                                .background(Color.green.opacity(0.15))
-                                                .foregroundColor(.green)
-                                                .clipShape(Capsule())
+                                                contactButtonLabel(icon: "phone.fill", text: "Chiama", color: .green)
                                             }
                                         }
 
                                         if !shop.email.isEmpty, let mailURL = URL(string: "mailto:\(shop.email)") {
                                             Link(destination: mailURL) {
-                                                HStack(spacing: 6) {
-                                                    Image(systemName: "envelope.fill")
-                                                    Text("Email")
-                                                }
-                                                .font(.system(.caption, design: .rounded))
-                                                .fontWeight(.semibold)
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 8)
-                                                .background(Color.blue.opacity(0.15))
-                                                .foregroundColor(.blue)
-                                                .clipShape(Capsule())
+                                                contactButtonLabel(icon: "envelope.fill", text: "Email", color: .blue)
+                                            }
+                                        }
+
+                                        if !shop.website.isEmpty, let webURL = URL(string: shop.website) {
+                                            Link(destination: webURL) {
+                                                contactButtonLabel(icon: "globe", text: "Sito Web", color: .brandOrange)
                                             }
                                         }
 
@@ -88,17 +75,7 @@ public struct ShopInfoView: View {
                                            let encodedAddr = shop.fullAddress.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                                            let mapURL = URL(string: "http://maps.apple.com/?q=\(encodedAddr)") {
                                             Link(destination: mapURL) {
-                                                HStack(spacing: 6) {
-                                                    Image(systemName: "map.fill")
-                                                    Text("Mappa")
-                                                }
-                                                .font(.system(.caption, design: .rounded))
-                                                .fontWeight(.semibold)
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 8)
-                                                .background(Color.purple.opacity(0.15))
-                                                .foregroundColor(.purple)
-                                                .clipShape(Capsule())
+                                                contactButtonLabel(icon: "map.fill", text: "Mappa", color: .purple)
                                             }
                                         }
                                     }
@@ -108,11 +85,134 @@ public struct ShopInfoView: View {
                             .frame(maxWidth: .infinity)
                         }
 
+                        // Hero Card: Stato Apertura Oggi in Tempo Reale
+                        if let shop = shopDetails {
+                            let status = shop.currentOpenStatus
+                            LiquidGlassCard(cornerRadius: 20, padding: 16) {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(status.isOpen ? Color.green.opacity(0.15) : (status.statusText.contains("PAUSA") ? Color.orange.opacity(0.15) : Color.secondary.opacity(0.15)))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(systemName: status.isOpen ? "clock.badge.checkmark.fill" : "clock.fill")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .secondary))
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(status.statusText)
+                                            .font(.system(.subheadline, design: .rounded))
+                                            .fontWeight(.bold)
+                                            .foregroundColor(status.isOpen ? .green : (status.statusText.contains("PAUSA") ? .orange : .primary))
+
+                                        Text(status.detailText)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+                                }
+                            }
+                        }
+
+                        // Card Orari di Apertura Settimanali
+                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
+                            VStack(alignment: .leading, spacing: 14) {
+                                HStack {
+                                    Label("Orari della Settimana", systemImage: "calendar")
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+
+                                    Spacer()
+
+                                    if isLoading {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                    }
+                                }
+
+                                Divider()
+
+                                if let error = errorMessage {
+                                    Text("Impossibile caricare gli orari: \(error)")
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                } else if let info = shopDetails, !info.schedule.isEmpty {
+                                    VStack(spacing: 10) {
+                                        ForEach(info.schedule) { day in
+                                            let isToday = info.todaySchedule?.id == day.id
+
+                                            HStack(alignment: .center) {
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    HStack(spacing: 6) {
+                                                        Text(day.dayName)
+                                                            .font(.subheadline)
+                                                            .fontWeight(isToday ? .bold : .medium)
+                                                            .foregroundColor(isToday ? .brandOrange : .primary)
+
+                                                        if isToday {
+                                                            Text("OGGI")
+                                                                .font(.system(size: 9, weight: .bold))
+                                                                .padding(.horizontal, 6)
+                                                                .padding(.vertical, 2)
+                                                                .background(Color.brandOrange.opacity(0.15))
+                                                                .foregroundColor(.brandOrange)
+                                                                .clipShape(Capsule())
+                                                        }
+                                                    }
+
+                                                    Text(day.formattedHours)
+                                                        .font(.caption)
+                                                        .foregroundColor(day.isClosed ? .secondary : .primary)
+                                                }
+
+                                                Spacer()
+
+                                                // Tag dinamico: Se è oggi mostra se è Aperto ora / Pausa / Chiuso, altrimenti solo Aperto/Chiuso generale
+                                                if isToday {
+                                                    let openNow = info.currentOpenStatus.isOpen
+                                                    Text(openNow ? "Aperto Adesso" : (day.isClosed ? "Chiuso" : "Chiuso Ora"))
+                                                        .font(.system(size: 11, weight: .semibold))
+                                                        .padding(.horizontal, 8)
+                                                        .padding(.vertical, 4)
+                                                        .background(openNow ? Color.green.opacity(0.15) : Color.secondary.opacity(0.12))
+                                                        .foregroundColor(openNow ? .green : .secondary)
+                                                        .clipShape(Capsule())
+                                                } else {
+                                                    Text(day.isClosed ? "Chiuso" : "Orario Regolare")
+                                                        .font(.system(size: 11, weight: .semibold))
+                                                        .padding(.horizontal, 8)
+                                                        .padding(.vertical, 4)
+                                                        .background(day.isClosed ? Color.secondary.opacity(0.12) : Color.primary.opacity(0.06))
+                                                        .foregroundColor(.secondary)
+                                                        .clipShape(Capsule())
+                                                }
+                                            }
+                                            .padding(.vertical, isToday ? 6 : 2)
+                                            .padding(.horizontal, isToday ? 8 : 0)
+                                            .background(isToday ? Color.brandOrange.opacity(0.06) : Color.clear)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                                            if day.id < 6 {
+                                                Divider()
+                                                    .background(Color.white.opacity(0.06))
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Text("Orari non disponibili al momento.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+
                         // Card Recapiti e Indirizzo
                         if let shop = shopDetails, !shop.fullAddress.isEmpty || !shop.phone.isEmpty || !shop.email.isEmpty {
                             LiquidGlassCard(cornerRadius: 22, padding: 18) {
                                 VStack(alignment: .leading, spacing: 12) {
-                                    Label("Recapiti & Sede", systemImage: "mappin.circle.fill")
+                                    Label("Sede & Contatti", systemImage: "mappin.circle.fill")
                                         .font(.headline)
                                         .foregroundColor(.primary)
 
@@ -122,7 +222,7 @@ public struct ShopInfoView: View {
                                         HStack(alignment: .top, spacing: 10) {
                                             Image(systemName: "location.fill")
                                                 .font(.caption)
-                                                .foregroundColor(.accentColor)
+                                                .foregroundColor(.brandOrange)
                                                 .padding(.top, 2)
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text("Indirizzo")
@@ -172,90 +272,13 @@ public struct ShopInfoView: View {
                             }
                         }
 
-                        // Card Orari di Apertura Settimanali
-                        LiquidGlassCard(cornerRadius: 22, padding: 18) {
-                            VStack(alignment: .leading, spacing: 14) {
-                                HStack {
-                                    Label("Orari di Apertura", systemImage: "clock.fill")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-
-                                    Spacer()
-
-                                    if isLoading {
-                                        ProgressView()
-                                            .scaleEffect(0.8)
-                                    }
-                                }
-
-                                Divider()
-
-                                if let error = errorMessage {
-                                    Text("Impossibile caricare gli orari: \(error)")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                } else if let info = shopDetails, !info.schedule.isEmpty {
-                                    VStack(spacing: 10) {
-                                        ForEach(info.schedule) { day in
-                                            let isToday = info.todaySchedule?.id == day.id
-
-                                            HStack(alignment: .center) {
-                                                VStack(alignment: .leading, spacing: 2) {
-                                                    HStack(spacing: 6) {
-                                                        Text(day.dayName)
-                                                            .font(.subheadline)
-                                                            .fontWeight(isToday ? .bold : .medium)
-                                                            .foregroundColor(isToday ? .accentColor : .primary)
-
-                                                        if isToday {
-                                                            Text("OGGI")
-                                                                .font(.system(size: 9, weight: .bold))
-                                                                .padding(.horizontal, 6)
-                                                                .padding(.vertical, 2)
-                                                                .background(Color.accentColor.opacity(0.15))
-                                                                .foregroundColor(.accentColor)
-                                                                .clipShape(Capsule())
-                                                        }
-                                                    }
-
-                                                    Text(day.formattedHours)
-                                                        .font(.caption)
-                                                        .foregroundColor(day.isClosed ? .secondary : .primary)
-                                                }
-
-                                                Spacer()
-
-                                                Text(day.isClosed ? "Chiuso" : "Aperto")
-                                                    .font(.system(size: 11, weight: .semibold))
-                                                    .padding(.horizontal, 8)
-                                                    .padding(.vertical, 4)
-                                                    .background(day.isClosed ? Color.secondary.opacity(0.12) : Color.green.opacity(0.15))
-                                                    .foregroundColor(day.isClosed ? .secondary : .green)
-                                                    .clipShape(Capsule())
-                                            }
-                                            .padding(.vertical, 4)
-
-                                            if day.id < 6 {
-                                                Divider()
-                                                    .background(Color.white.opacity(0.06))
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Text("Orari non disponibili al momento.")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-
                         // Card Informativa: Diritto di Recesso
                         LiquidGlassCard(cornerRadius: 22, padding: 18) {
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "arrow.uturn.backward.circle.fill")
                                         .font(.system(size: 20))
-                                        .foregroundColor(.orange)
+                                        .foregroundColor(.brandOrange)
 
                                     Text("Diritto di Recesso e Maturazione")
                                         .font(.system(.subheadline, design: .rounded))
@@ -274,19 +297,27 @@ public struct ShopInfoView: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Info Mercatino")
-            .adaptiveInlineTitle()
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Chiudi") {
-                        dismiss()
-                    }
-                }
-            }
+            .navigationTitle("Negozio")
+            .adaptiveLargeTitle()
             .task {
                 await loadShopDetails()
             }
         }
+    }
+
+    @ViewBuilder
+    private func contactButtonLabel(icon: String, text: String, color: Color) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 11))
+            Text(text)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(color.opacity(0.15))
+        .foregroundColor(color)
+        .clipShape(Capsule())
     }
 
     private func loadShopDetails() async {

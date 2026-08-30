@@ -28,7 +28,7 @@ public struct UserCardView: View {
                             HStack(alignment: .top, spacing: 12) {
                                 Image(systemName: "barcode.viewfinder")
                                     .font(.title2)
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(.brandOrange)
                                     .padding(.top, 2)
 
                                 VStack(alignment: .leading, spacing: 4) {
@@ -54,7 +54,7 @@ public struct UserCardView: View {
 
                                     Divider()
 
-                                    detailRow(title: "Codice Tessera", value: account.cardCode.isEmpty ? account.userId : account.cardCode)
+                                    detailRow(title: "Codice Tessera", value: account.cardCode.isEmpty ? (account.userId.isEmpty ? "N/D" : account.userId) : account.cardCode)
                                     detailRow(title: "Negozio Associato", value: account.shopId)
                                     if !account.pin.isEmpty {
                                         detailRow(title: "PIN Configurato", value: "••••")
@@ -79,11 +79,11 @@ public struct UserCardView: View {
     // MARK: - Widget Grafico della Tessera
     @ViewBuilder
     private var cardWidget: some View {
-        let shopName = activeAccount?.accountAlias.isEmpty == false ? (activeAccount?.accountAlias ?? "MERCATINO") : (activeAccount?.shopId.uppercased() ?? "MERCATINO")
-        let code = activeAccount?.cardCode.isEmpty == false ? (activeAccount?.cardCode ?? "000000") : (activeAccount?.userId ?? "000000")
+        let shopName = (activeAccount?.accountAlias.isEmpty == false) ? (activeAccount?.accountAlias ?? "MERCATINO") : (activeAccount?.shopId.uppercased() ?? "MERCATINO")
+        let code = (activeAccount?.cardCode.isEmpty == false) ? (activeAccount?.cardCode ?? "000000") : (activeAccount?.userId.isEmpty == false ? (activeAccount?.userId ?? "000000") : "000000")
 
         VStack(spacing: 0) {
-            // Testata colorata della Card
+            // Testata arancione ufficiale del brand
             VStack(spacing: 4) {
                 Text("CARD FORNITORE")
                     .font(.system(size: 15, weight: .black, design: .rounded))
@@ -98,7 +98,7 @@ public struct UserCardView: View {
             .padding(.vertical, 16)
             .background(
                 LinearGradient(
-                    colors: [Color.blue.opacity(0.85), Color.accentColor],
+                    colors: [Color.brandOrangeGradientStart, Color.brandOrangeGradientEnd],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -144,7 +144,7 @@ public struct UserCardView: View {
                     lineWidth: 1.5
                 )
         )
-        .shadow(color: Color.black.opacity(0.15), radius: 15, x: 0, y: 8)
+        .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 5)
         .padding(.horizontal, 12)
     }
 

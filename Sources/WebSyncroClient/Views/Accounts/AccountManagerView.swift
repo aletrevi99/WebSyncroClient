@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Vista per la gestione e configurazione degli account salvati (multi-utente)
+/// Vista per la gestione e configurazione degli account negozio salvati
 public struct AccountManagerView: View {
     @StateObject private var viewModel = AccountManagerViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -40,7 +40,7 @@ public struct AccountManagerView: View {
                                             .foregroundColor(.secondary)
 
                                         if let lastEarned = account.lastTotalEarned {
-                                            Text("Ultimo maturato: \(CurrencyFormatter.format(decimal: lastEarned))")
+                                            Text("Ultimo totale: \(CurrencyFormatter.format(decimal: lastEarned))")
                                                 .font(.caption2)
                                                 .foregroundColor(.secondary)
                                         }
@@ -82,7 +82,7 @@ public struct AccountManagerView: View {
                             }
                         }
 
-                        // Pulsante Aggiungi Account
+                        // Pulsante Aggiungi Account Negozio
                         Button(action: {
                             viewModel.prepareAddAccount()
                         }) {
@@ -90,9 +90,9 @@ public struct AccountManagerView: View {
                                 HStack(spacing: 12) {
                                     Image(systemName: "plus.circle.fill")
                                         .font(.title3)
-                                        .foregroundColor(.accentColor)
+                                        .foregroundColor(.brandOrange)
 
-                                    Text("Aggiungi un altro negozio / utente")
+                                    Text("Aggiungi un altro negozio")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.primary)
@@ -107,13 +107,15 @@ public struct AccountManagerView: View {
                     .padding(16)
                 }
             }
-            .navigationTitle("Gestione Account")
+            .navigationTitle("I Miei Negozi")
             .adaptiveInlineTitle()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Fine") {
                         dismiss()
                     }
+                    .foregroundColor(.brandOrange)
+                    .fontWeight(.semibold)
                 }
             }
             .sheet(isPresented: $viewModel.isAddingAccount) {
@@ -122,4 +124,3 @@ public struct AccountManagerView: View {
         }
     }
 }
-

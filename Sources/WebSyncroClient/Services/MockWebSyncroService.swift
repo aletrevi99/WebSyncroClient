@@ -150,7 +150,7 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
 
     public static func sampleReport(
         shopId: String = "exnovomercatino",
-        userId: String = "TRE091_1762",
+        userId: String = "CLI001_1234",
         syncTimestamp: String = "SM_2026-08-29T19:54:28"
     ) -> SalesReport {
         let items: [SaleItem] = [
@@ -228,7 +228,7 @@ public final class MockWebSyncroService: WebSyncroServiceProtocol, @unchecked Se
 
     public static func sampleNonMaturedReport(
         shopId: String = "exnovomercatino",
-        userId: String = "TRE091_1762",
+        userId: String = "CLI001_1234",
         syncTimestamp: String = "SM_2026-08-29T19:54:28"
     ) -> SalesReport {
         let items: [SaleItem] = [

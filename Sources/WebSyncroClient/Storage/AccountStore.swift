@@ -30,12 +30,12 @@ public final class AccountStore: ObservableObject {
            !decoded.isEmpty {
             self.accounts = decoded
         } else {
-            // Account predefinito al primo avvio
+            // Account iniziale predefinito
             let defaultAccount = UserAccount(
                 shopId: "exnovomercatino",
-                cardCode: "TRE091",
-                pin: "1762",
-                accountAlias: "Exnovo Mercatino"
+                cardCode: "",
+                pin: "",
+                accountAlias: "EX Novo"
             )
             self.accounts = [defaultAccount]
             saveAccounts()

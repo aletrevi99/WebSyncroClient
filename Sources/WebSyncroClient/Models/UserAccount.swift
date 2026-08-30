@@ -4,8 +4,8 @@ import Foundation
 public struct UserAccount: Identifiable, Codable, Hashable, Sendable {
     public let id: UUID
     public var shopId: String
-    public var cardCode: String     // Codice alfanumerico tessera cliente (es. "TRE091")
-    public var pin: String          // PIN numerico (es. "1762")
+    public var cardCode: String     // Codice alfanumerico tessera cliente (es. "CLI001")
+    public var pin: String          // PIN numerico (es. "1234")
     public var accountAlias: String
     public var lastSyncDate: Date?
     public var lastTotalEarned: Decimal?
@@ -37,7 +37,7 @@ public struct UserAccount: Identifiable, Codable, Hashable, Sendable {
         self.createdAt = createdAt
     }
 
-    /// ID Utente combinato nel formato richiesto dal server: username_pin (es. "TRE091_1762")
+    /// ID Utente combinato nel formato richiesto dal server: username_pin
     public var userId: String {
         let c = cardCode.trimmingCharacters(in: .whitespacesAndNewlines)
         let p = pin.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -47,7 +47,7 @@ public struct UserAccount: Identifiable, Codable, Hashable, Sendable {
         return c
     }
 
-    /// Nome visualizzato dell'account (alias se presente, altrimenti negozio e tessera)
+    /// Nome visualizzato dell'account
     public var displayName: String {
         if !accountAlias.isEmpty {
             return accountAlias
@@ -83,7 +83,6 @@ public struct UserAccount: Identifiable, Codable, Hashable, Sendable {
             self.cardCode = c
             self.pin = p
         } else if let legacyUserId = try container.decodeIfPresent(String.self, forKey: .userId) {
-            // Se presente il vecchio formato userId con underscore
             let parts = legacyUserId.components(separatedBy: "_")
             if parts.count >= 2 {
                 self.cardCode = parts[0]

@@ -37,15 +37,12 @@ public struct MainTabView: View {
                 .tag(2)
 
             // Tab 4: Info Negozio & Orari
-            NavigationStack {
-                ShopInfoView(shopId: activeShopId)
-            }
-            .tabItem {
-                Label("Negozio", systemImage: "storefront.fill")
-            }
-            .tag(3)
+            ShopInfoView(shopId: activeShopId)
+                .tabItem {
+                    Label("Negozio", systemImage: "storefront.fill")
+                }
+                .tag(3)
         }
-        .tint(Color.accentColor)
+        .tint(Color.brandOrange)
     }
 }
-

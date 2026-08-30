@@ -37,20 +37,20 @@ final class AccountManagerViewModelTests: XCTestCase {
         viewModel.formCardCode = ""
         XCTAssertFalse(viewModel.saveAccount())
 
-        viewModel.formCardCode = "TRE091"
+        viewModel.formCardCode = "TEST001"
         viewModel.formPin = ""
         XCTAssertFalse(viewModel.saveAccount())
 
-        viewModel.formPin = "1762"
-        viewModel.formAlias = "Exnovo"
+        viewModel.formPin = "1234"
+        viewModel.formAlias = "Mercatino"
         XCTAssertTrue(viewModel.saveAccount())
         XCTAssertNil(viewModel.formValidationError)
 
         XCTAssertEqual(accountStore.accounts.count, 2)
         XCTAssertEqual(accountStore.activeAccount?.shopId, "exnovomercatino")
-        XCTAssertEqual(accountStore.activeAccount?.cardCode, "TRE091")
-        XCTAssertEqual(accountStore.activeAccount?.pin, "1762")
-        XCTAssertEqual(accountStore.activeAccount?.userId, "TRE091_1762")
+        XCTAssertEqual(accountStore.activeAccount?.cardCode, "TEST001")
+        XCTAssertEqual(accountStore.activeAccount?.pin, "1234")
+        XCTAssertEqual(accountStore.activeAccount?.userId, "TEST001_1234")
     }
 
     func testEditAccount() {
@@ -61,6 +61,8 @@ final class AccountManagerViewModelTests: XCTestCase {
         }
 
         viewModel.prepareEditAccount(first)
+        viewModel.formCardCode = "TEST001"
+        viewModel.formPin = "1234"
         viewModel.formAlias = "Nuovo Alias Modificato"
         XCTAssertTrue(viewModel.saveAccount())
 

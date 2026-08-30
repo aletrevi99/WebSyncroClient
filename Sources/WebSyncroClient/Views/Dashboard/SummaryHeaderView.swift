@@ -10,7 +10,7 @@ public struct SummaryHeaderView: View {
 
     public var body: some View {
         VStack(spacing: 14) {
-            // Selettore Principale: Maturato vs In Recesso (Non Maturato)
+            // Selettore Principale: Maturato vs In Recesso
             LiquidGlassCard(cornerRadius: 18, padding: 6) {
                 HStack(spacing: 6) {
                     // Tab Maturato
@@ -27,8 +27,8 @@ public struct SummaryHeaderView: View {
                         tab: .nonMatured,
                         title: "In Recesso",
                         amount: viewModel.totalNonMatured,
-                        icon: "clock.badge.exclamationmark.fill",
-                        color: .orange
+                        icon: "hourglass",
+                        color: .brandOrange
                     )
                 }
             }
@@ -41,7 +41,7 @@ public struct SummaryHeaderView: View {
                             Text(viewModel.selectedTab == .matured ? "TOTALE MATURATO (DISPONIBILE)" : "VENDUTO IN DIRITTO DI RECESSO")
                                 .font(.caption)
                                 .fontWeight(.bold)
-                                .foregroundColor(viewModel.selectedTab == .matured ? .green : .orange)
+                                .foregroundColor(viewModel.selectedTab == .matured ? .green : .brandOrange)
                                 .tracking(0.5)
 
                             if let account = viewModel.activeAccount {
@@ -61,7 +61,7 @@ public struct SummaryHeaderView: View {
                             Text(CurrencyFormatter.format(decimal: report.totalEarned))
                                 .font(.system(size: 38, weight: .bold, design: .rounded))
                                 .monospacedDigit()
-                                .foregroundColor(viewModel.selectedTab == .matured ? .primary : .orange)
+                                .foregroundColor(viewModel.selectedTab == .matured ? .primary : .brandOrange)
                         } else {
                             Text("€ 0,00")
                                 .font(.system(size: 38, weight: .bold, design: .rounded))
@@ -77,7 +77,7 @@ public struct SummaryHeaderView: View {
                         HStack(spacing: 6) {
                             Image(systemName: viewModel.selectedTab == .matured ? "cart.fill" : "hourglass")
                                 .font(.caption)
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.brandOrange)
                             Text("\(viewModel.activeReport?.itemsCount ?? 0) articoli")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -104,7 +104,7 @@ public struct SummaryHeaderView: View {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "info.circle.fill")
                             .font(.system(size: 18))
-                            .foregroundColor(.orange)
+                            .foregroundColor(.brandOrange)
                             .padding(.top, 2)
 
                         VStack(alignment: .leading, spacing: 4) {
@@ -128,7 +128,7 @@ public struct SummaryHeaderView: View {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "bell.fill")
                             .font(.system(size: 16))
-                            .foregroundColor(.blue)
+                            .foregroundColor(.brandOrange)
                             .padding(.top, 2)
 
                         VStack(alignment: .leading, spacing: 4) {
@@ -180,7 +180,7 @@ public struct SummaryHeaderView: View {
         let isSelected = viewModel.selectedTab == tab
         Button(action: {
             HapticFeedback.selection()
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                 viewModel.selectedTab = tab
             }
         }) {

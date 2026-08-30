@@ -24,14 +24,14 @@ final class AccountStoreTests: XCTestCase {
 
         let account = store.addAccount(
             shopId: "exnovomercatino",
-            cardCode: "TRE091",
-            pin: "1762",
-            alias: "Exnovo Mercatino"
+            cardCode: "TEST001",
+            pin: "1234",
+            alias: "Mercatino Test"
         )
 
-        XCTAssertEqual(store.accounts.count, 2) // default + newly added
+        XCTAssertEqual(store.accounts.count, 2)
         XCTAssertEqual(store.activeAccountId, account.id)
-        XCTAssertEqual(store.activeAccount?.userId, "TRE091_1762")
+        XCTAssertEqual(store.activeAccount?.userId, "TEST001_1234")
     }
 
     func testUpdateAccount() {

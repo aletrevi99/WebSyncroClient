@@ -23,6 +23,7 @@
 		45DC948610504D43EFC84747 /* AccountSwitcherMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBC4392B62E544103B16BBE /* AccountSwitcherMenu.swift */; };
 		49AA4F20A1C47B7386148A44 /* SalesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBBFF8FA3B82C46B4107BFEF /* SalesListView.swift */; };
 		53F9DF3C9DD638D80B12452D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */; };
+		5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126A4E2980960209C9F3142 /* Color+Brand.swift */; };
 		65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7A69A494B2FD3EB0BE027 /* DashboardView.swift */; };
 		6AFA4BED70EBA6DA0B31D5E9 /* SaleItemRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CB7C688115720AD6E5BC23 /* SaleItemRowView.swift */; };
 		739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E47EC2935FAFDECA88D102DD /* BarcodeGenerator.swift */; };
@@ -71,6 +72,7 @@
 		16118E43A3972ACC75A25C28 /* SalesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesParser.swift; sourceTree = "<group>"; };
 		27D415DCA3CF50FF0457C2C8 /* AccountStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStoreTests.swift; sourceTree = "<group>"; };
 		2A2DD8724687B9C1B046D8E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		3126A4E2980960209C9F3142 /* Color+Brand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Brand.swift"; sourceTree = "<group>"; };
 		3324D9007E4EC87452DF1B2A /* SyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncStatus.swift; sourceTree = "<group>"; };
 		33ABC5D71017CB2913388296 /* WebSyncroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSyncroApp.swift; sourceTree = "<group>"; };
 		3597A5A60B2E5C4775C15271 /* View+AdaptiveModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+AdaptiveModifiers.swift"; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 		0C367EFFD318DE4FDE39A066 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				3126A4E2980960209C9F3142 /* Color+Brand.swift */,
 				DC0142446E32A76D7C2120B9 /* EmptyOrErrorView.swift */,
 				5D76454F9EAE5A93AFDAAA57 /* GlassButton.swift */,
 				F97FE396BD17C0D8212F40B9 /* LiquidGlassBackground.swift */,
@@ -421,6 +424,7 @@
 				F3505F8EA5A761FE7ED2E822 /* AddAccountSheet.swift in Sources */,
 				25C1308F730217772501FFAE /* AppState.swift in Sources */,
 				739D419F42012051E2E0D9F8 /* BarcodeGenerator.swift in Sources */,
+				5E5BA67704FBF1CDF7F53ED3 /* Color+Brand.swift in Sources */,
 				DBDC5C73EAA09F87578A599F /* CurrencyFormatter.swift in Sources */,
 				65A0ED38C76E197526BA89A6 /* DashboardView.swift in Sources */,
 				361B2422EAB5BEB17761BD00 /* DashboardViewModel.swift in Sources */,

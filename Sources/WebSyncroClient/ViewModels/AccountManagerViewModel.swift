@@ -15,6 +15,7 @@ public final class AccountManagerViewModel: ObservableObject {
     @Published public var formPin: String = ""
     @Published public var formAlias: String = ""
     @Published public var formValidationError: String?
+    @Published public var isShopLocked: Bool = true
 
     private let accountStore: AccountStore
     private let service: WebSyncroServiceProtocol
@@ -54,9 +55,15 @@ public final class AccountManagerViewModel: ObservableObject {
 
     public func selectKnownShop(_ shop: ShopDetails) {
         formShopId = shop.slug
+        isShopLocked = true
         if formAlias.isEmpty || availableShops.contains(where: { $0.name == formAlias }) {
             formAlias = shop.name
         }
+        HapticFeedback.selection()
+    }
+
+    public func unlockShopSelection() {
+        isShopLocked = false
         HapticFeedback.selection()
     }
 
@@ -76,6 +83,7 @@ public final class AccountManagerViewModel: ObservableObject {
         formPin = ""
         formAlias = ""
         formValidationError = nil
+        isShopLocked = true
         editingAccount = nil
         isAddingAccount = true
     }
@@ -87,6 +95,7 @@ public final class AccountManagerViewModel: ObservableObject {
         formPin = account.pin
         formAlias = account.accountAlias
         formValidationError = nil
+        isShopLocked = availableShops.contains(where: { $0.slug.caseInsensitiveCompare(account.shopId) == .orderedSame })
         isAddingAccount = true
     }
 
@@ -97,19 +106,19 @@ public final class AccountManagerViewModel: ObservableObject {
         let cleanAlias = formAlias.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if cleanShop.isEmpty {
-            formValidationError = "Inserisci l'ID o nome del negozio (es. exnovomercatino)"
+            formValidationError = "Seleziona o inserisci il negozio"
             HapticFeedback.notification(.warning)
             return false
         }
 
         if cleanCard.isEmpty {
-            formValidationError = "Inserisci il Codice Tessera / Username cliente (es. TRE091)"
+            formValidationError = "Inserisci il Codice Tessera cliente"
             HapticFeedback.notification(.warning)
             return false
         }
 
         if cleanPin.isEmpty {
-            formValidationError = "Inserisci il PIN numerico associato (es. 1762)"
+            formValidationError = "Inserisci il PIN numerico associato"
             HapticFeedback.notification(.warning)
             return false
         }
