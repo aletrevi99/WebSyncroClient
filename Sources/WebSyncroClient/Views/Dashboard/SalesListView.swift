@@ -30,7 +30,7 @@ public struct SalesListView: View {
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
-                            .background(.ultraThinMaterial, in: Capsule())
+                            .glassEffect(in: .capsule)
                     }
                     .padding(.horizontal, 4)
                     .padding(.top, 6)

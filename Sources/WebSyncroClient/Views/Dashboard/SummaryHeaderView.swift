@@ -3,6 +3,7 @@ import SwiftUI
 /// Header riassuntivo con totale maturato, non maturato in recesso e statistiche rapide
 public struct SummaryHeaderView: View {
     @ObservedObject var viewModel: DashboardViewModel
+    @Namespace private var tabNamespace
 
     public init(viewModel: DashboardViewModel) {
         self.viewModel = viewModel
@@ -23,8 +24,8 @@ public struct SummaryHeaderView: View {
 
     public var body: some View {
         VStack(spacing: 14) {
-            // Selettore Principale: Maturato vs In Recesso
-            LiquidGlassCard(cornerRadius: 18, padding: 6) {
+            // Selettore Principale: Maturato vs In Recesso con Container Liquid Glass
+            GlassEffectContainer(spacing: 6) {
                 HStack(spacing: 6) {
                     // Tab Maturato
                     tabButton(
@@ -190,7 +191,7 @@ public struct SummaryHeaderView: View {
         let isSelected = viewModel.selectedTab == tab
         Button(action: {
             HapticFeedback.selection()
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
                 viewModel.selectedTab = tab
             }
         }) {
@@ -215,18 +216,11 @@ public struct SummaryHeaderView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(
-                Group {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                            .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
-                    } else {
-                        Color.clear
-                    }
-                }
+            .glassEffect(
+                isSelected ? .regular.tint(color).interactive() : .regular.interactive(),
+                in: .rect(cornerRadius: 14)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .glassEffectID(tab.rawValue, in: tabNamespace)
         }
         .buttonStyle(PlainButtonStyle())
     }

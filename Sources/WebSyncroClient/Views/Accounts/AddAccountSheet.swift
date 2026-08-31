@@ -264,8 +264,7 @@ public struct AddAccountSheet: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Capsule())
+                                .glassEffect(in: .capsule)
                                 .padding(.top, 24)
 
                             Spacer()

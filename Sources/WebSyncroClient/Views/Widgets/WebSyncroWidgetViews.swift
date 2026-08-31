@@ -9,7 +9,7 @@ public struct WidgetGlassBackgroundView: View {
 
     public var body: some View {
         Rectangle()
-            .fill(.ultraThinMaterial)
+            .glassEffect()
     }
 }
 
@@ -67,7 +67,7 @@ public struct BalanceOverviewSmallWidgetView: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(.ultraThinMaterial, in: Capsule())
+            .glassEffect(in: .capsule)
         }
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -123,7 +123,7 @@ public struct BalanceOverviewMediumWidgetView: View {
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .glassEffect(in: .capsule)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -166,7 +166,7 @@ public struct BalanceOverviewMediumWidgetView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(.ultraThinMaterial, in: Capsule())
+                .glassEffect(in: .capsule)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -203,7 +203,7 @@ public struct RecentSalesMediumWidgetView: View {
                     .foregroundColor(.green)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .glassEffect(in: .capsule)
             }
 
             Rectangle()
@@ -246,7 +246,7 @@ public struct RecentSalesMediumWidgetView: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .glassEffect(in: .rect(cornerRadius: 8))
                     }
                 }
             }
@@ -316,12 +316,12 @@ public struct ExpiringDiscountsMediumWidgetView: View {
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(.ultraThinMaterial, in: Capsule())
+                                .glassEffect(in: .capsule)
                                 .foregroundColor(.orange)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .glassEffect(in: .rect(cornerRadius: 8))
                     }
                 }
             }

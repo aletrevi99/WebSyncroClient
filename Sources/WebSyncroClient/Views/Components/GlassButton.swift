@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pulsante nativo con materiale di sistema Apple (.ultraThinMaterial)
+/// Pulsante nativo con effetto Liquid Glass Apple
 public struct GlassButton: View {
     let title: String
     let iconName: String?
@@ -36,7 +36,7 @@ public struct GlassButton: View {
             .foregroundColor(tint)
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(.ultraThinMaterial, in: Capsule())
+            .glassEffect(.regular.tint(tint).interactive(), in: .capsule)
         }
         .buttonStyle(PlainButtonStyle())
     }

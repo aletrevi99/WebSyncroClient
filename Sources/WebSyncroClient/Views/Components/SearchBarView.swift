@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Barra di ricerca con materiale di sistema Apple (.ultraThinMaterial)
+/// Barra di ricerca con effetto Liquid Glass Apple
 public struct SearchBarView: View {
     @Binding var text: String
     var placeholder: String = "Cerca per descrizione o ID..."
@@ -33,6 +33,6 @@ public struct SearchBarView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .glassEffect(in: .rect(cornerRadius: 14))
     }
 }

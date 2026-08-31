@@ -5,6 +5,7 @@ public struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
     @ObservedObject private var accountStore: AccountStore
     @ObservedObject private var notificationManager = NotificationManager.shared
+    @Namespace private var filterNamespace
     
     @State private var showingAccountManager = false
 
@@ -116,75 +117,87 @@ public struct DashboardView: View {
     @ViewBuilder
     private var filterAndSortControls: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // Menu Intervallo Temporale
-                Menu {
-                    ForEach(FilterRange.allCases) { range in
-                        Button(action: {
-                            viewModel.filterRange = range
-                        }) {
-                            HStack {
-                                Text(range.rawValue)
-                                if viewModel.filterRange == range {
-                                    Image(systemName: "checkmark")
+            GlassEffectContainer(spacing: 8) {
+                HStack(spacing: 8) {
+                    // Menu Intervallo Temporale
+                    Menu {
+                        ForEach(FilterRange.allCases) { range in
+                            Button(action: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    viewModel.filterRange = range
+                                }
+                            }) {
+                                HStack {
+                                    Text(range.rawValue)
+                                    if viewModel.filterRange == range {
+                                        Image(systemName: "checkmark")
+                                    }
                                 }
                             }
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar")
+                                .font(.caption2)
+                            Text(viewModel.filterRange.rawValue)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .font(.system(.caption, design: .rounded))
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .foregroundColor(viewModel.filterRange != .all ? .brandOrange : .primary)
+                        .glassEffect(
+                            viewModel.filterRange != .all
+                                ? .regular.tint(.brandOrange).interactive()
+                                : .regular.interactive(),
+                            in: .capsule
+                        )
+                        .glassEffectID("dashboardFilterRange", in: filterNamespace)
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "calendar")
-                            .font(.caption2)
-                        Text(viewModel.filterRange.rawValue)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                    }
-                    .font(.system(.caption, design: .rounded))
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 7)
-                    .foregroundColor(viewModel.filterRange != .all ? .brandOrange : .primary)
-                    .background(viewModel.filterRange != .all ? Color.brandOrange.opacity(0.18) : Color.clear)
-                    .background(.ultraThinMaterial, in: Capsule())
-                }
 
-                // Menu Ordinamento
-                Menu {
-                    ForEach(SortOption.allCases) { opt in
-                        Button(action: {
-                            viewModel.sortOption = opt
-                        }) {
-                            HStack {
-                                Text(opt.rawValue)
-                                if viewModel.sortOption == opt {
-                                    Image(systemName: "checkmark")
+                    // Menu Ordinamento
+                    Menu {
+                        ForEach(SortOption.allCases) { opt in
+                            Button(action: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    viewModel.sortOption = opt
+                                }
+                            }) {
+                                HStack {
+                                    Text(opt.rawValue)
+                                    if viewModel.sortOption == opt {
+                                        Image(systemName: "checkmark")
+                                    }
                                 }
                             }
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(viewModel.sortOption.rawValue)
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.caption2)
+                        }
+                        .font(.system(.caption, design: .rounded))
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .foregroundColor(.primary)
+                        .glassEffect(.regular.interactive(), in: .capsule)
+                        .glassEffectID("dashboardSortOption", in: filterNamespace)
                     }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(viewModel.sortOption.rawValue)
-                        Image(systemName: "arrow.up.arrow.down")
-                            .font(.caption2)
-                    }
-                    .font(.system(.caption, design: .rounded))
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 7)
-                    .foregroundColor(.primary)
-                    .background(.ultraThinMaterial, in: Capsule())
+
+                    Spacer()
+
+                    // Indicatore conteggio elementi
+                    Text("\(viewModel.filteredItems.count) vendite")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.trailing, 4)
                 }
-
-                Spacer()
-
-                // Indicatore conteggio elementi
-                Text("\(viewModel.filteredItems.count) vendite")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.trailing, 4)
+                .padding(.horizontal, 2)
             }
-            .padding(.horizontal, 2)
         }
     }
 

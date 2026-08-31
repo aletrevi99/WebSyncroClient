@@ -2,14 +2,14 @@ name: WebSyncroClient
 options:
   bundleIdPrefix: it.websyncro
   deploymentTarget:
-    iOS: "26.0"
+    iOS: "17.0"
   xcodeVersion: "26.6"
   generateEmptyDirectories: true
 
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     TARGETED_DEVICE_FAMILY: "1,2" # iPhone & iPad
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_IDENTITY: ""
@@ -51,6 +51,7 @@ targets:
       - path: Sources/WebSyncroClient/Utilities/WidgetDataProvider.swift
       - path: Sources/WebSyncroClient/Utilities/CurrencyFormatter.swift
       - path: Sources/WebSyncroClient/Views/Components/Color+Brand.swift
+      - path: Sources/WebSyncroClient/Views/Components/LiquidGlassCard.swift
       - path: Sources/WebSyncroClient/Views/Widgets/WebSyncroWidgetViews.swift
     settings:
       base:

@@ -49,6 +49,7 @@ public struct InventoryListView: View {
     #if canImport(PhotosUI)
     @State private var selectedPhotoItem: PhotosPickerItem?
     #endif
+    @Namespace private var inventoryFilterNamespace
 
     public init(
         inventoryStore: InventoryStore? = nil,
@@ -486,53 +487,66 @@ public struct InventoryListView: View {
     // MARK: - Barra Filtri con Tasto Ordina Integrato della Stessa Grandezza
     @ViewBuilder
     private var filterAndSortBar: some View {
-        HStack(spacing: 8) {
-            // Scrollview Filtri Categoria
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(InventoryFilter.allCases) { filter in
-                        let isSelected = selectedFilter == filter
-                        Button(action: {
-                            HapticFeedback.selection()
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedFilter = filter
+        GlassEffectContainer(spacing: 8) {
+            HStack(spacing: 8) {
+                // Scrollview Filtri Categoria
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(InventoryFilter.allCases) { filter in
+                            let isSelected = selectedFilter == filter
+                            Button(action: {
+                                HapticFeedback.selection()
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    selectedFilter = filter
+                                }
+                            }) {
+                                Text(filter.rawValue)
+                                    .font(.system(.caption, design: .rounded))
+                                    .fontWeight(isSelected ? .bold : .medium)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .foregroundColor(isSelected ? .brandOrange : .primary)
+                                    .glassEffect(
+                                        isSelected
+                                            ? .regular.tint(.brandOrange).interactive()
+                                            : .regular.interactive(),
+                                        in: .capsule
+                                    )
+                                    .glassEffectID(filter.rawValue, in: inventoryFilterNamespace)
                             }
-                        }) {
-                            Text(filter.rawValue)
-                                .font(.system(.caption, design: .rounded))
-                                .fontWeight(isSelected ? .bold : .medium)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 8)
-                                .foregroundColor(isSelected ? .brandOrange : .primary)
-                                .background(isSelected ? Color.brandOrange.opacity(0.18) : Color.clear)
-                                .background(.ultraThinMaterial, in: Capsule())
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
+                    .padding(.horizontal, 2)
                 }
-                .padding(.horizontal, 2)
-            }
 
-            // Tasto Ordina Fisso (Stessa identica altezza e stile dei filtri)
-            Menu {
-                Picker("Ordinamento", selection: $selectedSortOption) {
-                    ForEach(InventorySortOption.allCases) { option in
-                        Label(option.rawValue, systemImage: option.iconName)
-                            .tag(option)
+                // Tasto Ordina Fisso (Stessa identica altezza e stile dei filtri)
+                Menu {
+                    Picker("Ordinamento", selection: $selectedSortOption) {
+                        ForEach(InventorySortOption.allCases) { option in
+                            Label(option.rawValue, systemImage: option.iconName)
+                                .tag(option)
+                        }
                     }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                            .font(.system(.caption, design: .rounded))
+                            .fontWeight(.bold)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .foregroundColor(selectedSortOption == .dateDescending ? .primary : .brandOrange)
+                    .glassEffect(
+                        selectedSortOption != .dateDescending
+                            ? .regular.tint(.brandOrange).interactive()
+                            : .regular.interactive(),
+                        in: .capsule
+                    )
+                    .glassEffectID("inventorySortOption", in: inventoryFilterNamespace)
                 }
-            } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "line.3.horizontal.decrease")
-                        .font(.system(.caption, design: .rounded))
-                        .fontWeight(.bold)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .foregroundColor(selectedSortOption == .dateDescending ? .primary : .brandOrange)
-                .background(.ultraThinMaterial, in: Capsule())
+                .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle())
         }
     }
 
@@ -790,10 +804,8 @@ public struct InventoryListView: View {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(.ultraThinMaterial)
                             .foregroundColor(.primary)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.white.opacity(0.18), lineWidth: 1))
+                            .glassEffect(.regular.interactive(), in: .capsule)
                         }
 
                         // Tasto 3: File / PDF
@@ -808,10 +820,8 @@ public struct InventoryListView: View {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(.ultraThinMaterial)
                             .foregroundColor(.primary)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.white.opacity(0.18), lineWidth: 1))
+                            .glassEffect(.regular.interactive(), in: .capsule)
                         }
                     }
                     .padding(.top, 8)

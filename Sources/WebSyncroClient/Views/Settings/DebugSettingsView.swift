@@ -102,7 +102,7 @@ public struct DebugSettingsView: View {
                                         .foregroundColor(status.contains("OK") ? .green : .red)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
-                                        .background(.ultraThinMaterial, in: Capsule())
+                                        .glassEffect(in: .capsule)
                                 }
                             }
 
@@ -135,7 +135,7 @@ public struct DebugSettingsView: View {
                                         .foregroundColor(status.contains("OK") ? .green : .red)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
-                                        .background(.ultraThinMaterial, in: Capsule())
+                                        .glassEffect(in: .capsule)
                                 }
                             }
 

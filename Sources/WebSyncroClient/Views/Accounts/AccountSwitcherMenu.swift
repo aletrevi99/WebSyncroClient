@@ -54,7 +54,7 @@ public struct AccountSwitcherMenu: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(.ultraThinMaterial, in: Capsule())
+            .glassEffect(.regular.interactive(), in: .capsule)
         }
         .buttonStyle(PlainButtonStyle())
     }

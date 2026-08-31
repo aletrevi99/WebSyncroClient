@@ -41,9 +41,8 @@ public struct ModernAVCameraView: View {
                                     .fontWeight(.bold)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
-                                    .background(.ultraThinMaterial)
                                     .foregroundColor(.white)
-                                    .clipShape(Capsule())
+                                    .glassEffect(in: .capsule)
                             }
                             .padding(.top, 16)
                             Spacer()
@@ -62,8 +61,7 @@ public struct ModernAVCameraView: View {
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .padding(12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                            .glassEffect(.regular.interactive(), in: .circle)
                     }
 
                     Spacer()
@@ -75,8 +73,12 @@ public struct ModernAVCameraView: View {
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(flashMode == .off ? .white.opacity(0.6) : .yellow)
                             .padding(12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                            .glassEffect(
+                                flashMode != .off
+                                    ? .regular.tint(.yellow).interactive()
+                                    : .regular.interactive(),
+                                in: .circle
+                            )
                     }
                 }
                 .padding(.horizontal, 20)

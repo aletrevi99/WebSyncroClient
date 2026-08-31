@@ -103,8 +103,7 @@ public struct AppFilesBrowserView: View {
                                         .font(.system(.caption, design: .monospaced))
                                         .padding(14)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                                        .glassEffect(in: .rect(cornerRadius: 14))
                                 } else {
                                     ProgressView()
                                         .frame(maxWidth: .infinity, minHeight: 200)
